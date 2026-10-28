@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { describeError, evaluateDevice, getDevice } from '../api/client'
 import type { DeviceDetail } from '../api/types'
-import { DeviceDetails, RuleInputs } from '../components/DeviceFacts'
+import { DeviceDetails, QrLabel, RuleInputs } from '../components/DeviceFacts'
 import { OutcomeBadge } from '../components/OutcomeBadge'
 import { PassportHistory } from '../components/PassportHistory'
-import { ErrorNotice, Loading } from '../components/ui'
+import { TechnicianForm } from '../components/TechnicianForm'
+import { ErrorNotice, Loading, secondaryButton } from '../components/ui'
 import { WhyPanel } from '../components/WhyPanel'
 
 export function DevicePage() {
@@ -41,6 +42,12 @@ function DevicePassport({ id }: { id: string }) {
     setAttempt((n) => n + 1)
   }
 
+  // After a technician adds an event; throws so the form can say the history did not refresh.
+  const refresh = async () => {
+    const detail = await getDevice(id)
+    setState({ status: 'ready', detail })
+  }
+
   const evaluate = async () => {
     setEvaluating(true)
     setEvaluateError(null)
@@ -66,7 +73,13 @@ function DevicePassport({ id }: { id: string }) {
       {state.status === 'loading' && <Loading label="Loading the passport…" />}
       {state.status === 'error' && <ErrorNotice message={state.message} onRetry={retry} />}
       {state.status === 'ready' && (
-        <Passport detail={state.detail} evaluating={evaluating} evaluateError={evaluateError} onEvaluate={evaluate} />
+        <Passport
+          detail={state.detail}
+          evaluating={evaluating}
+          evaluateError={evaluateError}
+          onEvaluate={evaluate}
+          onEventAdded={refresh}
+        />
       )}
     </div>
   )
@@ -77,9 +90,10 @@ interface PassportProps {
   evaluating: boolean
   evaluateError: string | null
   onEvaluate: () => void
+  onEventAdded: () => Promise<void>
 }
 
-function Passport({ detail, evaluating, evaluateError, onEvaluate }: PassportProps) {
+function Passport({ detail, evaluating, evaluateError, onEvaluate, onEventAdded }: PassportProps) {
   const { device, events, latest_evaluation } = detail
   return (
     <>
@@ -91,11 +105,19 @@ function Passport({ detail, evaluating, evaluateError, onEvaluate }: PassportPro
         <p className="text-gray-700">
           {device.model} · {device.location}
         </p>
+        {/* Technicians arrive here from the QR code; take them straight to the form. */}
+        <a href="#log-action" className={`${secondaryButton} mt-2`}>
+          Log an action
+        </a>
       </header>
       <WhyPanel evaluation={latest_evaluation} evaluating={evaluating} error={evaluateError} onEvaluate={onEvaluate} />
+      <TechnicianForm deviceId={device.id} onAdded={onEventAdded} />
       <PassportHistory events={events} />
       <RuleInputs device={device} />
-      <DeviceDetails device={device} />
+      <div className="grid gap-6 sm:grid-cols-2">
+        <DeviceDetails device={device} />
+        <QrLabel deviceId={device.id} />
+      </div>
     </>
   )
 }

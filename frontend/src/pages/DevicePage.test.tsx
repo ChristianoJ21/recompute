@@ -43,7 +43,9 @@ const renderDevice = (id = 'GPU-SRV-001') =>
 
 describe('device page', () => {
   beforeEach(() => {
-    vi.mocked(client.getDevice).mockResolvedValue(withHistory)
+    localStorage.clear()
+    vi.mocked(client.getDevice).mockReset().mockResolvedValue(withHistory)
+    vi.mocked(client.addEvent).mockReset()
   })
 
   it('shows the passport history newest first', async () => {
@@ -104,6 +106,65 @@ describe('device page', () => {
     renderDevice('NOPE')
 
     expect((await screen.findByRole('alert')).textContent).toContain(error404.error)
+  })
+
+  it('offers the six technician actions, without telemetry', async () => {
+    renderDevice()
+
+    const radios = await screen.findAllByRole('radio')
+    expect(radios.map((radio) => (radio as HTMLInputElement).value)).toEqual([
+      'scan',
+      'repair',
+      'upgrade',
+      'wipe',
+      'move',
+      'note',
+    ])
+  })
+
+  it('posts a technician event and refreshes the history', async () => {
+    const user = userEvent.setup()
+    const wipe = { ...event(4, 'wipe', 'wiped for redeploy'), actor: 'tech-7' }
+    vi.mocked(client.addEvent).mockResolvedValue(wipe)
+    vi.mocked(client.getDevice)
+      .mockResolvedValueOnce(withHistory)
+      .mockResolvedValueOnce({ ...withHistory, events: [...withHistory.events, wipe] })
+    renderDevice()
+
+    await user.click(await screen.findByRole('radio', { name: 'Wipe' }))
+    await user.type(screen.getByLabelText(/Details/), 'wiped for redeploy')
+    await user.type(screen.getByLabelText('Your name or technician ID'), 'tech-7')
+    await user.click(screen.getByRole('button', { name: 'Add to passport' }))
+
+    expect(client.addEvent).toHaveBeenCalledWith('GPU-SRV-001', {
+      kind: 'wipe',
+      actor: 'tech-7',
+      payload: { note: 'wiped for redeploy' },
+    })
+    expect(await screen.findByText('Added wipe event #4 to the passport.')).toBeTruthy()
+    const items = within(screen.getByRole('list', { name: 'Passport events' })).getAllByRole('listitem')
+    expect(items).toHaveLength(4)
+    expect(items[0].textContent).toContain('wiped for redeploy')
+    expect(client.getDevice).toHaveBeenCalledTimes(2)
+  })
+
+  it('shows the API error when the event is refused', async () => {
+    const user = userEvent.setup()
+    vi.mocked(client.addEvent).mockRejectedValue(new client.ApiError(409, 'Send this event again.'))
+    renderDevice()
+
+    await user.type(await screen.findByLabelText('Your name or technician ID'), 'tech-7')
+    await user.click(screen.getByRole('button', { name: 'Add to passport' }))
+
+    expect((await screen.findByRole('alert')).textContent).toContain('Send this event again.')
+    expect(client.getDevice).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows the QR code served by the API', async () => {
+    renderDevice()
+
+    const qr = await screen.findByRole('img', { name: /QR code/ })
+    expect(qr.getAttribute('src')).toBe('/api/devices/GPU-SRV-001/qr')
   })
 
   it('shows the SAMPLE DATA label', async () => {

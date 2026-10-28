@@ -1,3 +1,4 @@
+import { qrCodeUrl } from '../api/client'
 import type { Device, DeviceInputs, Range } from '../api/types'
 import { formatRange } from '../lib/format'
 import { Card } from './ui'
@@ -88,6 +89,25 @@ export function DeviceDetails({ device }: { device: Device }) {
           </div>
         ))}
       </dl>
+    </Card>
+  )
+}
+
+export function QrLabel({ deviceId }: { deviceId: string }) {
+  return (
+    <Card title="QR label">
+      <div className="flex items-center gap-4">
+        <img
+          src={qrCodeUrl(deviceId)}
+          alt={`QR code that opens the passport of ${deviceId}`}
+          width={144}
+          height={144}
+          className="size-36 shrink-0 rounded-lg border border-gray-200 bg-white p-1"
+        />
+        <p className="text-sm text-gray-600">
+          Scan with a phone camera to open this passport. Print it and stick it on the device.
+        </p>
+      </div>
     </Card>
   )
 }
