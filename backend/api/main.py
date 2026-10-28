@@ -20,7 +20,7 @@ from db.models import Device, Evaluation, Event, Workload, make_session_factory,
 from engine.decision import OUTCOMES, evaluate
 
 DEFAULT_DB_URL = "sqlite:///./recompute.db"
-DEFAULT_FRONTEND_URL = "http://localhost:8501/device?id={device_id}"
+DEFAULT_FRONTEND_URL = "http://localhost:5173/device/{device_id}"
 EVENT_KINDS = ("telemetry", "scan", "repair", "upgrade", "wipe", "move", "note")
 ID_PATTERN = r"^[A-Za-z0-9._-]{1,64}$"
 

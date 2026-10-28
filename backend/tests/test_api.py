@@ -15,7 +15,7 @@ EXAMPLES = Path(__file__).resolve().parents[2] / "contracts" / "examples"
 
 @pytest.fixture
 def app():
-    return create_app(database_url="sqlite://", frontend_url="http://localhost:8501/device?id={device_id}")
+    return create_app(database_url="sqlite://", frontend_url="http://localhost:5173/device/{device_id}")
 
 
 @pytest.fixture
