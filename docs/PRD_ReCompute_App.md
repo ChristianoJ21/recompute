@@ -1,6 +1,6 @@
 # PRD: ReCompute Demo App
 
-> **Version:** 2.2 · 28 October 2026 · Owner: Panji · v1.1: decision engine (§5.2) aligned with the essay · v1.2: frontend switched from Streamlit to React + Vite + TypeScript + Tailwind · **v2.0: phase 2 (§15): public showcase, technician login, market-forecast charts, hosting** · **v2.1: listings show a sample price (§15); still no buy button or payment** · **v2.2: a logged-in technician can add technicians (§15.5); no public sign-up, no buyer accounts**
+> **Version:** 2.3 · 29 October 2026 · Owner: Panji · v1.1: decision engine (§5.2) aligned with the essay · v1.2: frontend switched from Streamlit to React + Vite + TypeScript + Tailwind · **v2.0: phase 2 (§15): public showcase, technician login, market-forecast charts, hosting** · **v2.1: listings show a sample price (§15); still no buy button or payment** · **v2.2: a logged-in technician can add technicians (§15.5); no public sign-up, no buyer accounts** · **v2.3: frontend redesign (light/dark theme, ☰ menu) and a `/settings` page where a technician changes their own name and password (§15.8)**
 > **Readers:** Panji, Jose, AI Agent A (backend), AI Agent B (frontend)
 > **Architecture overview:** https://claude.ai/artifact/BNMfdbkQ71VdABKVZMjBjD (share it from the page's Share menu)
 > **Essay first.** No app work before the essay is submitted (Fri 30 Oct). Build during judging (1–8 Nov) so the demo is ready if we reach the Top 5 (announced 9 Nov, Grand Final 14 Nov).
@@ -312,6 +312,7 @@ The device/passport page stays **public to read** (a buyer must be able to check
 | Visitor / buyer | I browse hardware the data centre has released and check its history | "Available hardware" lists only listed devices with model, components, latest outcome, passport-intact badge, wipe date and asking price (SAMPLE); each opens the passport page |
 | Visitor / buyer | I know whom to contact | One contact box on the showcase, filled from `GET /contact`: a **fictional** sample data centre (`example.com` address), never a real person's details. No message form, no payment, no order |
 | Technician | I add a colleague | A logged-in technician fills in username, name and a password (min. 10 characters) on an "Add technician" page; there is no public sign-up |
+| Technician | I keep my own account up to date | On `/settings` I change my full name and my password (current password + new one of at least 10 characters, typed twice); I cannot change my username (it is the actor in the hash chain). Everyone, logged in or not, can pick a light, dark or device-matching appearance there |
 | Technician | I log in before changing anything | Write actions without a valid login are refused (401); the passport records the logged-in username as the event's actor |
 | Technician | I put a released device up for sale | "List for sale" takes an asking price `{amount, currency}` and works only if the passport holds a `wipe` event; otherwise the API refuses and says why. Listing and unlisting are passport events (the price is in the `list` event), so the history shows them; to change the price, unlist and list again |
 | Technician | I see the fleet at a glance | Stats dashboard: counts per outcome, devices not evaluated, devices listed, passports intact vs changed |
@@ -338,6 +339,7 @@ The device/passport page stays **public to read** (a buyer must be able to check
 - Passwords are stored only as salted scrypt hashes. Tokens are signed (HMAC-SHA256) with `RECOMPUTE_SECRET_KEY`, last 12 hours, and are sent as `Authorization: Bearer <token>`. The frontend keeps the token in `sessionStorage` (cleared on logout or when the tab closes), never in `localStorage`.
 - **No public sign-up and no buyer accounts** (the app collects no visitor data; buyers use the contact box). The first technician is made with `py -m tools.create_technician`; after that a logged-in technician can add colleagues (`POST /auth/technicians`).
 - Wrong username and wrong password give the same message. After 5 failed logins for one username in 15 minutes the API answers 429 for the rest of that window.
+- A technician changes their own name (`PATCH /auth/me`) and password (`POST /auth/password`, needs the current one; wrong guesses count towards the same 429 lock). Tokens issued before a password change stay valid until they expire (12 h at most).
 - Without `RECOMPUTE_SECRET_KEY` the backend makes a random key at start, so tokens end on restart (fine on the laptop; **always set it on Railway**).
 
 ### 15.6 Hosting
@@ -353,3 +355,10 @@ The device/passport page stays **public to read** (a buyer must be able to check
 | A forecast number is wrong | Only verified evidence rows; source + page on every point; Hanif checks the JSON before release |
 | Leaked or weak technician password | No public sign-up; first account by CLI, others added by a logged-in technician; min. 10 characters; 429 after repeated failures; demo accounts deleted after 14 Nov |
 | Hosting down at the venue | Offline laptop mode (above) |
+
+### 15.8 Redesign and settings (v2.3, 29 Oct)
+- The frontend follows the design handoff in `docs/design_handoff/` ("engineering drawing" look): same routes, features and hard rules (SAMPLE DATA on every page, no buy button, no visitor data, "detects changes" wording, status never colour alone, no invented market numbers, offline system fonts).
+- **Appearance:** light, dark or "match device", stored in the browser (`localStorage["rc-theme"]`) and applied before the first paint; `prefers-reduced-motion` turns all motion off.
+- **New route `/settings`:** Appearance for everyone; Profile (full name) and Credentials (change password) for a logged-in technician, using contract v2.3.
+- The passport's verification animation follows the real `GET /devices/{id}/events/verify` answer: it never shows "intact" before the API says so.
+- Times are shown in WIB (UTC+7).

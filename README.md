@@ -36,7 +36,7 @@ npm run dev        # http://localhost:5173
 npm test           # Vitest; all tests must pass
 ```
 
-Pages: **public** (no login) `/` Available hardware (listed devices, sample price, contact box), `/market` market-forecast charts (empty until verified figures are in `data/market_forecast.json`), `/device/<id>` passport (read only). **Technician** (log in via "Technician login"): `/fleet` dashboard with stats, and on the passport page the action form, Evaluate and List for sale / Unlist. The token is kept in `sessionStorage` (gone when the tab closes); Log out forgets it.
+Pages: **public** (no login) `/` Available hardware (listed devices, sample price, contact box), `/market` market-forecast charts (empty until verified figures are in `data/market_forecast.json`), `/device/<id>` passport (read only). **Technician** (log in via "Technician login"): `/fleet` dashboard with stats, and on the passport page the action form, Evaluate and List for sale / Unlist. The token is kept in `sessionStorage` (gone when the tab closes); Log out forgets it. `/settings`: everyone picks Light / Dark / Match device (stored in `localStorage["rc-theme"]`); a technician also changes their full name and password there (contract v2.3). Times are shown in WIB. Design reference: `docs/design_handoff/`.
 
 ### Technician accounts
 

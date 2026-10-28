@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react'
 import { Route, Routes } from 'react-router'
 import { Layout } from './components/Layout'
-import { AddTechnicianPage } from './pages/AddTechnicianPage'
 import { useSession } from './lib/session'
+import { AddTechnicianPage } from './pages/AddTechnicianPage'
 import { DevicePage } from './pages/DevicePage'
 import { FleetPage } from './pages/FleetPage'
 import { LoginPage } from './pages/LoginPage'
 import { MarketPage } from './pages/MarketPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { SettingsPage } from './pages/SettingsPage'
 import { ShowcasePage } from './pages/ShowcasePage'
 
 export function App() {
@@ -17,6 +18,8 @@ export function App() {
         <Route index element={<ShowcasePage />} />
         <Route path="market" element={<MarketPage />} />
         <Route path="login" element={<LoginPage />} />
+        {/* Public: everyone picks the appearance; technicians also get profile and password. */}
+        <Route path="settings" element={<SettingsPage />} />
         <Route
           path="fleet"
           element={

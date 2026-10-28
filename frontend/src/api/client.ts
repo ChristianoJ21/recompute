@@ -171,3 +171,18 @@ export const unlistDevice = (id: string, note?: string) =>
 
 export const addTechnician = (account: NewTechnician) =>
   request<Technician>('/auth/technicians', { method: 'POST', body: JSON.stringify(account) })
+
+/** The logged-in technician changes their own full name; the stored login shows the new name at once. */
+export async function updateProfile(name: string): Promise<Technician> {
+  const technician = await request<Technician>('/auth/me', { method: 'PATCH', body: JSON.stringify({ name }) })
+  const session = currentSession()
+  if (session) storeSession({ ...session, technician })
+  return technician
+}
+
+/** Needs the current password. The API answers 400 (not 401) when it is wrong, so the login is kept. */
+export const changePassword = (currentPassword: string, newPassword: string) =>
+  request<Technician>('/auth/password', {
+    method: 'POST',
+    body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+  })

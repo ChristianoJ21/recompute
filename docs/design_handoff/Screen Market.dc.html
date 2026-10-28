@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div data-rc-root="" style="container-type:inline-size;background-color:var(--rc-page,#F4F4F1);background-image:linear-gradient(var(--rc-grid,#E6E6DF) 1px,transparent 1px),linear-gradient(90deg,var(--rc-grid,#E6E6DF) 1px,transparent 1px);background-size:24px 24px;color:var(--rc-ink,#0E1116);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5">
+  <dc-import name="RC Header" theme="{{ theme }}" menu-open="{{ menuOpen }}" active="market" hint-size="100%,100px"></dc-import>
+  <main style="max-width:1160px;margin:0 auto;padding:clamp(24px,4cqi,40px) clamp(16px,4cqi,40px) 64px;display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:6px;max-width:720px">
+      <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--rc-accent,#2443C9)">/ Market</span>
+      <h1 style="margin:0;font-size:clamp(28px,3.4cqi,40px);font-weight:700;letter-spacing:-.03em;line-height:1.1">Market context</h1>
+      <p style="margin:0;font-size:15px;color:var(--rc-ink-2,#4A4F57);text-wrap:pretty">Published figures on AI hardware and e-waste. Every point shows its source and page, forecasts are drawn hollow and dashed, and each chart has one unit. These figures are never mixed with the demo's sample data.</p>
+    </div>
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ true }}">
+      <section style="background:var(--rc-surface,#FFFFFF);border:1px dashed var(--rc-line-strong,#A9A9A0);padding:clamp(32px,6cqi,64px) 20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px">
+        <svg width="56" height="40" viewBox="0 0 56 40" aria-hidden="true"><path d="M2 2v36h52" fill="none" stroke-width="1.5" style="stroke:var(--rc-line-strong,#A9A9A0)"></path><path d="M8 30l12-8 10 4 10-12 10 4" fill="none" stroke-width="1.5" stroke-dasharray="3 3" style="stroke:var(--rc-line-mid,#C8C8C0)"></path></svg>
+        <h2 style="margin:0;font-size:20px;font-weight:700">Waiting for verified figures</h2>
+        <p style="margin:0;max-width:46ch;font-size:15px;color:var(--rc-ink-2,#4A4F57)">Charts appear here once published figures have been checked against their source and page. No placeholder numbers are shown.</p>
+      </section>
+    </sc-if>
+    <sc-if value="{{ chart }}" hint-placeholder-val="{{ false }}">
+      <section aria-labelledby="sa" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--rc-line,#D6D6CF)">
+          <div style="display:flex;flex-direction:column"><h2 id="sa" style="margin:0;font-size:18px;font-weight:700">Series A</h2><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-ink-2,#4A4F57)">unit: [unit X]</span></div>
+          <div role="group" aria-label="View" style="display:flex;border:1px solid var(--rc-line-strong,#A9A9A0)">
+            <button type="button" aria-pressed="true" style="min-height:40px;padding:0 14px;border:0;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);font:inherit;font-size:13px;font-weight:600">Chart</button>
+            <button type="button" aria-pressed="false" style="min-height:40px;padding:0 14px;border:0;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);font:inherit;font-size:13px;font-weight:600">Table</button>
+          </div>
+        </div>
+        <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--rc-ink-2,#4A4F57)">
+            <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:50%;background:var(--rc-accent,#2443C9)"></span>Published actual</span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:50%;border:2px solid var(--rc-accent,#2443C9);background:var(--rc-surface,#FFFFFF)"></span><span style="width:16px;border-top:2px dashed var(--rc-accent,#2443C9)"></span>Forecast</span>
+          </div>
+          <div style="position:relative;height:240px;margin:8px 0 0 0;border-left:1px solid var(--rc-ink,#0E1116);border-bottom:1px solid var(--rc-ink,#0E1116);background-image:linear-gradient(var(--rc-sunken,#EBEBE6) 1px,transparent 1px);background-size:100% 25%">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true">
+              <polyline points="{{ solidPts }}" fill="none" stroke-width="2" vector-effect="non-scaling-stroke" style="stroke:var(--rc-accent,#2443C9)"></polyline>
+              <polyline points="{{ dashPts }}" fill="none" stroke-width="2" stroke-dasharray="5 4" vector-effect="non-scaling-stroke" style="stroke:var(--rc-accent,#2443C9)"></polyline>
+            </svg>
+            <sc-for list="{{ pts }}" as="p" hint-placeholder-count="8">
+              <span style="position:absolute;left:{{ p.x }};top:{{ p.y }};width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;border:2px solid var(--rc-accent,#2443C9);background:{{ p.fill }}"></span>
+            </sc-for>
+            <div role="tooltip" style="position:absolute;left:{{ tip.x }};top:{{ tip.y }};transform:translate(-50%,calc(-100% - 14px));background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);padding:8px 10px;font-size:12px;line-height:1.45;white-space:nowrap;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace">[value] [unit X] · 20X4<br></br><span style="color:var(--rc-on-ink-2,#C9CCD1)">Source: [Publisher, Report], p. [n]</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;color:var(--rc-ink-2,#4A4F57)">
+            <sc-for list="{{ years }}" as="y" hint-placeholder-count="8"><span>{{ y }}</span></sc-for>
+          </div>
+          <p style="margin:0;font-size:12px;color:var(--rc-ink-2,#4A4F57)">Sources: [Publisher A, Report title], p. [n] · [Publisher B, Forecast title], p. [n]. Mockup labels only.</p>
+        </div>
+      </section>
+      <section aria-labelledby="sb" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--rc-line,#D6D6CF)">
+          <div style="display:flex;flex-direction:column"><h2 id="sb" style="margin:0;font-size:18px;font-weight:700">Series B</h2><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-ink-2,#4A4F57)">unit: [unit Y] · table view</span></div>
+          <div role="group" aria-label="View" style="display:flex;border:1px solid var(--rc-line-strong,#A9A9A0)">
+            <button type="button" aria-pressed="false" style="min-height:40px;padding:0 14px;border:0;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);font:inherit;font-size:13px;font-weight:600">Chart</button>
+            <button type="button" aria-pressed="true" style="min-height:40px;padding:0 14px;border:0;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);font:inherit;font-size:13px;font-weight:600">Table</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <thead><tr style="text-align:left;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--rc-ink-2,#4A4F57)"><th style="padding:10px 16px;border-bottom:1px solid var(--rc-line,#D6D6CF)">Year</th><th style="padding:10px 16px;border-bottom:1px solid var(--rc-line,#D6D6CF)">Value</th><th style="padding:10px 16px;border-bottom:1px solid var(--rc-line,#D6D6CF)">Type</th><th style="padding:10px 16px;border-bottom:1px solid var(--rc-line,#D6D6CF)">Source</th></tr></thead>
+            <tbody>
+              <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+                <tr><td style="padding:10px 16px;border-bottom:1px solid var(--rc-sunken,#EBEBE6);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace">{{ r.y }}</td><td style="padding:10px 16px;border-bottom:1px solid var(--rc-sunken,#EBEBE6);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace">[value]</td><td style="padding:10px 16px;border-bottom:1px solid var(--rc-sunken,#EBEBE6)">{{ r.t }}</td><td style="padding:10px 16px;border-bottom:1px solid var(--rc-sunken,#EBEBE6);color:var(--rc-ink-2,#4A4F57)">[Publisher, Report], p. [n]</td></tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </sc-if>
+  </main>
+  <dc-import name="RC Footer" hint-size="100%,80px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:1200},&quot;chart&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() { return { ...this._rv(), theme: this.props.theme, menuOpen: this.props.menuOpen }; }
+  _rv() {
+    const chart = !!this.props.chart;
+    const ys = [70, 62, 58, 48, 42, 36, 30, 22];
+    const pts = ys.map((y, i) => ({ x: (4 + i * 92 / 7).toFixed(2) + '%', y: y + '%', fill: i < 5 ? 'var(--rc-accent,#2443C9)' : 'var(--rc-surface,#FFFFFF)', px: 4 + i * 92 / 7, py: y }));
+    const line = a => a.map(p => `${p.px.toFixed(2)},${p.py}`).join(' ');
+    return {
+      chart, empty: !chart, pts,
+      solidPts: line(pts.slice(0, 5)), dashPts: line(pts.slice(4)),
+      tip: { x: pts[3].x, y: pts[3].y },
+      years: ['20X1', '20X2', '20X3', '20X4', '20X5', '20X6', '20X7', '20X8'],
+      rows: [{ y: '20X1', t: 'Actual' }, { y: '20X2', t: 'Actual' }, { y: '20X3', t: 'Forecast' }, { y: '20X4', t: 'Forecast' }],
+    };
+  }
+}
+</script>
+</body>
+</html>

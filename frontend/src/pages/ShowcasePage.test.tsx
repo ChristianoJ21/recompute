@@ -37,9 +37,10 @@ describe('available hardware (public, no login)', () => {
     expect(within(card).getByText(/sample asking price/i)).toBeTruthy()
     expect(within(card).getByText('REDEPLOY')).toBeTruthy()
     expect(within(card).getByText(/Passport intact/)).toBeTruthy()
-    expect(within(card).getByText(/gpu Accel-v1/)).toBeTruthy()
-    expect(within(card).getByText(/Data wiped/)).toBeTruthy()
-    expect(within(card).getByText(/gpu_temp_c: 61/)).toBeTruthy()
+    expect(within(card).getByText(/GPU Accel-v1/)).toBeTruthy()
+    expect(within(card).getByText('data wipe')).toBeTruthy()
+    expect(within(card).getByText('gpu temp')).toBeTruthy()
+    expect(within(card).getByText('61 °C')).toBeTruthy()
     expect(within(card).getByRole('link', { name: /passport/i }).getAttribute('href')).toBe('/device/GPU-SRV-001')
   })
 

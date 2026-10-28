@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div data-rc-root="" style="container-type:inline-size;background-color:var(--rc-page,#F4F4F1);background-image:linear-gradient(var(--rc-grid,#E6E6DF) 1px,transparent 1px),linear-gradient(90deg,var(--rc-grid,#E6E6DF) 1px,transparent 1px);background-size:24px 24px;color:var(--rc-ink,#0E1116);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5">
+  <dc-import name="RC Header" theme="{{ theme }}" menu-open="{{ menuOpen }}" active="fleet" tech="{{ true }}" hint-size="100%,100px"></dc-import>
+  <main style="max-width:1160px;margin:0 auto;padding:clamp(24px,4cqi,40px) clamp(16px,4cqi,40px) 64px;display:flex;flex-direction:column;gap:32px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--rc-accent,#2443C9)">/ Fleet</span>
+        <h1 style="margin:0;font-size:clamp(28px,3.4cqi,40px);font-weight:700;letter-spacing:-.03em;line-height:1.1">Fleet dashboard</h1>
+        <span style="font-size:14px;color:var(--rc-ink-2,#4A4F57)">Hall A · 6 devices</span>
+      </div>
+      <a href="/technicians/new" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);border:1px solid var(--rc-line-strong,#A9A9A0);font-weight:600;font-size:14px;text-decoration:none;transition:border-color .15s,background .15s" style-hover="border-color:var(--rc-ink,#0E1116);background:var(--rc-raised,#FAFAF8)">+ Add technician</a>
+    </div>
+    <ul aria-label="Fleet stats" style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:1px;background:var(--rc-line,#D6D6CF);border:1px solid var(--rc-line,#D6D6CF)">
+      <sc-for list="{{ stats }}" as="s" hint-placeholder-count="5">
+        <li style="background:var(--rc-surface,#FFFFFF);padding:16px;display:flex;flex-direction:column;gap:6px">
+          <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--rc-ink-2,#4A4F57)">{{ s.k }}</span>
+          <span style="display:flex;align-items:center;gap:8px;font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums;color:{{ s.c }}"><sc-if value="{{ s.ok }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><rect width="16" height="16" rx="2" style="fill:var(--rc-ok,#1D6B3B)"></rect><path d="M4.5 8.2l2.3 2.3 4.7-4.9" fill="none" stroke-width="1.9" style="stroke:var(--rc-surface,#FFFFFF)"></path></svg></sc-if>{{ s.v }}</span>
+          <span style="font-size:12px;color:var(--rc-ink-2,#4A4F57)">{{ s.sub }}</span>
+        </li>
+      </sc-for>
+    </ul>
+    <section aria-labelledby="per" style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--rc-ink,#0E1116)"><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-accent,#2443C9);font-weight:600">01</span><h2 id="per" style="margin:0;font-size:20px;font-weight:700">Devices per outcome</h2></div>
+      <ul aria-label="Devices per outcome" style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:1px;background:var(--rc-line,#D6D6CF);border:1px solid var(--rc-line,#D6D6CF)">
+        <sc-for list="{{ outcomes }}" as="o" hint-placeholder-count="6">
+          <li style="background:var(--rc-surface,#FFFFFF);padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center">
+            <dc-import name="RC Badge" outcome="{{ o.k }}" size="sm" hint-size="100px,22px" style="justify-self:start"></dc-import>
+            <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:22px;font-weight:700">{{ o.n }}</span>
+            <span style="grid-column:1 / -1;font-size:14px;color:var(--rc-ink-2,#4A4F57)">{{ o.m }}</span>
+          </li>
+        </sc-for>
+      </ul>
+    </section>
+    <section aria-labelledby="devs" style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--rc-ink,#0E1116)"><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-accent,#2443C9);font-weight:600">02</span><h2 id="devs" style="margin:0;font-size:20px;font-weight:700">Devices</h2></div>
+      <ul aria-label="Devices" style="list-style:none;margin:0;padding:0;background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+        <sc-for list="{{ devices }}" as="d" hint-placeholder-count="6">
+          <li style="border-bottom:1px solid var(--rc-sunken,#EBEBE6)">
+            <a href="{{ d.href }}" style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;min-height:56px;padding:10px 16px;color:var(--rc-ink,#0E1116);text-decoration:none">
+              <span style="flex:0 0 120px;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:14px;font-weight:700">{{ d.id }}</span>
+              <span style="flex:1 1 220px;display:flex;flex-direction:column;min-width:0"><span style="font-size:15px;font-weight:600">{{ d.model }}</span><span style="font-size:13px;color:var(--rc-ink-2,#4A4F57)">{{ d.loc }}</span></span>
+              <dc-import name="RC Badge" outcome="{{ d.o }}" size="sm" hint-size="100px,22px"></dc-import>
+              <span aria-hidden="true" style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;color:var(--rc-accent,#2443C9)">→</span>
+            </a>
+          </li>
+        </sc-for>
+      </ul>
+    </section>
+  </main>
+  <dc-import name="RC Footer" hint-size="100%,80px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:1400}}">
+class Component extends DCLogic {
+  renderVals() { return { ...this._rv(), theme: this.props.theme, menuOpen: this.props.menuOpen }; }
+  _rv() {
+    const M = 'AccelServer-v1 (sample)';
+    return {
+      stats: [
+        { k: 'Devices', v: '6', sub: 'in Hall A', c: 'var(--rc-ink,#0E1116)' },
+        { k: 'Not evaluated', v: '0', sub: 'rule has run on all', c: 'var(--rc-ink,#0E1116)' },
+        { k: 'Listed for sale', v: '2', sub: 'GPU-SRV-001, -003', c: 'var(--rc-ink,#0E1116)' },
+        { k: 'Passports intact', v: '6 of 6', sub: 'checked 28 Oct, 20:50', c: 'var(--rc-ok,#1D6B3B)', ok: true },
+        { k: 'Passports changed', v: '0', sub: 'none detected', c: 'var(--rc-ink,#0E1116)' },
+      ],
+      outcomes: [
+        { k: 'KEEP', n: 1, m: 'Replacing would not pay back its manufacturing emissions' },
+        { k: 'UPGRADE', n: 1, m: 'Replace one component instead of the whole device' },
+        { k: 'REDEPLOY', n: 1, m: 'Move it to a lighter workload' },
+        { k: 'RECYCLE', n: 1, m: 'Formal recycling, with its passport' },
+        { k: 'UNCERTAIN', n: 1, m: 'The answer changes within the input ranges; a human decides' },
+        { k: 'INSUFFICIENT_DATA', n: 1, m: 'Inputs are missing, and the engine never guesses them' },
+      ],
+      devices: [
+        ['001', 'Row 1', 'REDEPLOY'], ['002', 'Row 1', 'KEEP'], ['003', 'Row 2', 'UPGRADE'],
+        ['004', 'Row 3 · failed reliability check', 'RECYCLE'], ['005', 'Row 3', 'INSUFFICIENT_DATA'], ['006', 'Row 4', 'UNCERTAIN'],
+      ].map(([n, r, o]) => ({ id: 'GPU-SRV-' + n, model: M, loc: 'Hall A / ' + r, o, href: '/device/GPU-SRV-' + n })),
+    };
+  }
+}
+</script>
+</body>
+</html>

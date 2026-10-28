@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><script src="rc-theme.js"></script></helmet>
+<header ref="{{ hdrRef }}" style="position:relative;z-index:20;background:var(--rc-surface,#FFFFFF);border-bottom:1px solid var(--rc-line,#D6D6CF)">
+  <div style="background:var(--rc-bar,#0E1116);color:var(--rc-bar-fg2,#C9CCD1);border-bottom:1px solid var(--rc-bar-line,#0E1116)">
+    <div style="max-width:1160px;margin:0 auto;padding:0 clamp(16px,4cqi,40px);min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px">
+      <span style="display:inline-flex;align-items:center;gap:7px;padding:4px 8px;border-radius:2px;background:#F2D27A;color:#2E2100;font-size:11px;font-weight:800;letter-spacing:.1em;line-height:1">
+        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x=".5" y=".5" width="9" height="9" fill="none" stroke="#2E2100"></rect><path d="M0 10L10 0M-2 6L4 0M6 10L10 6" stroke="#2E2100"></path></svg>SAMPLE DATA</span>
+      <sc-if value="{{ notTech }}" hint-placeholder-val="{{ true }}">
+        <a href="/login" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--rc-bar-fg,#FFFFFF);font-weight:600;text-decoration:none;box-shadow:{{ loginLine }}">Technician login<span aria-hidden="true" style="color:var(--rc-bar-fg3,#8C929B)">→</span></a>
+      </sc-if>
+      <sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}">
+        <span style="display:inline-flex;align-items:center;gap:8px"><span style="width:6px;height:6px;background:#5FD08A"></span><span>Technician One (sample)</span><span aria-hidden="true" style="color:var(--rc-bar-fg3,#8C929B)">/</span><a href="/logout" style="display:inline-flex;align-items:center;min-height:44px;color:var(--rc-bar-fg,#FFFFFF);font-weight:600;text-decoration:underline;text-underline-offset:3px">Log out</a></span>
+      </sc-if>
+    </div>
+  </div>
+  <div style="position:relative;max-width:1160px;margin:0 auto;padding:0 clamp(16px,4cqi,40px);display:flex;align-items:center;gap:24px;min-height:60px">
+    <a href="/" style="display:inline-flex;align-items:center;gap:10px;min-height:56px;color:var(--rc-ink,#0E1116);text-decoration:none;flex:none">
+      <svg width="34" height="14" viewBox="0 0 34 14" aria-hidden="true"><path d="M8 7h5.5M20.5 7h5" style="stroke:var(--rc-ink,#0E1116)" stroke-width="1.6"></path><rect x="1" y="3" width="7" height="8" fill="none" style="stroke:var(--rc-ink,#0E1116)" stroke-width="1.6"></rect><rect x="13.5" y="3" width="7" height="8" fill="none" style="stroke:var(--rc-ink,#0E1116)" stroke-width="1.6"></rect><rect x="25.5" y="2.5" width="8" height="9" style="fill:var(--rc-accent,#2443C9)"></rect></svg>
+      <span style="font-size:18px;font-weight:700;letter-spacing:-.02em">ReCompute</span>
+    </a>
+    <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+      <nav aria-label="Main" style="display:flex;align-items:stretch">
+        <a href="/" style="display:inline-flex;align-items:center;min-height:52px;padding:0 12px;font-size:14px;font-weight:600;text-decoration:none;color:{{ homeC }};box-shadow:inset 0 -2px 0 {{ homeB }}">Available hardware</a>
+        <a href="/market" style="display:inline-flex;align-items:center;min-height:52px;padding:0 12px;font-size:14px;font-weight:600;text-decoration:none;color:{{ marketC }};box-shadow:inset 0 -2px 0 {{ marketB }}">Market</a>
+        <sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}">
+          <a href="/fleet" style="display:inline-flex;align-items:center;min-height:52px;padding:0 12px;font-size:14px;font-weight:600;text-decoration:none;color:{{ fleetC }};box-shadow:inset 0 -2px 0 {{ fleetB }}">Fleet</a>
+        </sc-if>
+      </nav>
+    </sc-if>
+    <button type="button" aria-label="Menu" aria-expanded="{{ openStr }}" aria-controls="rc-menu" onClick="{{ toggle }}" style="margin-left:auto;flex:none;width:44px;height:44px;padding:0;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:2px;border:1px solid {{ btnBd }};background:{{ btnBg }};cursor:pointer">
+      <sc-if value="{{ closed }}" hint-placeholder-val="{{ true }}">
+        <span style="width:18px;height:2px;background:var(--rc-ink,#0E1116)"></span>
+        <span style="width:18px;height:2px;background:var(--rc-ink,#0E1116)"></span>
+        <span style="width:18px;height:2px;background:var(--rc-ink,#0E1116)"></span>
+      </sc-if>
+      <sc-if value="{{ open }}" hint-placeholder-val="{{ false }}">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2l12 12M14 2L2 14" style="stroke:var(--rc-surface,#FFFFFF)" stroke-width="2"></path></svg>
+      </sc-if>
+    </button>
+    <sc-if value="{{ open }}" hint-placeholder-val="{{ false }}">
+      <div id="rc-menu" style="position:absolute;top:calc(100% + 1px);right:clamp(16px,4cqi,40px);width:min(340px,calc(100cqi - 32px));background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-ink,#0E1116);box-shadow:4px 4px 0 var(--rc-ink,#0E1116);display:flex;flex-direction:column;color:var(--rc-ink,#0E1116)">
+        <span style="padding:12px 16px 6px;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--rc-ink-2,#4A4F57)">PAGES</span>
+        <sc-for list="{{ pages }}" as="p" hint-placeholder-count="3">
+          <a href="{{ p.href }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:0 16px;color:var(--rc-ink,#0E1116);text-decoration:none;font-size:15px;font-weight:600;background:{{ p.bg }};box-shadow:inset 3px 0 0 {{ p.bar }}"><span>{{ p.label }}</span><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:400;color:var(--rc-ink-3,#6A6F77)">{{ p.href }}</span></a>
+        </sc-for>
+        <div style="border-top:1px solid var(--rc-line,#D6D6CF);margin-top:6px;display:flex;flex-direction:column">
+          <span style="padding:12px 16px 6px;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--rc-ink-2,#4A4F57)">ACCOUNT</span>
+          <sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:12px;padding:6px 16px 12px">
+              <span aria-hidden="true" style="width:40px;height:40px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--rc-accent,#2443C9);color:var(--rc-surface,#FFFFFF);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:14px;font-weight:700">T1</span>
+              <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:15px;font-weight:700">Technician One (sample)</span><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-ink-2,#4A4F57)">t.one · Technician</span></span>
+            </div>
+          </sc-if>
+          <sc-for list="{{ account }}" as="a" hint-placeholder-count="2">
+            <a href="{{ a.href }}" style="display:flex;flex-direction:column;justify-content:center;min-height:52px;padding:6px 16px;border-top:1px solid var(--rc-sunken,#EBEBE6);color:var(--rc-ink,#0E1116);text-decoration:none"><span style="font-size:15px;font-weight:600">{{ a.label }}</span><span style="font-size:13px;color:var(--rc-ink-2,#4A4F57)">{{ a.sub }}</span></a>
+          </sc-for>
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 16px;border-top:1px solid var(--rc-line,#D6D6CF);background:var(--rc-raised,#FAFAF8);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-ink-2,#4A4F57)"><span>Appearance</span><span style="color:var(--rc-ink,#0E1116);font-weight:600">{{ themeLabel }}</span></div>
+      </div>
+    </sc-if>
+  </div>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:520},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;market&quot;,&quot;fleet&quot;,&quot;login&quot;,&quot;newtech&quot;,&quot;none&quot;],&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tech&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;,&quot;system&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;menuOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { open: null, wide: true, theme: 'light' };
+  hdrRef = React.createRef();
+  componentDidMount() {
+    this._onTheme = () => this.applyTheme();
+    this._onKey = e => { if (e.key === 'Escape' && this.isOpen()) this.setState({ open: false }); };
+    window.addEventListener('rc-theme', this._onTheme);
+    window.addEventListener('keydown', this._onKey);
+    const el = this.hdrRef.current;
+    if (el && window.ResizeObserver) {
+      this._ro = new ResizeObserver(([e]) => { const wide = e.contentRect.width >= 720; if (wide !== this.state.wide) this.setState({ wide }); });
+      this._ro.observe(el);
+    }
+    let n = 0;
+    const wait = () => { if (window.RC_THEME) this.applyTheme(); else if (n++ < 100) this._t = setTimeout(wait, 50); };
+    wait();
+  }
+  componentDidUpdate(pp) { if (pp.theme !== this.props.theme) this.applyTheme(); }
+  componentWillUnmount() {
+    window.removeEventListener('rc-theme', this._onTheme);
+    window.removeEventListener('keydown', this._onKey);
+    if (this._ro) this._ro.disconnect();
+    clearTimeout(this._t);
+  }
+  applyTheme() {
+    const T = window.RC_THEME, el = this.hdrRef.current;
+    if (!T || !el) return;
+    const pref = this.props.theme || T.get();
+    T.apply(el.closest('[data-rc-root]') || el, T.isDark(pref));
+    if (pref !== this.state.theme) this.setState({ theme: pref });
+  }
+  isOpen() { return this.state.open ?? !!this.props.menuOpen; }
+  renderVals() {
+    const a = this.props.active ?? 'home';
+    const tech = !!this.props.tech;
+    const open = this.isOpen();
+    const c = k => (a === k ? 'var(--rc-ink,#0E1116)' : 'var(--rc-ink-2,#4A4F57)');
+    const b = k => (a === k ? 'var(--rc-accent,#2443C9)' : 'transparent');
+    const pg = (k, label, href) => ({ label, href, bg: a === k ? 'var(--rc-raised,#FAFAF8)' : 'transparent', bar: a === k ? 'var(--rc-accent,#2443C9)' : 'transparent' });
+    const pages = [pg('home', 'Available hardware', '/'), pg('market', 'Market', '/market')];
+    if (tech) pages.push(pg('fleet', 'Fleet', '/fleet'), pg('newtech', 'Add technician', '/technicians/new'));
+    const account = tech
+      ? [{ label: 'Settings', sub: 'Profile, password, appearance', href: '/settings' }, { label: 'Log out', sub: 'Ends your login on this device', href: '/logout' }]
+      : [{ label: 'Technician login', sub: 'Staff only. There is no sign-up.', href: '/login' }, { label: 'Settings', sub: 'Appearance', href: '/settings' }];
+    return {
+      hdrRef: this.hdrRef, tech, notTech: !tech, wide: this.state.wide, open, closed: !open, openStr: String(open),
+      toggle: () => this.setState({ open: !this.isOpen() }),
+      btnBg: open ? 'var(--rc-ink,#0E1116)' : 'var(--rc-surface,#FFFFFF)', btnBd: open ? 'var(--rc-ink,#0E1116)' : 'var(--rc-line-strong,#A9A9A0)',
+      homeC: c('home'), homeB: b('home'), marketC: c('market'), marketB: b('market'), fleetC: c('fleet'), fleetB: b('fleet'),
+      loginLine: a === 'login' ? 'inset 0 -2px 0 #F2D27A' : 'none',
+      pages, account, themeLabel: { light: 'Light', dark: 'Dark', system: 'Match device' }[this.state.theme] || 'Light',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div data-rc-root="" style="container-type:inline-size;background-color:var(--rc-page,#F4F4F1);background-image:linear-gradient(var(--rc-grid,#E6E6DF) 1px,transparent 1px),linear-gradient(90deg,var(--rc-grid,#E6E6DF) 1px,transparent 1px);background-size:24px 24px;color:var(--rc-ink,#0E1116);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5;display:flex;flex-direction:column;min-height:860px">
+  <dc-import name="RC Header" theme="{{ theme }}" menu-open="{{ menuOpen }}" active="fleet" tech="{{ true }}" hint-size="100%,100px"></dc-import>
+  <main style="flex:1;width:100%;max-width:520px;margin:0 auto;padding:clamp(28px,5cqi,56px) 16px 64px;display:flex;flex-direction:column;gap:20px">
+    <a href="/fleet" style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-accent,#2443C9);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">← Fleet</a>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <h1 style="margin:0;font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.1">Add a technician</h1>
+      <p style="margin:0;font-size:15px;color:var(--rc-ink-2,#4A4F57)">Creates a login for a colleague. Share the password with them in person.</p>
+    </div>
+    <form style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22));padding:20px;display:flex;flex-direction:column;gap:16px">
+      <sc-if value="{{ success }}" hint-placeholder-val="{{ false }}">
+        <div role="status" style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--rc-ok-bg,#E4F2E8);border:1px solid var(--rc-ok-line,#A9D3B7);color:var(--rc-ok-ink,#14492A);font-size:14px"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style="flex:none;margin-top:2px"><rect width="16" height="16" rx="2" style="fill:var(--rc-ok,#1D6B3B)"></rect><path d="M4.5 8.2l2.3 2.3 4.7-4.9" fill="none" stroke-width="1.9" style="stroke:var(--rc-surface,#FFFFFF)"></path></svg><span><strong>Technician added.</strong> t.two can log in now.</span></div>
+      </sc-if>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Username<input value="{{ u }}" style="font:inherit;font-size:16px;font-weight:400;min-height:44px;padding:0 12px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace"></input></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Full name<input value="{{ n }}" style="font:inherit;font-size:16px;font-weight:400;min-height:44px;padding:0 12px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)"></input></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Password<input type="password" value="{{ p }}" style="font:inherit;font-size:16px;font-weight:400;min-height:44px;padding:0 12px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)"></input><span style="font-weight:400;font-size:13px;color:var(--rc-ink-2,#4A4F57)">At least 10 characters.</span></label>
+      <div><button type="submit" style="min-height:48px;padding:0 20px;border-radius:2px;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-ink,#0E1116);font:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:transform .15s,box-shadow .15s" style-hover="transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--rc-accent,#2443C9)" style-active="transform:none;box-shadow:none">Add technician</button></div>
+    </form>
+  </main>
+  <dc-import name="RC Footer" hint-size="100%,80px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900},&quot;success&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() { return { ...this._rv(), theme: this.props.theme, menuOpen: this.props.menuOpen }; }
+  _rv() {
+    const success = !!this.props.success;
+    return success ? { success, u: '', n: '', p: '' } : { success, u: 't.two', n: 'Technician Two (sample)', p: 'abcdefghijk' };
+  }
+}
+</script>
+</body>
+</html>

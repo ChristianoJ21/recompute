@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas"></meta>
+  <script src="rc-theme.js"></script>
+  <style>body{margin:0;background:#E6E6E1;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#0E1116}a{color:#2443C9}a:hover{color:#16298A}*{box-sizing:border-box}</style>
+</helmet>
+<div style="width:1840px;padding:64px;display:flex;flex-direction:column;gap:72px">
+  <section id="dark" data-screen-label="Dark mode, menu, settings" style="display:flex;flex-direction:column;gap:40px">
+    <div style="background:#0E1116;color:#E8EAED;padding:48px;display:grid;grid-template-columns:1fr 1.3fr;gap:48px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;letter-spacing:.08em;color:#8EA2FF;font-weight:700">NEW · DARK MODE, MENU, SETTINGS</span>
+        <h2 style="margin:0;font-size:44px;line-height:1.05;letter-spacing:-.03em">Dark theme, a menu button and a settings page.</h2>
+        <p style="margin:0;font-size:17px;color:#A9AEB6">The ☰ button sits at the top right of every page. It lists every page of the app and the account: profile, Settings and Log out (or Technician login for visitors). Settings has three parts: Profile, Credentials and Appearance (Light, Dark, Match device). The choice is saved on the device and applies to every page.</p>
+        <p style="margin:0;font-size:15px;color:#A9AEB6">Try it: open ☰ on any artboard, or pick Dark in the live Settings artboards (N2). Every artboard not marked “forced” switches, including section 03 below.</p>
+        <h3 style="margin:16px 0 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#8A9099">TAILWIND v4 · dark tokens</h3>
+        <pre style="margin:0;padding:16px;background:#000000;border:1px solid #2C3038;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.6;white-space:pre-wrap;color:#E8EAED">{{ darkCss }}</pre>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#8A9099">TOKENS · light → dark</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px">
+          <sc-for list="{{ darkTokens }}" as="t" hint-placeholder-count="40">
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 92px 92px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #2C3038;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px"><span style="color:#E8EAED">{{ t.n }}</span><span style="display:flex;align-items:center;gap:6px;color:#A9AEB6"><span style="width:14px;height:14px;background:{{ t.l }};border:1px solid #4A5059"></span>{{ t.l }}</span><span style="display:flex;align-items:center;gap:6px;color:#A9AEB6"><span style="width:14px;height:14px;background:{{ t.d }};border:1px solid #4A5059"></span>{{ t.d }}</span></div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">N1</span><h3 style="margin:0;font-size:20px">Menu open</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">☰ top right</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">phones: menu replaces the inline nav; desktop: nav stays, menu adds account items</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390 · visitor, forced light</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Home" theme="light" menu-open="{{ true }}" hint-size="100%,1200px"></dc-import></div></div><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280 · technician, forced dark</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Fleet" theme="dark" menu-open="{{ true }}" hint-size="100%,1000px"></dc-import></div></div></div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">N2</span><h3 style="margin:0;font-size:20px">Settings</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/settings</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">live: pick a theme here and every unforced artboard on the canvas switches</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390 · live</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Settings" hint-size="100%,1200px"></dc-import></div></div><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280 · live</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Settings" hint-size="100%,1000px"></dc-import></div></div></div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">N3</span><h3 style="margin:0;font-size:20px">Available hardware · dark</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">forced dark</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Home" theme="dark" hint-size="100%,1200px"></dc-import></div></div><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Home" theme="dark" hint-size="100%,1000px"></dc-import></div></div></div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">N4</span><h3 style="margin:0;font-size:20px">Passport · visitor · dark</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/device/GPU-SRV-001</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">forced dark</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Passport" theme="dark" hint-size="100%,1200px"></dc-import></div></div><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Passport" theme="dark" hint-size="100%,1000px"></dc-import></div></div></div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">N5</span><h3 style="margin:0;font-size:20px">Passport · technician · dark</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/device/GPU-SRV-006</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">forced dark</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Passport" theme="dark" tech="{{ true }}" hint-size="100%,1200px"></dc-import></div></div><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Passport" theme="dark" tech="{{ true }}" hint-size="100%,1000px"></dc-import></div></div></div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">N6</span><h3 style="margin:0;font-size:20px">Fleet dashboard · dark</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/fleet</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">forced dark</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Fleet" theme="dark" hint-size="100%,1200px"></dc-import></div></div><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Fleet" theme="dark" hint-size="100%,1000px"></dc-import></div></div></div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">N7</span><h3 style="margin:0;font-size:20px">Market · chart · dark</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/market</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">forced dark</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Market" theme="dark" chart="{{ true }}" hint-size="100%,1200px"></dc-import></div></div><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Market" theme="dark" chart="{{ true }}" hint-size="100%,1000px"></dc-import></div></div></div>
+      </div>
+  </section>
+
+  <section data-screen-label="Direction" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;background:#FFFFFF;border:1px solid #D6D6CF;padding:48px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;letter-spacing:.08em;color:#2443C9;font-weight:700">RECOMPUTE · REDESIGN v2 · TECHNICAL DIRECTION</span>
+      <h1 style="margin:0;font-size:56px;line-height:1.02;letter-spacing:-.035em;font-weight:700">An instrument panel for a device's second life.</h1>
+      <p style="margin:0;font-size:18px;color:#4A4F57;max-width:56ch">The app should read like infrastructure documentation: precise, plain and checkable. Monospace carries the machine facts (IDs, hashes, timestamps, readings); a system sans carries the explanations. Hairline grids, square corners and one ink-blue accent keep it calm. The three-block hash chain is the only motif, used in the logo and the passport timeline, so nothing relies on eco imagery.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;font-size:15px">
+      <h2 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">HOW THE 10-SECOND STORY LANDS</h2>
+      <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px">
+        <li>Home leads with one sentence and three numbered steps: passport → decision → second life.</li>
+        <li>Each listing card answers outcome, price and passport integrity above its fold.</li>
+        <li>The passport page opens with the device ID, outcome and integrity badge at phone size; the For sale box is the second block.</li>
+        <li>SAMPLE DATA sits in the dark utility bar on every page, in amber that reads as a label, not a warning.</li>
+      </ol>
+      <h2 style="margin:16px 0 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">CONTENTS</h2>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px"><a href="#tokens">01 Tokens</a><a href="#components">02 Components</a><a href="#screens">03 Screens</a><a href="#notes">04 Notes on the brief</a></div>
+    </div>
+  </section>
+
+  <section id="tokens" data-screen-label="Tokens" style="display:flex;flex-direction:column;gap:24px">
+    <h2 style="margin:0;font-size:32px;letter-spacing:-.02em;display:flex;gap:16px;align-items:baseline"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:16px;color:#2443C9">01</span>Design tokens · light theme</h2>
+    <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:24px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:24px;display:flex;flex-direction:column;gap:16px">
+          <h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">COLOUR · BASE</h3>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#D6D6CF;border:1px solid #D6D6CF">
+            <sc-for list="{{ base }}" as="c" hint-placeholder-count="10">
+              <div style="background:#FFFFFF;display:flex;flex-direction:column"><div style="height:56px;background:{{ c.v }};border-bottom:1px solid #EBEBE6"></div><div style="padding:8px 10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;line-height:1.5"><div style="font-weight:700">{{ c.k }}</div><div style="color:#4A4F57">{{ c.v }}</div><div style="color:#4A4F57">{{ c.u }}</div></div></div>
+            </sc-for>
+          </div>
+          <h3 style="margin:8px 0 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">COLOUR · OUTCOMES (fg / bg / border)</h3>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#D6D6CF;border:1px solid #D6D6CF">
+            <sc-for list="{{ outs }}" as="o" hint-placeholder-count="7">
+              <div style="background:#FFFFFF;padding:10px;display:flex;flex-direction:column;gap:8px"><div style="display:flex;height:28px"><span style="flex:1;background:{{ o.fg }}"></span><span style="flex:1;background:{{ o.bg }};border:1px solid #EBEBE6"></span><span style="flex:1;background:{{ o.bd }}"></span></div><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;line-height:1.5;color:#4A4F57"><strong style="color:#0E1116">{{ o.k }}</strong><br></br>{{ o.fg }}<br></br>{{ o.bg }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:24px;display:flex;flex-direction:column;gap:14px">
+          <h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">TYPE · system fonts only (offline)</h3>
+          <sc-for list="{{ type }}" as="t" hint-placeholder-count="7">
+            <div style="display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:baseline;border-bottom:1px solid #EBEBE6;padding-bottom:10px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">{{ t.k }}<br></br>{{ t.spec }}</span><span style="font-family:{{ t.ff }};font-size:{{ t.fs }};font-weight:{{ t.fw }};letter-spacing:{{ t.ls }};text-transform:{{ t.tt }};line-height:1.15">{{ t.ex }}</span></div>
+          </sc-for>
+          <p style="margin:0;font-size:13px;color:#4A4F57">sans: system-ui, -apple-system, "Segoe UI", sans-serif · mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace. Display sizes scale with clamp() between 390 and 1280 px.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+          <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:20px;display:flex;flex-direction:column;gap:10px"><h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">SPACING (4 px base)</h3><sc-for list="{{ space }}" as="s" hint-placeholder-count="8"><div style="display:flex;align-items:center;gap:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px"><span style="width:28px">{{ s }}</span><span style="height:8px;width:{{ s }}px;background:#2443C9"></span></div></sc-for></div>
+          <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:20px;display:flex;flex-direction:column;gap:12px"><h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">RADIUS</h3><div style="display:flex;gap:12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px"><div style="display:flex;flex-direction:column;gap:6px"><span style="width:56px;height:40px;border:1.5px solid #0E1116"></span>0 · panels</div><div style="display:flex;flex-direction:column;gap:6px"><span style="width:56px;height:40px;border:1.5px solid #0E1116;border-radius:2px"></span>2 · controls</div><div style="display:flex;flex-direction:column;gap:6px"><span style="width:56px;height:40px;border:1.5px solid #0E1116;border-radius:999px"></span>full · dots</div></div></div>
+          <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:20px;display:flex;flex-direction:column;gap:12px"><h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">ELEVATION · FOCUS</h3><div style="display:flex;gap:16px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px"><div style="display:flex;flex-direction:column;gap:6px"><span style="width:64px;height:40px;background:#FFFFFF;border:1px solid #0E1116;box-shadow:4px 4px 0 #0E1116"></span>offset · For sale only</div><div style="display:flex;flex-direction:column;gap:6px"><span style="width:64px;height:40px;background:#FFFFFF;border:1px solid #A9A9A0;outline:3px solid #2443C9;outline-offset:2px"></span>focus ring</div></div><p style="margin:0;font-size:12px;color:#4A4F57">Panels: --rc-shadow (two-layer, soft) on blueprint grid paper. Offset shadow for For sale and hover. Corner marks on key figures.</p></div>
+        </div>
+      </div>
+      <div style="background:#0E1116;color:#E6E8EB;padding:24px;display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#8C929B">TAILWIND v4 · app.css</h3>
+        <pre style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.6;white-space:pre-wrap">{{ themeCss }}</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="components" data-screen-label="Components" style="display:flex;flex-direction:column;gap:24px">
+    <h2 style="margin:0;font-size:32px;letter-spacing:-.02em;display:flex;gap:16px;align-items:baseline"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:16px;color:#2443C9">02</span>Component sheet</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:start">
+      <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:24px;display:flex;flex-direction:column;gap:12px;grid-row:span 2">
+        <h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">OUTCOME BADGE · sm / md / lg</h3>
+        <sc-for list="{{ meanings }}" as="m" hint-placeholder-count="7">
+          <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:12px;border-bottom:1px solid #EBEBE6"><dc-import name="RC Badge" outcome="{{ m.k }}" size="md" hint-size="120px,26px" style="align-self:flex-start"></dc-import><span style="font-size:14px;color:#4A4F57">{{ m.m }}</span></div>
+        </sc-for>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><dc-import name="RC Badge" outcome="KEEP" size="sm" hint-size="60px,22px"></dc-import><dc-import name="RC Badge" outcome="KEEP" size="md" hint-size="70px,26px"></dc-import><dc-import name="RC Badge" outcome="KEEP" size="lg" hint-size="80px,30px"></dc-import></div>
+        <p style="margin:0;font-size:13px;color:#4A4F57">Text always shown. Dashed border marks “no decision” states.</p>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:24px;display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">INTEGRITY BADGE</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+          <dc-import name="RC Integrity" state="checking" hint-size="110px,26px"></dc-import>
+          <dc-import name="RC Integrity" state="intact" hint-size="150px,26px"></dc-import>
+          <dc-import name="RC Integrity" state="changed" event="4" hint-size="250px,26px"></dc-import>
+          <dc-import name="RC Integrity" state="unavailable" hint-size="230px,26px"></dc-import>
+        </div>
+        <h3 style="margin:12px 0 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">SAMPLE DATA LABEL · PRICE</h3>
+        <div style="background:#0E1116;padding:12px;display:flex"><span style="display:inline-flex;align-items:center;gap:7px;padding:4px 8px;border-radius:2px;background:#F2D27A;color:#2E2100;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;font-weight:800;letter-spacing:.1em;line-height:1"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x=".5" y=".5" width="9" height="9" fill="none" stroke="#2E2100"></rect><path d="M0 10L10 0M-2 6L4 0M6 10L10 6" stroke="#2E2100"></path></svg>SAMPLE DATA</span></div>
+        <div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4A4F57">Sample asking price</span><span style="font-size:30px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums">IDR 45,000,000</span><span style="font-size:12px;color:#4A4F57">Currency code, never a symbol.</span></div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:24px;display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">BUTTONS</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" style="min-height:44px;padding:0 18px;border-radius:2px;background:#0E1116;color:#FFFFFF;border:1px solid #0E1116;font:inherit;font-weight:600;font-size:14px">Primary</button>
+          <button type="button" style="min-height:44px;padding:0 18px;border-radius:2px;background:#FFFFFF;color:#0E1116;border:1px solid #A9A9A0;font:inherit;font-weight:600;font-size:14px">Secondary</button>
+          <button type="button" style="min-height:44px;padding:0 18px;border-radius:2px;background:#16298A;color:#FFFFFF;border:1px solid #16298A;font:inherit;font-weight:600;font-size:14px">Hover</button>
+          <button type="button" style="min-height:44px;padding:0 18px;border-radius:2px;background:#0E1116;color:#FFFFFF;border:1px solid #0E1116;outline:3px solid #2443C9;outline-offset:2px;font:inherit;font-weight:600;font-size:14px">Focus</button>
+          <button type="button" disabled="" style="min-height:44px;padding:0 18px;border-radius:2px;background:#EBEBE6;color:#6A6F77;border:1px solid #D6D6CF;font:inherit;font-weight:600;font-size:14px">Disabled</button>
+        </div>
+        <h3 style="margin:12px 0 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">FORM FIELDS</h3>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Default<input value="t.one" style="font:inherit;font-weight:400;min-height:44px;padding:0 12px;border:1px solid #A9A9A0;border-radius:2px"></input></label>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Focus<input value="t.one" style="font:inherit;font-weight:400;min-height:44px;padding:0 12px;border:1px solid #0E1116;border-radius:2px;outline:3px solid #2443C9;outline-offset:1px"></input></label>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Error<input value="short" style="font:inherit;font-weight:400;min-height:44px;padding:0 12px;border:1px solid #B3261E;border-radius:2px"></input><span style="font-weight:400;font-size:13px;color:#B3261E">✘ Password needs at least 10 characters.</span></label>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:24px;display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">NOTICES</h3>
+        <div role="alert" style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:#FBE9E7;border:1px solid #EBA8A1;color:#7A1A14;font-size:14px"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style="flex:none;margin-top:2px"><rect width="16" height="16" rx="2" fill="#B3261E"></rect><path d="M5.2 5.2l5.6 5.6M10.8 5.2l-5.6 5.6" stroke="#FFFFFF" stroke-width="1.9"></path></svg><span style="flex:1"><strong>Could not load listings.</strong> Check the connection.</span><button type="button" style="min-height:32px;padding:0 10px;border-radius:2px;background:#FFFFFF;border:1px solid #B3261E;color:#7A1A14;font:inherit;font-size:13px;font-weight:600">Try again</button></div>
+        <div role="status" style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:#E4F2E8;border:1px solid #A9D3B7;color:#14492A;font-size:14px"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style="flex:none;margin-top:2px"><rect width="16" height="16" rx="2" fill="#1D6B3B"></rect><path d="M4.5 8.2l2.3 2.3 4.7-4.9" fill="none" stroke="#FFFFFF" stroke-width="1.9"></path></svg><span><strong>Added to passport</strong> as event #10.</span></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 12px;background:#0E1116;color:#FFFFFF;font-size:14px"><span style="flex:1 1 200px">Your login has ended. <a href="/login" style="color:#F2D27A;font-weight:600">Log in again</a></span><button type="button" style="min-height:36px;padding:0 12px;border-radius:2px;background:transparent;border:1px solid #5D636C;color:#FFFFFF;font:inherit;font-size:13px;font-weight:600">Dismiss</button></div>
+        <h3 style="margin:12px 0 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">EMPTY · LOADING</h3>
+        <div style="border:1px dashed #A9A9A0;padding:20px;text-align:center;display:flex;flex-direction:column;gap:4px"><strong style="font-size:15px">No hardware is listed right now</strong><span style="font-size:13px;color:#4A4F57">Released devices appear here with their passport.</span></div>
+        <div aria-busy="true" style="border:1px solid #D6D6CF;padding:16px;display:flex;flex-direction:column;gap:10px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#4A4F57">Loading listings…</span><span style="height:12px;width:40%;background:#EBEBE6"></span><span style="height:28px;width:70%;background:#EBEBE6"></span><span style="height:12px;width:90%;background:#EBEBE6"></span></div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:24px;display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">STAT TILE · normal / alert</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#D6D6CF;border:1px solid #D6D6CF">
+          <div style="background:#FFFFFF;padding:14px;display:flex;flex-direction:column;gap:4px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.06em;color:#4A4F57">PASSPORTS INTACT</span><span style="font-size:28px;font-weight:700;color:#1D6B3B;display:flex;gap:8px;align-items:center"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><rect width="16" height="16" rx="2" fill="#1D6B3B"></rect><path d="M4.5 8.2l2.3 2.3 4.7-4.9" fill="none" stroke="#FFFFFF" stroke-width="1.9"></path></svg>6 of 6</span></div>
+          <div style="background:#FBE9E7;padding:14px;display:flex;flex-direction:column;gap:4px;box-shadow:inset 3px 0 0 #B3261E"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.06em;color:#7A1A14">PASSPORTS CHANGED</span><span style="font-size:28px;font-weight:700;color:#B3261E;display:flex;gap:8px;align-items:center"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><rect width="16" height="16" rx="2" fill="#B3261E"></rect><path d="M5.2 5.2l5.6 5.6M10.8 5.2l-5.6 5.6" stroke="#FFFFFF" stroke-width="1.9"></path></svg>1</span></div>
+        </div>
+        <h3 style="margin:12px 0 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">NET-SAVING BAR · 3 cases</h3>
+        <sc-for list="{{ bars }}" as="b" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">{{ b.t }}</span><div style="position:relative;height:22px"><div style="position:absolute;left:0;right:0;top:8px;height:6px;background:#EBEBE6"></div><div style="position:absolute;left:{{ b.l }};width:{{ b.w }};top:6px;height:10px;background:#2443C9"></div><div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:#0E1116"></div></div></div>
+        </sc-for>
+        <p style="margin:0;font-size:12px;color:#4A4F57">Zero line fixed; left = keeping pays back, right = replacing pays back. Full version on the passport screens.</p>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:24px;display:flex;flex-direction:column;gap:4px">
+        <h3 style="margin:0 0 8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">EVENT ITEM · 9 kinds (node marks kind)</h3>
+        <sc-for list="{{ events }}" as="e" hint-placeholder-count="9">
+          <div style="display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid #EBEBE6"><span style="justify-self:center;width:10px;height:10px;background:{{ e.n }};border:1.5px solid {{ e.b }}"></span><span style="font-size:14px;font-weight:700;color:{{ e.c }}">{{ e.k }}</span><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#6A6F77">#{{ e.i }} · {{ e.h }}</span></div>
+        </sc-for>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #D6D6CF;padding:24px;display:flex;flex-direction:column;gap:10px;grid-column:span 2">
+        <h3 style="margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;color:#4A4F57">NOT FOUND · /device/GPU-SRV-999</h3>
+        <div style="background:#F4F4F1;border:1px solid #D6D6CF;padding:32px;display:flex;flex-direction:column;gap:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">404</span><strong style="font-size:24px;letter-spacing:-.02em">No page or device at this address</strong><span style="font-size:15px;color:#4A4F57">If you scanned a QR label, check the device ID printed under the code.</span><a href="/" style="font-weight:600;font-size:14px">← Available hardware</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens" data-screen-label="Screens" style="display:flex;flex-direction:column;gap:40px">
+    <h2 style="margin:0;font-size:32px;letter-spacing:-.02em;display:flex;gap:16px;align-items:baseline"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:16px;color:#2443C9">03</span>Screens · 390 px and 1280 px</h2>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">A</span><h3 style="margin:0;font-size:20px">Available hardware</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">public home</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Home" hint-size="100%,1200px"></dc-import></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Home" hint-size="100%,1000px"></dc-import></div></div>
+        </div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">B</span><h3 style="margin:0;font-size:20px">Passport · visitor</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/device/GPU-SRV-001</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">QR landing; listed device</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Passport" hint-size="100%,1200px"></dc-import></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Passport" hint-size="100%,1000px"></dc-import></div></div>
+        </div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">C</span><h3 style="margin:0;font-size:20px">Passport · technician</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/device/GPU-SRV-006</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">UNCERTAIN; listing disabled until a Data wipe</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Passport" tech="{{ true }}" hint-size="100%,1200px"></dc-import></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Passport" tech="{{ true }}" hint-size="100%,1000px"></dc-import></div></div>
+        </div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">D</span><h3 style="margin:0;font-size:20px">Fleet dashboard</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/fleet</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">technicians</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Fleet" hint-size="100%,1200px"></dc-import></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Fleet" hint-size="100%,1000px"></dc-import></div></div>
+        </div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">E</span><h3 style="margin:0;font-size:20px">Technician login</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/login</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">390 shows the wrong-login error</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Login" error="{{ true }}" hint-size="100%,1200px"></dc-import></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Login" hint-size="100%,1000px"></dc-import></div></div>
+        </div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">F</span><h3 style="margin:0;font-size:20px">Market · empty</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/market</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">current state: no verified figures</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Market" hint-size="100%,1200px"></dc-import></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Market" hint-size="100%,1000px"></dc-import></div></div>
+        </div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">G</span><h3 style="margin:0;font-size:20px">Market · chart</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/market</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">mockup labels only, no numbers</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Market" chart="{{ true }}" hint-size="100%,1200px"></dc-import></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Market" chart="{{ true }}" hint-size="100%,1000px"></dc-import></div></div>
+        </div>
+      </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #0E1116;padding-bottom:8px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#2443C9;font-weight:700">H</span><h3 style="margin:0;font-size:20px">Add a technician</h3><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#4A4F57">/technicians/new</span><span style="margin-left:auto;font-size:13px;color:#4A4F57">1280 shows the success note</span></div>
+        <div style="display:flex;gap:40px;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">390</span><div style="width:390px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Add Technician" hint-size="100%,1200px"></dc-import></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#4A4F57">1280</span><div style="width:1280px;background:#F4F4F1;border:1px solid #A9A9A0;overflow:hidden"><dc-import name="Screen Add Technician" success="{{ true }}" hint-size="100%,1000px"></dc-import></div></div>
+        </div>
+      </div>
+  </section>
+
+  <section id="notes" data-screen-label="Notes" style="background:#FFFFFF;border:1px solid #D6D6CF;padding:40px;display:flex;flex-direction:column;gap:20px;max-width:1100px">
+    <h2 style="margin:0;font-size:32px;letter-spacing:-.02em;display:flex;gap:16px;align-items:baseline"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:16px;color:#2443C9">04</span>Notes on the brief (you decide)</h2>
+    <ol style="margin:0;padding-left:22px;display:flex;flex-direction:column;gap:14px;font-size:16px;max-width:80ch">
+      <sc-for list="{{ notes }}" as="n" hint-placeholder-count="6"><li><strong>{{ n.t }}</strong> {{ n.b }}</li></sc-for>
+    </ol>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() { let n = 0; const w = () => { if (window.RC_THEME) this.forceUpdate(); else if (n++ < 100) this._t = setTimeout(w, 50); }; w(); }
+  componentWillUnmount() { clearTimeout(this._t); }
+  renderVals() {
+    const RT = (window.RC_THEME ? window.RC_THEME.tokens : []).filter(t => t[1].startsWith('#'));
+    const darkTokens = RT.map(([n, l, d]) => ({ n, l, d }));
+    const darkCss = '@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));\n\n[data-theme="dark"] {\n' + RT.filter(t => !t[0].startsWith('bar')).map(([n, l, d]) => '  --color-' + n + ': ' + d + ';').join('\n') + '\n  --color-bar: #000000;\n  color-scheme: dark;\n}\n\n/* set data-theme on <html> from localStorage("rc-theme"): light | dark | system */';
+    const base = [
+      ['ink', '#0E1116', 'text, primary btn'], ['ink-2', '#4A4F57', 'muted text'], ['ink-3', '#6A6F77', 'hashes, disabled'], ['line-strong', '#A9A9A0', 'inputs, sec. btn'], ['line', '#D6D6CF', 'panel borders'],
+      ['sunken', '#EBEBE6', 'rows, skeleton'], ['page', '#F4F4F1', 'page background'], ['surface', '#FFFFFF', 'panels'], ['accent', '#2443C9', 'links, focus, data'], ['sample', '#F2D27A', 'SAMPLE DATA label'],
+    ].map(([k, v, u]) => ({ k, v, u }));
+    const outs = [
+      ['KEEP', '#1D6B3B', '#E4F2E8', '#A9D3B7'], ['UPGRADE', '#0B5F86', '#E2F0F8', '#A6CFE6'], ['REDEPLOY', '#5B3597', '#EEE8F8', '#CBBBEA'],
+      ['RECYCLE', '#3F4855', '#E8EBEF', '#BCC3CD'], ['UNCERTAIN', '#8A4600', '#FCE9D6', '#EBBE8E'], ['INSUFF.', '#4A4A4A', '#EEEEEE', '#A0A0A0'], ['danger', '#B3261E', '#FBE9E7', '#EBA8A1'],
+    ].map(([k, fg, bg, bd]) => ({ k, fg, bg, bd }));
+    const S = "system-ui,-apple-system,'Segoe UI',sans-serif", M = "ui-monospace,Menlo,Consolas,monospace";
+    const type = [
+      ['display', 'sans 700 · clamp(32,4.4cqi,54) · -0.03em', S, '54px', 700, '-.03em', 'none', 'Second-life AI servers'],
+      ['h1', 'sans 700 · 30–40 · -0.03em', S, '36px', 700, '-.03em', 'none', 'Fleet dashboard'],
+      ['h2', 'sans 700 · 18–20', S, '20px', 700, '-.01em', 'none', 'Why this recommendation'],
+      ['body', 'sans 400 · 16 / 1.5', S, '16px', 400, '0', 'none', 'The rule compares the emissions saved with the emissions of making it.'],
+      ['small', 'sans 400 · 13–14', S, '14px', 400, '0', 'none', 'Technician One (sample)'],
+      ['id', 'mono 700 · 28–38', M, '32px', 700, '-.02em', 'none', 'GPU-SRV-001'],
+      ['label', 'mono 600 · 11–12 · 0.08em · caps', M, '12px', 600, '.08em', 'uppercase', 'Sample asking price'],
+    ].map(([k, spec, ff, fs, fw, ls, tt, ex]) => ({ k, spec, ff, fs, fw, ls, tt, ex }));
+    const meanings = [
+      ['KEEP', 'Replacing would not pay back its manufacturing emissions'], ['UPGRADE', 'Replace one component instead of the whole device'],
+      ['REDEPLOY', 'Move it to a lighter workload'], ['RECYCLE', 'Formal recycling, with its passport'],
+      ['UNCERTAIN', 'The answer changes within the input ranges; a human decides'], ['INSUFFICIENT_DATA', 'Inputs are missing, and the engine never guesses them'],
+      ['NOT_EVALUATED', 'The decision rule has not run on this device yet'],
+    ].map(([k, m]) => ({ k, m }));
+    const events = [
+      ['Telemetry reading', '#FFFFFF', '#A9A9A0', '#4A4F57'], ['Scan', '#0E1116', '#0E1116', '#0E1116'], ['Repair', '#0E1116', '#0E1116', '#0E1116'],
+      ['Upgrade', '#0E1116', '#0E1116', '#0E1116'], ['Data wipe', '#1D6B3B', '#1D6B3B', '#0E1116'], ['Move', '#0E1116', '#0E1116', '#0E1116'],
+      ['Note', '#FFFFFF', '#0E1116', '#0E1116'], ['Listed for sale', '#2443C9', '#2443C9', '#0E1116'], ['Removed from sale', '#FFFFFF', '#2443C9', '#0E1116'],
+    ].map(([k, n, b, c], i) => ({ k, n, b, c, i: 9 - i, h: ['7c1e…a90b', '3b07…e4d2', 'f12a…09c7', '9d44…b1e0', '05ce…7a3f', 'a4f0…2c88', '1b7d…e5a9', '88c3…0f17', 'c8b2…41fe'][i] }));
+    const bars = [['all positive → replace pays back', '58%', '30%'], ['all negative → keep', '12%', '30%'], ['crosses zero → UNCERTAIN', '20%', '45%']].map(([t, l, w]) => ({ t, l, w }));
+    const sc = (n, t, route, file, note, o = {}) => ({ n, t, route, file, note, tech: !!o.tech, chart: !!o.chart, mErr: !!o.mErr, dErr: false, mOk: false, dOk: !!o.dOk });
+    const screens = [
+      sc('A', 'Available hardware', '/', 'Screen Home', 'public home'),
+      sc('B', 'Passport · visitor', '/device/GPU-SRV-001', 'Screen Passport', 'QR landing; listed device'),
+      sc('C', 'Passport · technician', '/device/GPU-SRV-006', 'Screen Passport', 'UNCERTAIN; listing disabled until a Data wipe', { tech: true }),
+      sc('D', 'Fleet dashboard', '/fleet', 'Screen Fleet', 'technicians'),
+      sc('E', 'Technician login', '/login', 'Screen Login', '390 shows the wrong-login error', { mErr: true }),
+      sc('F', 'Market · empty', '/market', 'Screen Market', 'current state: no verified figures'),
+      sc('G', 'Market · chart', '/market', 'Screen Market', 'mockup labels only, no numbers', { chart: true }),
+      sc('H', 'Add a technician', '/technicians/new', 'Screen Add Technician', '1280 shows the success note', { dOk: true }),
+    ];
+    const notes = [
+      ['Motion.', 'Hover 150 ms (buttons lift onto an accent offset shadow). Net-saving bar draws from zero in 1 s, then its dimension line fades in. Passport history verifies oldest to newest at 260 ms per event, then the badge turns from Checking… to Passport intact. FIG. 1 loops every 2.4 s. All motion stops under prefers-reduced-motion.'],
+      ['Page title.', 'The home H1 is now a statement ("Second-life AI servers, each with a passport you can check") with "Available hardware" as the eyebrow. Judges get the idea before reading the steps. If tests look for an H1 named "Available hardware", swap them.'],
+      ['Section heading.', 'The visible heading "Passport history" keeps the list\'s accessible name "Passport events". Rename one so the two match, if you prefer.'],
+      ['Times in WIB.', 'The API returns UTC; the screens show WIB, which matches the contact hours and the exhibition. Format as "28 Oct 2026, 20:39 WIB".'],
+      ['Telemetry keys.', 'Listing cards show short mono keys (util, power, inlet) to fit three readings on one line at 390 px. Full names stay in the passport event details.'],
+      ['Disabled listing hint.', 'The Sale listing hint names the fix ("Log a Wipe") as well as the reason, so technicians at the rack are not stuck.'],
+      ['Dark theme.', 'Designed (see the top section). Every colour is a token with a light and a dark value; status colours keep their meaning and stay AA on the dark surface. Store the choice in localStorage, no account needed, so it works for QR visitors.'],
+      ['New route.', '/settings is new: Profile and Credentials for technicians, Appearance for everyone. Printed QR codes are unaffected.'],
+      ['Menu button.', 'Accessible name "Menu". On phones it replaces the inline nav row, which frees about 50 px above the fold on the passport page. The Technician login and Log out links stay visible in the top bar.'],
+    ].map(([t, b]) => ({ t, b }));
+    const themeCss = `@import "tailwindcss";
+
+@theme {
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+
+  --color-ink: #0E1116;
+  --color-ink-2: #4A4F57;
+  --color-ink-3: #6A6F77;
+  --color-line-strong: #A9A9A0;
+  --color-line: #D6D6CF;
+  --color-sunken: #EBEBE6;
+  --color-page: #F4F4F1;
+  --color-surface: #FFFFFF;
+  --color-accent: #2443C9;
+  --color-accent-hover: #16298A;
+  --color-sample: #F2D27A;
+  --color-sample-ink: #2E2100;
+  --color-ok: #1D6B3B;   --color-ok-bg: #E4F2E8;
+  --color-danger: #B3261E; --color-danger-bg: #FBE9E7;
+
+  --color-keep: #1D6B3B;      --color-keep-bg: #E4F2E8;
+  --color-upgrade: #0B5F86;   --color-upgrade-bg: #E2F0F8;
+  --color-redeploy: #5B3597;  --color-redeploy-bg: #EEE8F8;
+  --color-recycle: #3F4855;   --color-recycle-bg: #E8EBEF;
+  --color-uncertain: #8A4600; --color-uncertain-bg: #FCE9D6;
+  --color-insufficient: #4A4A4A; --color-insufficient-bg: #EEEEEE;
+
+  --text-label: 0.75rem;   --text-label--letter-spacing: 0.08em;
+  --text-sm: 0.875rem; --text-base: 1rem;
+  --text-h2: 1.25rem; --text-h1: 2.25rem; --text-display: 3.375rem;
+
+  --radius-ctl: 2px;
+  --shadow-offset: 4px 4px 0 #0E1116;
+}
+
+/* focus everywhere */
+:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 2px; }
+
+/* button.primary  = h-11 px-[18px] rounded-ctl bg-ink text-white font-semibold
+   button.secondary= h-11 px-[18px] rounded-ctl bg-surface border border-line-strong
+   panel           = bg-surface border border-line (no radius)
+   label           = font-mono text-label uppercase text-ink-2 */`;
+    return { base, outs, type, space: [4, 8, 12, 16, 24, 32, 48, 64], meanings, events, bars, screens, notes, themeCss, darkTokens, darkCss };
+  }
+}
+</script>
+</body>
+</html>

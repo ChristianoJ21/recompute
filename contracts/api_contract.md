@@ -1,4 +1,4 @@
-# ReCompute API contract v2.2
+# ReCompute API contract v2.3
 
 > **Owner:** Panji (backend). **Panji decides changes and tells Jose before they land.** The frontend calls the backend only through `frontend/src/api/client.ts`, via `/api/*` (Vite proxy on the laptop, Vercel rewrite when hosted; both forward to the backend, so no CORS is needed).
 > Spec: `PRD_ReCompute_App.md` Sections 5–7 and 15. Base URL (local): `http://localhost:8000`. Interactive docs: `/docs`.
@@ -19,6 +19,8 @@ Status: **built** = live in the backend; **planned** = shape agreed here, backen
 | `login_request.json` | body for `POST /auth/login` |
 | `login_response.json` | `POST /auth/login` (the token value is a placeholder) |
 | `auth_me.json` | `GET /auth/me` |
+| `profile_request.json` / `profile_updated.json` | body and answer of `PATCH /auth/me` |
+| `password_change_request.json` / `password_changed.json` | body (placeholders) and answer of `POST /auth/password` |
 | `devices_list.json` | `GET /devices` |
 | `device_detail.json` | `GET /devices/{id}` |
 | `device_create_request.json` | body for `POST /devices` |
@@ -41,6 +43,8 @@ Status: **built** = live in the backend; **planned** = shape agreed here, backen
 |---|---|---|---|---|---|
 | POST | `/auth/login` | — | 200 | `{token, token_type: "bearer", expires_at, technician: {username, name}}` | built |
 | GET | `/auth/me` | 🔒 | 200 | `{username, name}` (use it to check a stored token is still valid) | built |
+| PATCH | `/auth/me` | 🔒 | 200 | body `{name}` → `{username, name}`: the logged-in technician changes their own full name (trimmed, 1–200 characters; 400 otherwise). The username never changes: it is the `actor` in the hash chain | built |
+| POST | `/auth/password` | 🔒 | 200 | body `{current_password, new_password}` → `{username, name}`. **400** (not 401, so the login is kept) if the current password is wrong, the new one is under 10 characters or equals the current one; wrong current passwords count towards the login lock (**429** after 5 in 15 min) | built |
 | POST | `/auth/technicians` | 🔒 | 201 | body `{username, name, password}` → `{username, name}`: a logged-in technician adds a colleague; 400 if the username is taken or invalid, or the password is under 10 characters | built |
 | GET | `/devices` | — | 200 | `[{id, model, location, latest_outcome, sample_data}]`, sorted by id; `latest_outcome` is null until evaluated | built |
 | GET | `/devices/{id}` | — | 200 | `{device, events, latest_evaluation}`; `events` newest first; `latest_evaluation` null until evaluated | built |
@@ -57,13 +61,14 @@ Status: **built** = live in the backend; **planned** = shape agreed here, backen
 | POST | `/devices/{id}/unlist` | 🔒 | 201 | body `{note?}` → the `unlist` event; 400 if not listed | built |
 | GET | `/contact` | — | 200 | `{organisation, email, phone, hours, note, sample_data: true}` (below) | built |
 
-**No PUT, PATCH or DELETE exist.** Events are append-only (the database also refuses UPDATE/DELETE on events). Devices are not edited: a changed device is a new record. Listing and unlisting are **passport events** (`kind` `list` / `unlist`), so they appear in the history and the hash chain; `POST /devices/{id}/events` refuses those two kinds so the wipe rule cannot be skipped.
+**No PUT or DELETE exist; the only PATCH is `/auth/me` (a technician's own name).** Events are append-only (the database also refuses UPDATE/DELETE on events). Devices are not edited: a changed device is a new record. Listing and unlisting are **passport events** (`kind` `list` / `unlist`), so they appear in the history and the hash chain; `POST /devices/{id}/events` refuses those two kinds so the wipe rule cannot be skipped.
 
 ## Login
 - `POST /auth/login` body `{"username": "tech-1", "password": "..."}`. Wrong username and wrong password give the same 401 message. After **5 failed logins for one username within 15 minutes**, the API answers **429** until the window ends.
 - Tokens last **12 hours** (`expires_at`, ISO 8601 UTC). There is no logout endpoint: logging out = the frontend forgets the token. Keep it in `sessionStorage`, not `localStorage`.
 - On any 401 from a 🔒 endpoint, clear the token and show the login page.
 - There is no public sign-up. The first account is made on the backend machine: `py -m tools.create_technician tech-1 "Technician One"` (asks for a password, min. 10 characters); after that, a logged-in technician can add colleagues with `POST /auth/technicians`. Buyers never get accounts: they use the contact box.
+- A logged-in technician can change their own full name (`PATCH /auth/me`) and password (`POST /auth/password`, needs the current password). Tokens issued before a password change **stay valid until they expire** (12 h at most): they carry no password version. Log out on shared devices.
 - Reads are public on purpose (a buyer must be able to read a passport). Never put a secret in a device record or event payload.
 
 ## Hash chain (stretch S1)
@@ -140,7 +145,7 @@ The price is shown, but there is **no buy button, cart, payment or order**: buye
 Dates: ISO 8601 UTC with `Z`. Dates without time: `YYYY-MM-DD`.
 
 ## Errors
-`{"error": "<what went wrong and how to fix it>"}` with **400** (invalid body, duplicate id, invalid range, listing rule broken), **401** (missing, invalid or expired token; wrong username or password; also sends `WWW-Authenticate: Bearer`), **404** (unknown device / endpoint), **409** (two events for one device written at the same moment; send the event again) or **429** (too many failed logins; wait and try again). 405 for PUT/PATCH/DELETE on events.
+`{"error": "<what went wrong and how to fix it>"}` with **400** (invalid body, duplicate id, invalid range, listing rule broken), **401** (missing, invalid or expired token; wrong username or password; also sends `WWW-Authenticate: Bearer`), **404** (unknown device / endpoint), **409** (two events for one device written at the same moment; send the event again) or **429** (too many failed logins or wrong current passwords; wait and try again). 405 for PUT/PATCH/DELETE on events.
 
 ## Changelog
 - **v1.1 (28 Oct 2026)**: engine aligned with essay safeguard 2 (whole pathway run at both ends; any flip → UNCERTAIN). Added `scenarios` to the evaluation object and `not_evaluated` to the fleet summary.
@@ -149,3 +154,4 @@ Dates: ISO 8601 UTC with `Z`. Dates without time: `YYYY-MM-DD`.
 - **v2.0 (28 Oct 2026)**: phase 2 (PRD §15). **Breaking:** writes need a bearer token (401 without); `actor` comes from the token. New: `POST /auth/login`, `GET /auth/me`, errors 401 and 429 (built); `GET /listings`, `POST /devices/{id}/list|unlist`, `GET /contact` (planned). Response shapes of v1.3 endpoints are unchanged.
 - **v2.1 (28 Oct 2026)**: listings and contact **built**. `POST /devices/{id}/list` now **requires** `price: {amount, currency}` (stored in the `list` event); Listing gains `install_date`, `reliability_ok`, `price`, `latest_telemetry`. Still no buy button or payment. New examples: `list_request`, `list_created`, `listings`, `contact`.
 - **v2.2 (28 Oct 2026)**: new `POST /auth/technicians` (🔒): technicians add technicians. Additive only; still no public sign-up.
+- **v2.3 (29 Oct 2026)**: new `PATCH /auth/me` (own full name) and `POST /auth/password` (own password, needs the current one) for the frontend `/settings` page, both 🔒. Additive only. New examples: `profile_request`, `profile_updated`, `password_change_request`, `password_changed`.

@@ -1,7 +1,7 @@
 {
   "id": 3,
   "device_id": "GPU-SRV-001",
-  "created_at": "2026-10-28T13:39:44Z",
+  "created_at": "2026-10-28T18:59:19Z",
   "kind": "list",
   "payload": {
     "price": {
@@ -11,6 +11,6 @@
     "note": "Released after REDEPLOY review (sample)"
   },
   "actor": "tech-1",
-  "prev_hash": "53c347f2dbc96959025ed4f2471bb05bdb24cbaaf86a591179dc23d06cf0dc44",
-  "hash": "b011c3c21e9a7348a5261b43c31f46043f50a4fdaa4689b96d28e13832aa7f6f"
+  "prev_hash": "e33c191ced561e323aef1e78e41655dd0970059ce52ddc4bf6af5a22af823745",
+  "hash": "2f977b52bc0f23704da9176046d2e4cfcab4c28a044fdec083a012a569234901"
 }

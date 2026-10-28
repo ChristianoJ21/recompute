@@ -185,3 +185,52 @@ def add_technician(body: NewTechnicianIn, request: Request):
         except ValueError as error:
             raise HTTPException(400, f"{error}.") from error
         return technician.to_dict()
+
+
+# ---- a technician edits their own account (contract v2.3) -----------------------
+
+class ProfileIn(BaseModel):
+    name: str = Field(max_length=200)
+
+
+@router.patch("/me")
+def update_me(body: ProfileIn, request: Request, technician: Technician = Depends(require_technician)):
+    """Change the logged-in technician's full name. The username never changes (it is the actor in the passport)."""
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(400, "name: enter your full name.")
+    with request.app.state.session_factory() as session:
+        stored = session.get(Technician, technician.username)
+        stored.name = name
+        session.commit()
+        return stored.to_dict()
+
+
+class PasswordChangeIn(BaseModel):
+    current_password: str = Field(min_length=1, max_length=200)
+    new_password: str = Field(max_length=200)
+
+
+@router.post("/password")
+def change_password(body: PasswordChangeIn, request: Request, technician: Technician = Depends(require_technician)):
+    """Change the logged-in technician's password. Wrong guesses count towards the same lock as logins.
+
+    Answers 400 (not 401) for a wrong current password, so the frontend keeps the login.
+    Tokens already issued stay valid until they expire (they carry no password version).
+    """
+    lock = request.app.state.login_lock
+    if lock.is_locked(technician.username):
+        raise HTTPException(429, "Too many wrong passwords for this username; try again in 15 minutes.")
+    if not check_password(body.current_password, technician.password_hash):
+        lock.failed(technician.username)
+        raise HTTPException(400, "Current password is wrong.")
+    if len(body.new_password) < MIN_PASSWORD_LENGTH:
+        raise HTTPException(400, f"new_password: use at least {MIN_PASSWORD_LENGTH} characters.")
+    if body.new_password == body.current_password:
+        raise HTTPException(400, "new_password: choose a password different from the current one.")
+    lock.succeeded(technician.username)
+    with request.app.state.session_factory() as session:
+        stored = session.get(Technician, technician.username)
+        stored.password_hash = hash_password(body.new_password)
+        session.commit()
+        return stored.to_dict()

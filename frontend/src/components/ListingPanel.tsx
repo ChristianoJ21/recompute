@@ -1,68 +1,106 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useEffect, useId, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
-import { describeError, listDevice, unlistDevice } from '../api/client'
-import type { PassportEvent } from '../api/types'
+import { describeError, getContact, listDevice, unlistDevice } from '../api/client'
+import type { Contact, PassportEvent } from '../api/types'
 import { asPrice, formatDate, formatPrice } from '../lib/format'
-import { currentListing, hasWipe } from '../lib/listing'
-import { Card, ErrorNotice, primaryButton, secondaryButton } from './ui'
+import { enquiryLink, hasWipe } from '../lib/listing'
+import { EnvelopeIcon } from './icons'
+import { ErrorNotice, Notice, Panel, PanelTag, fieldClass, linkClass, monoLabel, primaryButton, secondaryButton } from './ui'
 
 const CURRENCIES = ['IDR', 'USD', 'EUR']
 
-const fieldClass =
-  'mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/30'
-
-interface ListingPanelProps {
-  deviceId: string
-  events: PassportEvent[]
-  canEdit: boolean
-  onChanged: () => Promise<void>
-}
-
-/** Sale status from the passport's list/unlist events; technicians can list or unlist, visitors only read. */
-export function ListingPanel({ deviceId, events, canEdit, onChanged }: ListingPanelProps) {
-  const listing = currentListing(events)
-  if (canEdit) return <ListingControls deviceId={deviceId} events={events} listing={listing} onChanged={onChanged} />
-  if (!listing) return null
-  return (
-    <Card title="For sale">
-      <ListedPrice listing={listing} />
-      <p className="mt-3 text-sm text-gray-600">
-        No online purchase: ask the data centre through the{' '}
-        <Link to="/" className="font-semibold text-emerald-800 underline underline-offset-2">
-          contact box
-        </Link>
-        , quoting the device ID.
-      </p>
-    </Card>
-  )
-}
-
-function ListedPrice({ listing }: { listing: PassportEvent }) {
+/** Price, note and date of the device's current `list` event. */
+function ListedPrice({ listing, large = false }: { listing: PassportEvent; large?: boolean }) {
   const price = asPrice(listing.payload.price)
   const note = typeof listing.payload.note === 'string' ? listing.payload.note : null
   return (
-    <div>
-      {price && <p className="text-2xl font-semibold tabular-nums text-gray-900">{formatPrice(price)}</p>}
-      <p className="text-xs text-gray-500">Sample asking price · listed {formatDate(listing.created_at)}</p>
-      {note && <p className="mt-2 text-sm text-gray-800">{note}</p>}
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-0.5">
+        <span className={monoLabel}>Sample asking price</span>
+        {price && (
+          <span className={`${large ? 'text-[32px]' : 'text-[28px]'} leading-[1.1] font-bold tracking-[-.02em] tabular-nums`}>
+            {formatPrice(price)}
+          </span>
+        )}
+      </div>
+      {note && <p className="text-sm text-ink-2">{note}</p>}
     </div>
   )
 }
 
-interface ListingControlsProps {
+/** The fictional contact box; on failure the visitor is sent to the home page, where it also shows. */
+function useContact(): Contact | null {
+  const [contact, setContact] = useState<Contact | null>(null)
+  useEffect(() => {
+    let active = true
+    getContact()
+      .then((value) => {
+        if (active) setContact(value)
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
+  return contact
+}
+
+/** What a buyer sees next to the passport when the device is listed. No buy button: they e-mail. */
+export function ForSaleBox({ deviceId, listing }: { deviceId: string; listing: PassportEvent }) {
+  const headingId = useId()
+  const contact = useContact()
+  return (
+    <section aria-labelledby={headingId} className="flex min-w-0 flex-[1_1_300px] flex-col border border-ink bg-surface shadow-offset">
+      <div className="flex items-center justify-between gap-2 bg-ink px-4 py-2.5 text-surface">
+        <h2 id={headingId} className="font-mono text-xs font-bold tracking-[.08em] uppercase">
+          For sale
+        </h2>
+        <span className="font-mono text-[11px] text-on-ink-2">listed {formatDate(listing.created_at)}</span>
+      </div>
+      <div className="flex flex-1 flex-col gap-3 p-4">
+        <ListedPrice listing={listing} large />
+        {contact ? (
+          <>
+            <p className="text-sm">
+              Ask through the contact box:{' '}
+              <a href={`mailto:${contact.email}`} className={linkClass}>
+                {contact.email}
+              </a>{' '}
+              · {contact.organisation}
+            </p>
+            <a href={enquiryLink(contact.email, deviceId)} className={`${secondaryButton} mt-auto`}>
+              <EnvelopeIcon />
+              Ask about this device
+            </a>
+          </>
+        ) : (
+          <p className="text-sm">
+            Ask through the{' '}
+            <Link to="/" className={linkClass}>
+              contact box
+            </Link>
+            , quoting the device ID.
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}
+
+interface SaleListingProps {
   deviceId: string
   events: PassportEvent[]
   listing: PassportEvent | null
   onChanged: () => Promise<void>
 }
 
-function ListingControls({ deviceId, events, listing, onChanged }: ListingControlsProps) {
+/** Technician controls: list with a sample price (needs a wipe event first) or unlist. */
+export function SaleListing({ deviceId, events, listing, onChanged }: SaleListingProps) {
   const [amount, setAmount] = useState('')
   const [currency, setCurrency] = useState(CURRENCIES[0])
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const ids = useId()
   const wiped = hasWipe(events)
 
   const run = async (action: () => Promise<unknown>) => {
@@ -95,88 +133,69 @@ function ListingControls({ deviceId, events, listing, onChanged }: ListingContro
 
   if (listing) {
     return (
-      <Card title="Sale listing">
+      <Panel title="Sale listing" aside={<PanelTag>LISTED {formatDate(listing.created_at).toUpperCase()}</PanelTag>}>
         <ListedPrice listing={listing} />
-        {error && (
-          <div className="mt-4">
-            <ErrorNotice message={error} />
-          </div>
-        )}
-        <button
-          type="button"
-          className={`${secondaryButton} mt-4`}
-          disabled={saving}
-          onClick={() => run(() => unlistDevice(deviceId))}
-        >
-          {saving ? 'Saving…' : 'Unlist'}
-        </button>
-      </Card>
+        {error && <ErrorNotice message={error} />}
+        <div>
+          <button type="button" className={secondaryButton} disabled={saving} onClick={() => run(() => unlistDevice(deviceId))}>
+            {saving ? 'Saving…' : 'Unlist'}
+          </button>
+        </div>
+      </Panel>
     )
   }
 
+  const label = `flex flex-col gap-1.5 text-sm font-semibold ${wiped ? '' : 'text-ink-3'}`
   return (
-    <Card title="Sale listing">
-      <form onSubmit={list} noValidate className="space-y-4">
-        <p className="text-sm text-gray-600">
-          Not listed. A listing shows this device, its passport and the price on the public Available hardware page.
-          It is a passport event, so the history keeps it.
-        </p>
+    <Panel title="Sale listing" aside={<PanelTag>NOT LISTED</PanelTag>}>
+      <form onSubmit={list} noValidate className="flex flex-col gap-3.5">
         {!wiped && (
-          <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-            Record a wipe event first: a device can only be listed after its data has been wiped (log a Wipe action
-            above).
-          </p>
+          <Notice tone="warning">
+            Listing needs a <strong>Data wipe</strong> event in the passport first. Log a Wipe on the left.
+          </Notice>
         )}
-        <div className="grid gap-3 sm:grid-cols-[1fr_8rem]">
-          <div>
-            <label htmlFor={`${ids}-amount`} className="text-sm font-medium text-gray-900">
-              Asking price <span className="font-normal text-gray-500">(sample, whole amount)</span>
-            </label>
+        <div className="grid grid-cols-[minmax(0,1fr)_96px] gap-2">
+          <label className={label}>
+            Asking price
             <input
-              id={`${ids}-amount`}
               type="number"
               inputMode="numeric"
               min={1}
               step={1}
+              placeholder="45000000"
+              disabled={!wiped}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className={fieldClass}
+              className={`${fieldClass} font-mono text-[15px]`}
             />
-          </div>
-          <div>
-            <label htmlFor={`${ids}-currency`} className="text-sm font-medium text-gray-900">
-              Currency
-            </label>
-            <select
-              id={`${ids}-currency`}
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className={fieldClass}
-            >
+          </label>
+          <label className={label}>
+            Currency
+            <select disabled={!wiped} value={currency} onChange={(e) => setCurrency(e.target.value)} className={`${fieldClass} px-2 text-[15px]`}>
               {CURRENCIES.map((code) => (
                 <option key={code}>{code}</option>
               ))}
             </select>
-          </div>
-        </div>
-        <div>
-          <label htmlFor={`${ids}-note`} className="text-sm font-medium text-gray-900">
-            Note for buyers <span className="font-normal text-gray-500">(optional)</span>
           </label>
+        </div>
+        <label className={label}>
+          Note
           <input
-            id={`${ids}-note`}
             maxLength={500}
+            disabled={!wiped}
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="e.g. released after REDEPLOY review"
-            className={fieldClass}
+            className={`${fieldClass} text-[15px]`}
           />
-        </div>
+        </label>
         {error && <ErrorNotice message={error} />}
-        <button type="submit" className={`${primaryButton} w-full sm:w-auto`} disabled={saving || !wiped}>
-          {saving ? 'Saving…' : 'List for sale'}
-        </button>
+        <div>
+          <button type="submit" className={primaryButton} disabled={saving || !wiped}>
+            {saving ? 'Saving…' : 'List for sale'}
+          </button>
+        </div>
       </form>
-    </Card>
+    </Panel>
   )
 }

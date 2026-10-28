@@ -53,8 +53,8 @@ describe('fleet page', () => {
     const counts = await screen.findByRole('list', { name: 'Devices per outcome' })
     const tiles = within(counts).getAllByRole('listitem')
     expect(tiles).toHaveLength(6)
-    expect(tiles.map((tile) => tile.textContent?.match(/^\d+/)?.[0])).toEqual(['1', '1', '1', '1', '1', '1'])
-    expect(screen.getByText('6 devices')).toBeTruthy()
+    expect(tiles.map((tile) => within(tile).getByText(/^\d+$/).textContent)).toEqual(['1', '1', '1', '1', '1', '1'])
+    expect(screen.getByText(/· 6 devices$/)).toBeTruthy()
   })
 
   it('flags devices that have not been evaluated', async () => {
@@ -63,7 +63,9 @@ describe('fleet page', () => {
     renderFleet()
 
     expect(await screen.findByText('NOT EVALUATED')).toBeTruthy()
-    expect(screen.getByText('1 device · 1 not evaluated yet')).toBeTruthy()
+    expect(screen.getByText(/· 1 device$/)).toBeTruthy()
+    const stats = screen.getByRole('list', { name: 'Fleet stats' })
+    expect(within(stats).getByText('Not evaluated').closest('li')!.textContent).toContain('1')
   })
 
   it('shows the SAMPLE DATA label', async () => {

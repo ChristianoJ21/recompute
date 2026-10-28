@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { describeError, evaluateDevice, getDevice } from '../api/client'
+import { ApiError, describeError, evaluateDevice, getDevice } from '../api/client'
 import type { DeviceDetail } from '../api/types'
-import { DeviceDetails, QrLabel, RuleInputs } from '../components/DeviceFacts'
-import { ListingPanel } from '../components/ListingPanel'
+import { TechnicalDetails } from '../components/DeviceFacts'
+import { IntegrityBadge } from '../components/IntegrityBadge'
+import { ForSaleBox, SaleListing } from '../components/ListingPanel'
 import { OutcomeBadge } from '../components/OutcomeBadge'
 import { PassportHistory } from '../components/PassportHistory'
 import { TechnicianForm } from '../components/TechnicianForm'
-import { ErrorNotice, Loading, secondaryButton } from '../components/ui'
+import { CornerMarks, ErrorNotice, Loading, container, monoLabel, panelClass } from '../components/ui'
 import { WhyPanel } from '../components/WhyPanel'
+import { currentListing } from '../lib/listing'
+import { usePassportCheck, type PassportCheck } from '../lib/passportCheck'
 import { useSession } from '../lib/session'
+import { NotFoundPanel } from './NotFoundPage'
 
 export function DevicePage() {
   const { id = '' } = useParams()
@@ -17,10 +21,14 @@ export function DevicePage() {
   return <DevicePassport key={id} id={id} />
 }
 
-type State = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; detail: DeviceDetail }
+type State =
+  | { status: 'loading' }
+  | { status: 'missing' }
+  | { status: 'error'; message: string }
+  | { status: 'ready'; detail: DeviceDetail }
 
 function DevicePassport({ id }: { id: string }) {
-  // Reading is public; the form, Evaluate and listing buttons appear only for a logged-in technician.
+  // Reading is public; the forms, Evaluate and listing buttons appear only for a logged-in technician.
   const canEdit = useSession() !== null
   const [state, setState] = useState<State>({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
@@ -34,7 +42,9 @@ function DevicePassport({ id }: { id: string }) {
         if (active) setState({ status: 'ready', detail })
       })
       .catch((error: unknown) => {
-        if (active) setState({ status: 'error', message: describeError(error) })
+        if (!active) return
+        const missing = error instanceof ApiError && error.status === 404
+        setState(missing ? { status: 'missing' } : { status: 'error', message: describeError(error) })
       })
     return () => {
       active = false
@@ -58,9 +68,7 @@ function DevicePassport({ id }: { id: string }) {
     try {
       const evaluation = await evaluateDevice(id)
       setState((current) =>
-        current.status === 'ready'
-          ? { status: 'ready', detail: { ...current.detail, latest_evaluation: evaluation } }
-          : current,
+        current.status === 'ready' ? { status: 'ready', detail: { ...current.detail, latest_evaluation: evaluation } } : current,
       )
     } catch (error) {
       setEvaluateError(describeError(error))
@@ -70,14 +78,18 @@ function DevicePassport({ id }: { id: string }) {
   }
 
   return (
-    <div className="space-y-6">
-      <Link
-        to={canEdit ? '/fleet' : '/'}
-        className="inline-block text-sm font-semibold text-emerald-800 hover:underline"
-      >
-        {canEdit ? '← Fleet' : '← Available hardware'}
-      </Link>
+    <div className={`${container} flex flex-col gap-4 pt-5 pb-16`}>
+      <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 font-mono text-xs text-ink-2">
+        <Link to={canEdit ? '/fleet' : '/'} className="inline-flex min-h-8 items-center text-accent no-underline hover:underline">
+          {canEdit ? '← Fleet' : '← Available hardware'}
+        </Link>
+        <span aria-hidden>/</span>
+        <span>device</span>
+        <span aria-hidden>/</span>
+        <span className="break-all text-ink">{id}</span>
+      </nav>
       {state.status === 'loading' && <Loading label="Loading the passport…" />}
+      {state.status === 'missing' && <NotFoundPanel />}
       {state.status === 'error' && <ErrorNotice message={state.message} onRetry={retry} />}
       {state.status === 'ready' && (
         <Passport
@@ -104,46 +116,60 @@ interface PassportProps {
 
 function Passport({ detail, canEdit, evaluating, evaluateError, onEvaluate, onEventAdded }: PassportProps) {
   const { device, events, latest_evaluation } = detail
+  const check = usePassportCheck(device.id, events)
+  const listing = currentListing(events)
   return (
     <>
-      <header className="space-y-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-mono text-2xl font-semibold tracking-tight sm:text-3xl">{device.id}</h1>
-          <OutcomeBadge outcome={latest_evaluation?.outcome ?? null} size="lg" />
-        </div>
-        <p className="text-gray-700">
-          {device.model} · {device.location}
-        </p>
-        {/* Technicians arrive here from the QR code; take them straight to the form. */}
-        {canEdit && (
-          <a href="#log-action" className={`${secondaryButton} mt-2`}>
-            Log an action
-          </a>
-        )}
-      </header>
-      {!canEdit && <ListingPanel deviceId={device.id} events={events} canEdit={false} onChanged={onEventAdded} />}
+      <div className="flex flex-wrap items-stretch gap-4">
+        <IdentityCard detail={detail} check={check} />
+        {listing && <ForSaleBox deviceId={device.id} listing={listing} />}
+      </div>
       <WhyPanel
         evaluation={latest_evaluation}
         evaluating={evaluating}
         error={evaluateError}
         onEvaluate={canEdit ? onEvaluate : undefined}
       />
-      {canEdit && <TechnicianForm deviceId={device.id} onAdded={onEventAdded} />}
-      {canEdit && <ListingPanel deviceId={device.id} events={events} canEdit onChanged={onEventAdded} />}
-      <PassportHistory deviceId={device.id} events={events} />
-      <details className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <summary className="cursor-pointer px-4 py-4 sm:px-6">
-          <span className="font-semibold text-gray-900">Technical details</span>
-          <span className="ml-2 text-sm text-gray-500">rule inputs, device record, QR label</span>
-        </summary>
-        <div className="space-y-6 px-4 pb-4 sm:px-6 sm:pb-6">
-          <RuleInputs device={device} />
-          <div className="grid gap-6 sm:grid-cols-2">
-            <DeviceDetails device={device} />
-            <QrLabel deviceId={device.id} />
-          </div>
+      {canEdit && (
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-start gap-4">
+          <TechnicianForm deviceId={device.id} onAdded={onEventAdded} />
+          <SaleListing deviceId={device.id} events={events} listing={listing} onChanged={onEventAdded} />
         </div>
-      </details>
+      )}
+      <PassportHistory events={events} check={check} />
+      <TechnicalDetails device={device} />
     </>
+  )
+}
+
+function IdentityCard({ detail, check }: { detail: DeviceDetail; check: PassportCheck }) {
+  const { device, events, latest_evaluation } = detail
+  const head = [...events].sort((a, b) => b.id - a.id)[0]?.hash
+  // A machine-readable-zone style summary line, built from the real record.
+  const mrz = [
+    device.id,
+    device.device_type.toUpperCase(),
+    `INSTALLED<${device.install_date}`,
+    `${events.length}<EVENTS`,
+    `HEAD<${head ? `${head.slice(0, 4)}…${head.slice(-4)}` : 'NONE'}`,
+  ].join('<<')
+  return (
+    <section aria-label="Device" className={`relative flex min-w-0 flex-[2_1_520px] flex-col ${panelClass}`}>
+      <CornerMarks />
+      <div className="flex flex-col gap-3 p-4 sm:p-6">
+        <span className={monoLabel}>Device passport</span>
+        <h1 className="font-mono text-[clamp(28px,3.2vw,38px)] leading-[1.05] font-bold tracking-[-.02em] break-all">{device.id}</h1>
+        <p className="text-[15px] text-ink-2">
+          {device.model} · {device.location}
+        </p>
+        <div className="flex flex-wrap gap-2 pt-1">
+          <OutcomeBadge outcome={latest_evaluation?.outcome ?? null} size="lg" />
+          <IntegrityBadge integrity={check.integrity} size="lg" />
+        </div>
+      </div>
+      <div aria-hidden className="mt-auto border-t border-dashed border-line-mid bg-raised px-4 py-2.5 font-mono text-[11px] tracking-[.12em] break-all text-ink-3 sm:px-6">
+        {mrz}
+      </div>
+    </section>
   )
 }
