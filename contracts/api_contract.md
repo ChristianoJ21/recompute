@@ -1,6 +1,6 @@
 # ReCompute API contract v2.0
 
-> **Owner:** Panji (backend). **Changes need Jose's OK.** The frontend calls the backend only through `frontend/src/api/client.ts`, via `/api/*` (Vite proxy on the laptop, Vercel rewrite when hosted; both forward to the backend, so no CORS is needed).
+> **Owner:** Panji (backend). **Panji decides changes and tells Jose before they land.** The frontend calls the backend only through `frontend/src/api/client.ts`, via `/api/*` (Vite proxy on the laptop, Vercel rewrite when hosted; both forward to the backend, so no CORS is needed).
 > Spec: `PRD_ReCompute_App.md` Sections 5–7 and 15. Base URL (local): `http://localhost:8000`. Interactive docs: `/docs`.
 > **Every device number is SAMPLE DATA.** Show the label on every page; never present a value as a measurement.
 

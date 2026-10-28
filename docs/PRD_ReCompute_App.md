@@ -65,7 +65,7 @@ It must match Section 4 of the essay exactly: same rule, same outcomes, same saf
 ```
 recompute-app/
 ├── README.md                  # how to run (both)
-├── contracts/                 # OWNED BY PANJI; changes need Jose's OK
+├── contracts/                 # OWNED BY PANJI (decides changes; tells Jose)
 │   ├── api_contract.md        # copy of Section 7
 │   └── examples/*.json        # example responses, used by both sides' tests
 ├── backend/                   # Panji + Agent A ONLY
@@ -296,7 +296,7 @@ If we are not in the Top 5, stop on 9 Nov; the work stays useful for portfolios.
 
 ## 15. Phase 2 (v2.0): public showcase, technician login, market forecast, hosting
 
-> Proposed by Panji 28 Oct (SESSION_CONTEXT open item A7); **Jose agrees the contract, Hanif supplies the forecast numbers.** F1–F7 and §5 are unchanged. Order: contract v2.0 → F8 login → F9 listings → F10 showcase + F11 dashboard → F12 forecast → F13 deploy.
+> Proposed by Panji 28 Oct (SESSION_CONTEXT open item A7); **Panji decides the contract and tells Jose; Hanif supplies the forecast numbers.** F1–F7 and §5 are unchanged. Order: contract v2.0 → F8 login → F9 listings → F10 showcase + F11 dashboard → F12 forecast → F13 deploy.
 
 ### 15.1 Two areas
 | Area | Who | Login | Pages |

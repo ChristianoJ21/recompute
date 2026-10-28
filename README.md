@@ -5,7 +5,7 @@ Working demo of ReCompute for the GYEBC 2026 Grand Final. Spec: [`docs/PRD_ReCom
 
 | Folder | Owner |
 |---|---|
-| `contracts/` | Panji (changes need Jose's OK) |
+| `contracts/` | Panji (decides changes; tells Jose) |
 | `backend/` | Panji + Agent A |
 | `frontend/`, `data/`, `scripts/` | Jose + Agent B |
 
