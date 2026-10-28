@@ -15,7 +15,8 @@ const apiProxy = {
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   // strictPort: the QR codes point at :5173, so fail loudly instead of moving to another port.
-  server: { port: 5173, strictPort: true, proxy: apiProxy },
+  // fs.allow: the market page imports ../data/market_forecast.json (Jose's data folder).
+  server: { port: 5173, strictPort: true, proxy: apiProxy, fs: { allow: ['.', '../data'] } },
   preview: { port: 5173, strictPort: true, proxy: apiProxy },
   test: {
     environment: 'jsdom',

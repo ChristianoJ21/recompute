@@ -3,9 +3,12 @@
 Nothing is read from real hardware (no BMC/Redfish/Prometheus): every reading is a random
 toy value, and each payload says "simulated": true and "sample_data": true.
 
-    python scripts/simulate_telemetry.py                              # one reading per device
-    python scripts/simulate_telemetry.py --rounds 0 --interval 10     # keep going until Ctrl+C
-    python scripts/simulate_telemetry.py --device GPU-SRV-001 --rounds 3 --seed 42
+Writes need a technician login: set RECOMPUTE_USERNAME and RECOMPUTE_PASSWORD (see seed.py).
+The passport records that technician as the actor of each reading.
+
+    py scripts/simulate_telemetry.py                              # one reading per device
+    py scripts/simulate_telemetry.py --rounds 0 --interval 10     # keep going until Ctrl+C
+    py scripts/simulate_telemetry.py --device GPU-SRV-001 --rounds 3 --seed 42
 """
 import argparse
 import random
@@ -13,9 +16,7 @@ import sys
 import time
 from urllib.parse import quote
 
-from recompute_api import ApiError, call, default_api_url
-
-ACTOR = "telemetry-simulator"
+from recompute_api import ApiError, call, default_api_url, login_from_env
 
 
 def reading(rng):
@@ -30,15 +31,15 @@ def reading(rng):
     }
 
 
-def append_telemetry(api_url, device_id, payload):
+def append_telemetry(api_url, token, device_id, payload):
     path = f"/devices/{quote(device_id, safe='')}/events"
-    body = {"kind": "telemetry", "payload": payload, "actor": ACTOR}
+    body = {"kind": "telemetry", "payload": payload}
     try:
-        return call(api_url, "POST", path, body)
+        return call(api_url, "POST", path, body, token)
     except ApiError as error:
         if error.status != 409:  # 409: another event was written at the same moment; send it again
             raise
-        return call(api_url, "POST", path, body)
+        return call(api_url, "POST", path, body, token)
 
 
 def main():
@@ -52,16 +53,17 @@ def main():
 
     rng = random.Random(args.seed)
     try:
+        token = login_from_env(args.api)
         device_ids = args.device or [d["id"] for d in call(args.api, "GET", "/devices")]
         if not device_ids:
-            sys.exit("No devices yet. Run python scripts/seed.py first.")
+            sys.exit("No devices yet. Run py scripts/seed.py first.")
         print(f"Appending SIMULATED telemetry to {len(device_ids)} device(s) at {args.api} (Ctrl+C stops)")
         done = 0
         while args.rounds == 0 or done < args.rounds:
             if done:
                 time.sleep(args.interval)
             for device_id in device_ids:
-                event = append_telemetry(args.api, device_id, reading(rng))
+                event = append_telemetry(args.api, token, device_id, reading(rng))
                 p = event["payload"]
                 print(f"  {device_id:<16} event #{event['id']}: {p['utilization_pct']}% busy, "
                       f"{p['power_w']} W, {p['inlet_temp_c']} °C (simulated)")

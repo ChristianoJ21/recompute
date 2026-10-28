@@ -3,26 +3,35 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import devicesList from '../../../contracts/examples/devices_list.json'
+import chainOk from '../../../contracts/examples/events_verify.json'
 import fleetSummary from '../../../contracts/examples/fleet_summary.json'
+import listings from '../../../contracts/examples/listings.json'
 import { App } from '../App'
 import * as client from '../api/client'
-import type { DeviceSummary, FleetSummary } from '../api/types'
+import type { ChainCheck, DeviceSummary, FleetSummary, Listing } from '../api/types'
+import { signIn } from '../test/session'
 
 vi.mock('../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api/client')>()),
   listDevices: vi.fn(),
   getFleetSummary: vi.fn(),
+  getListings: vi.fn(),
+  verifyEvents: vi.fn(),
 }))
 
 const renderFleet = () =>
   render(
-    <MemoryRouter initialEntries={['/']}>
+    <MemoryRouter initialEntries={['/fleet']}>
       <App />
     </MemoryRouter>,
   )
 
 describe('fleet page', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
+    signIn()
+    vi.mocked(client.getListings).mockResolvedValue(listings as Listing[])
+    vi.mocked(client.verifyEvents).mockImplementation(async (id) => ({ ...(chainOk as ChainCheck), device_id: id }))
     vi.mocked(client.listDevices).mockResolvedValue(devicesList as DeviceSummary[])
     vi.mocked(client.getFleetSummary).mockResolvedValue(fleetSummary as FleetSummary)
   })
@@ -71,5 +80,29 @@ describe('fleet page', () => {
     expect((await screen.findByRole('alert')).textContent).toContain('Is the backend running on port 8000?')
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }))
     expect(await screen.findByRole('list', { name: 'Devices' })).toBeTruthy()
+  })
+
+  it('shows the technician stats: listed for sale and passports intact vs changed', async () => {
+    vi.mocked(client.verifyEvents).mockImplementation(async (id) => ({
+      ...(chainOk as ChainCheck),
+      device_id: id,
+      valid: id !== 'GPU-SRV-004',
+      first_bad_event_id: id === 'GPU-SRV-004' ? 3 : null,
+    }))
+    renderFleet()
+
+    const stats = await screen.findByRole('list', { name: 'Fleet stats' })
+    const tile = (label: RegExp) => within(stats).getByText(label).closest('li')!.textContent
+    expect(tile(/Listed for sale/)).toContain('1')
+    expect(tile(/Passports intact/)).toContain('5 of 6')
+    expect(tile(/Passports changed/)).toContain('1')
+  })
+
+  it('sends a logged-out visitor to the login page', async () => {
+    sessionStorage.clear()
+    renderFleet()
+
+    expect(await screen.findByRole('heading', { name: 'Technician login' })).toBeTruthy()
+    expect(client.listDevices).not.toHaveBeenCalled()
   })
 })

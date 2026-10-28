@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatKg, formatRange, netBarGeometry } from './format'
+import { asPrice, formatKg, formatPrice, formatRange, netBarGeometry } from './format'
 
 describe('formatKg', () => {
   it('signs the value and uses a typographic minus', () => {
@@ -45,5 +45,23 @@ describe('netBarGeometry', () => {
     const { start, end } = netBarGeometry(300, 300)
     expect(start).toBe(end)
     expect(inside(start)).toBe(true)
+  })
+})
+
+describe('formatPrice', () => {
+  it('shows the currency code and whole units', () => {
+    expect(formatPrice({ amount: 45000000, currency: 'IDR' })).toMatch(/^IDR\s45,000,000$/)
+  })
+
+  it('still shows a code that Intl does not know', () => {
+    expect(formatPrice({ amount: 12, currency: 'XYZ' })).toMatch(/XYZ\s12/)
+  })
+})
+
+describe('asPrice', () => {
+  it('reads a price from an event payload and rejects anything else', () => {
+    expect(asPrice({ amount: 5, currency: 'IDR' })).toEqual({ amount: 5, currency: 'IDR' })
+    expect(asPrice({ amount: '5', currency: 'IDR' })).toBeNull()
+    expect(asPrice(null)).toBeNull()
   })
 })

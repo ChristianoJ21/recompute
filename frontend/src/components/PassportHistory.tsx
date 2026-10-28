@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { verifyEvents } from '../api/client'
 import type { ChainCheck, PassportEvent } from '../api/types'
-import { formatDateTime } from '../lib/format'
+import { asPrice, formatDateTime, formatPrice } from '../lib/format'
 import { Card } from './ui'
 
 const FIRST_PAGE = 15
@@ -90,7 +90,12 @@ function IntegrityBadge({ deviceId, headHash }: { deviceId: string; headHash: st
 function EventItem({ event }: { event: PassportEvent }) {
   const note = typeof event.payload.note === 'string' ? event.payload.note : null
   const details = Object.entries(event.payload).filter(([key]) => !(key === 'note' && note !== null))
-  const kindStyle = event.kind === 'telemetry' ? 'bg-gray-100 text-gray-600' : 'bg-emerald-100 text-emerald-900'
+  const kindStyle =
+    event.kind === 'telemetry'
+      ? 'bg-gray-100 text-gray-600'
+      : event.kind === 'list' || event.kind === 'unlist'
+        ? 'bg-amber-100 text-amber-900'
+        : 'bg-emerald-100 text-emerald-900'
 
   return (
     <li className="rounded-xl border border-gray-200 p-3">
@@ -109,7 +114,7 @@ function EventItem({ event }: { event: PassportEvent }) {
           {details.map(([key, value]) => (
             <div key={key}>
               <dt className="inline">{key}: </dt>
-              <dd className="inline font-mono">{typeof value === 'object' ? JSON.stringify(value) : String(value)}</dd>
+              <dd className="inline font-mono">{showValue(key, value)}</dd>
             </div>
           ))}
         </dl>
@@ -121,4 +126,10 @@ function EventItem({ event }: { event: PassportEvent }) {
       )}
     </li>
   )
+}
+
+function showValue(key: string, value: unknown): string {
+  const price = key === 'price' ? asPrice(value) : null
+  if (price) return `${formatPrice(price)} (sample)`
+  return typeof value === 'object' ? JSON.stringify(value) : String(value)
 }

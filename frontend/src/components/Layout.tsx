@@ -1,6 +1,20 @@
-import { Link, Outlet } from 'react-router'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router'
+import { logout } from '../api/client'
+import { useSession } from '../lib/session'
+
+const navClass = ({ isActive }: { isActive: boolean }) =>
+  `rounded-md px-2 py-1 font-medium ${isActive ? 'bg-emerald-50 text-emerald-900' : 'text-gray-600 hover:text-emerald-800'}`
 
 export function Layout() {
+  const session = useSession()
+  const navigate = useNavigate()
+
+  // Leave the page first: on /fleet, forgetting the token first would bounce to the login page.
+  const logOut = () => {
+    navigate('/')
+    logout()
+  }
+
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-20 border-b border-emerald-100 bg-white/95 backdrop-blur">
@@ -11,6 +25,40 @@ export function Layout() {
           </Link>
           <SampleDataLabel />
         </div>
+        <nav
+          aria-label="Main"
+          className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-1 gap-y-2 px-4 pb-2 text-sm"
+        >
+          <NavLink to="/" end className={navClass}>
+            Available hardware
+          </NavLink>
+          <NavLink to="/market" className={navClass}>
+            Market
+          </NavLink>
+          {session && (
+            <NavLink to="/fleet" className={navClass}>
+              Fleet
+            </NavLink>
+          )}
+          <span className="ml-auto flex items-center gap-2">
+            {session ? (
+              <>
+                <span className="text-gray-600">{session.technician.name}</span>
+                <button
+                  type="button"
+                  onClick={logOut}
+                  className="rounded-md px-2 py-1 font-semibold text-emerald-800 hover:bg-emerald-50"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <NavLink to="/login" className={navClass}>
+                Technician login
+              </NavLink>
+            )}
+          </span>
+        </nav>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-6 pb-12">
         <Outlet />

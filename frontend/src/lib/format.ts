@@ -1,4 +1,4 @@
-import type { Range } from '../api/types'
+import type { Price, Range } from '../api/types'
 
 const plain = new Intl.NumberFormat('en', { maximumFractionDigits: 2 })
 const signed = new Intl.NumberFormat('en', { maximumFractionDigits: 1, signDisplay: 'exceptZero' })
@@ -15,6 +15,31 @@ export function formatRange(range: Range): string {
 
 export function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })
+}
+
+export function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-GB', { dateStyle: 'medium' })
+}
+
+/** "IDR 45,000,000": the currency code, never a symbol, and whole units only. */
+export function formatPrice(price: Price): string {
+  try {
+    return new Intl.NumberFormat('en', {
+      style: 'currency',
+      currency: price.currency,
+      currencyDisplay: 'code',
+      maximumFractionDigits: 0,
+    }).format(price.amount)
+  } catch {
+    return `${price.currency} ${plain.format(price.amount)}` // a code Intl does not know
+  }
+}
+
+/** Reads a price out of an event payload, or null if it is not one. */
+export function asPrice(value: unknown): Price | null {
+  if (!value || typeof value !== 'object') return null
+  const { amount, currency } = value as Partial<Price>
+  return typeof amount === 'number' && typeof currency === 'string' ? { amount, currency } : null
 }
 
 /** Positions on the net-saving bar, as percentages of its width. */

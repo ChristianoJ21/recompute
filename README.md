@@ -32,20 +32,31 @@ With the backend running (see above), in a second terminal:
 ```
 cd frontend
 npm install        # first time only
-npm run dev        # http://localhost:5173  (fleet at /, passports at /device/<id>)
+npm run dev        # http://localhost:5173
 npm test           # Vitest; all tests must pass
 ```
 
-Load the sample fleet from the repo root (backend running; Windows: use `py`):
+Pages: **public** (no login) `/` Available hardware (listed devices, sample price, contact box), `/market` market-forecast charts (empty until verified figures are in `data/market_forecast.json`), `/device/<id>` passport (read only). **Technician** (log in via "Technician login"): `/fleet` dashboard with stats, and on the passport page the action form, Evaluate and List for sale / Unlist. The token is kept in `sessionStorage` (gone when the tab closes); Log out forgets it.
+
+### Technician accounts
+
+There is no sign-up. In `backend/`: `py -m tools.create_technician tech-1 "Technician One"` (asks for a password, min. 10 characters). The seed and telemetry scripts log in with that account through env vars.
+
+Load the sample fleet from the repo root (backend running):
 
 ```
-python scripts/seed.py                                          # workloads, then 6 devices, then evaluates each (one per outcome)
-python scripts/simulate_telemetry.py                            # one SIMULATED telemetry event per device
-python scripts/simulate_telemetry.py --rounds 0 --interval 10   # keep adding readings until Ctrl+C
+$env:RECOMPUTE_USERNAME = "tech-1"; $env:RECOMPUTE_PASSWORD = "<password>"   # PowerShell; bash: export ...
+py scripts/seed.py                                          # workloads, 6 devices, evaluates each (one per outcome), lists 2 for sale
+py scripts/simulate_telemetry.py                            # one SIMULATED telemetry event per device
+py scripts/simulate_telemetry.py --rounds 0 --interval 10   # keep adding readings until Ctrl+C
 ```
 
-- `data/sample_devices.json` holds the fleet (every value is sample data). `seed.py` is safe to re-run: existing records are kept, and it checks each outcome against `expected_outcomes`.
+- `data/sample_devices.json` holds the fleet and the sample `listings` (every value is sample data). `seed.py` is safe to re-run: existing records and listings are kept, and it checks each outcome against `expected_outcomes`. A listed device needs a wipe event, so the seed adds a sample wipe record where none exists.
 - Both scripts use only the Python standard library. `--api <url>` (or env `RECOMPUTE_API_URL`) points them at another backend.
+
+### Hosting the frontend (Vercel)
+
+`frontend/vercel.json` builds with Vite, sends every page path to `index.html` (so `/device/<id>` deep links work) and rewrites `/api/*` to the backend. **Before deploying, replace `REPLACE-WITH-BACKEND-HOST`** with the hosted backend's domain (Railway or any other host; PRD §15.6). Set the Vercel project's root directory to `frontend/`.
 
 ### Exhibition mode (offline, phones on the laptop's network)
 

@@ -10,6 +10,7 @@ import uncertain from '../../../contracts/examples/evaluation_uncertain.json'
 import { App } from '../App'
 import * as client from '../api/client'
 import type { ChainCheck, DeviceDetail, Evaluation, PassportEvent } from '../api/types'
+import { signIn } from '../test/session'
 
 vi.mock('../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api/client')>()),
@@ -17,6 +18,8 @@ vi.mock('../api/client', async (importOriginal) => ({
   evaluateDevice: vi.fn(),
   addEvent: vi.fn(),
   verifyEvents: vi.fn(),
+  listDevice: vi.fn(),
+  unlistDevice: vi.fn(),
 }))
 
 const detail = deviceDetail as DeviceDetail
@@ -45,7 +48,7 @@ const renderDevice = (id = 'GPU-SRV-001') =>
 
 describe('device page', () => {
   beforeEach(() => {
-    localStorage.clear()
+    signIn()
     vi.mocked(client.getDevice).mockReset().mockResolvedValue(withHistory)
     vi.mocked(client.addEvent).mockReset()
     vi.mocked(client.verifyEvents).mockReset().mockResolvedValue(chainOk as ChainCheck)
@@ -127,7 +130,7 @@ describe('device page', () => {
 
   it('posts a technician event and refreshes the history', async () => {
     const user = userEvent.setup()
-    const wipe = { ...event(4, 'wipe', 'wiped for redeploy'), actor: 'tech-7' }
+    const wipe = event(4, 'wipe', 'wiped for redeploy')
     vi.mocked(client.addEvent).mockResolvedValue(wipe)
     vi.mocked(client.getDevice)
       .mockResolvedValueOnce(withHistory)
@@ -136,14 +139,11 @@ describe('device page', () => {
 
     await user.click(await screen.findByRole('radio', { name: 'Wipe' }))
     await user.type(screen.getByLabelText(/Details/), 'wiped for redeploy')
-    await user.type(screen.getByLabelText('Your name or technician ID'), 'tech-7')
     await user.click(screen.getByRole('button', { name: 'Add to passport' }))
 
-    expect(client.addEvent).toHaveBeenCalledWith('GPU-SRV-001', {
-      kind: 'wipe',
-      actor: 'tech-7',
-      payload: { note: 'wiped for redeploy' },
-    })
+    // No actor in the body: the server takes it from the login token.
+    expect(client.addEvent).toHaveBeenCalledWith('GPU-SRV-001', { kind: 'wipe', payload: { note: 'wiped for redeploy' } })
+    expect(screen.queryByLabelText(/Your name/)).toBeNull()
     expect(await screen.findByText('Added wipe event #4 to the passport.')).toBeTruthy()
     const items = within(screen.getByRole('list', { name: 'Passport events' })).getAllByRole('listitem')
     expect(items).toHaveLength(4)
@@ -156,8 +156,7 @@ describe('device page', () => {
     vi.mocked(client.addEvent).mockRejectedValue(new client.ApiError(409, 'Send this event again.'))
     renderDevice()
 
-    await user.type(await screen.findByLabelText('Your name or technician ID'), 'tech-7')
-    await user.click(screen.getByRole('button', { name: 'Add to passport' }))
+    await user.click(await screen.findByRole('button', { name: 'Add to passport' }))
 
     expect((await screen.findByRole('alert')).textContent).toContain('Send this event again.')
     expect(client.getDevice).toHaveBeenCalledTimes(1)
@@ -213,5 +212,110 @@ describe('passport integrity badge', () => {
 
     expect(await screen.findByText(/integrity check unavailable/i)).toBeTruthy()
     expect(screen.getByRole('list', { name: 'Passport events' })).toBeTruthy()
+  })
+})
+
+describe('logged-out visitor', () => {
+  beforeEach(() => {
+    vi.mocked(client.getDevice).mockReset().mockResolvedValue(withHistory)
+    vi.mocked(client.verifyEvents).mockReset().mockResolvedValue(chainOk as ChainCheck)
+  })
+
+  it('reads the passport but sees no action form, Evaluate or listing buttons', async () => {
+    renderDevice()
+
+    expect(await screen.findByRole('list', { name: 'Passport events' })).toBeTruthy()
+    expect(screen.getByText(detail.latest_evaluation!.reason)).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Evaluate' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Add to passport' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Log an action' })).toBeNull()
+    expect(screen.queryByRole('button', { name: /List for sale|Unlist/ })).toBeNull()
+    expect(screen.getByRole('link', { name: '← Available hardware' }).getAttribute('href')).toBe('/')
+  })
+
+  it('sees the sample price when the device is listed', async () => {
+    vi.mocked(client.getDevice).mockResolvedValue({ ...withHistory, events: [...withHistory.events, listEvent(4)] })
+    renderDevice()
+
+    const panel = await screen.findByRole('region', { name: 'For sale' })
+    expect(within(panel).getByText(/IDR\s45,000,000/)).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Unlist' })).toBeNull()
+  })
+})
+
+const PRICE = { amount: 45000000, currency: 'IDR' }
+
+function listEvent(id: number): PassportEvent {
+  return { ...event(id, 'list', 'Released after review (sample)'), payload: { price: PRICE, note: 'Released after review (sample)' } }
+}
+
+describe('sale listing', () => {
+  beforeEach(() => {
+    signIn()
+    vi.mocked(client.getDevice).mockReset().mockResolvedValue(withHistory)
+    vi.mocked(client.verifyEvents).mockReset().mockResolvedValue(chainOk as ChainCheck)
+    vi.mocked(client.listDevice).mockReset()
+    vi.mocked(client.unlistDevice).mockReset()
+  })
+
+  it('lists a wiped device for sale with a price and refreshes the passport', async () => {
+    const user = userEvent.setup()
+    vi.mocked(client.listDevice).mockResolvedValue(listEvent(4))
+    vi.mocked(client.getDevice)
+      .mockResolvedValueOnce(withHistory)
+      .mockResolvedValueOnce({ ...withHistory, events: [...withHistory.events, listEvent(4)] })
+    renderDevice()
+
+    await user.type(await screen.findByLabelText(/Asking price/), '45000000')
+    await user.click(screen.getByRole('button', { name: 'List for sale' }))
+
+    expect(client.listDevice).toHaveBeenCalledWith('GPU-SRV-001', { price: PRICE })
+    expect(await screen.findByRole('button', { name: 'Unlist' })).toBeTruthy()
+    expect(client.getDevice).toHaveBeenCalledTimes(2)
+  })
+
+  it('asks for a whole amount above zero before calling the API', async () => {
+    const user = userEvent.setup()
+    renderDevice()
+
+    await user.type(await screen.findByLabelText(/Asking price/), '0')
+    await user.click(screen.getByRole('button', { name: 'List for sale' }))
+
+    expect((await screen.findByRole('alert')).textContent).toMatch(/whole amount above 0/)
+    expect(client.listDevice).not.toHaveBeenCalled()
+  })
+
+  it('explains that a wipe is needed before listing', async () => {
+    vi.mocked(client.getDevice).mockResolvedValue({ ...withHistory, events: withHistory.events.slice(0, 2) })
+    renderDevice()
+
+    expect(await screen.findByText(/Record a wipe event first/)).toBeTruthy()
+    expect((screen.getByRole('button', { name: 'List for sale' }) as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('unlists a listed device', async () => {
+    const user = userEvent.setup()
+    const listed = { ...withHistory, events: [...withHistory.events, listEvent(4)] }
+    vi.mocked(client.getDevice).mockResolvedValueOnce(listed).mockResolvedValueOnce(withHistory)
+    vi.mocked(client.unlistDevice).mockResolvedValue({ ...event(5, 'unlist', ''), payload: {} })
+    renderDevice()
+
+    const panel = await screen.findByRole('region', { name: 'Sale listing' })
+    expect(within(panel).getByText(/IDR\s45,000,000/)).toBeTruthy()
+    await user.click(screen.getByRole('button', { name: 'Unlist' }))
+
+    expect(client.unlistDevice).toHaveBeenCalledWith('GPU-SRV-001')
+    expect(await screen.findByRole('button', { name: 'List for sale' })).toBeTruthy()
+  })
+
+  it('shows the API message when listing is refused', async () => {
+    const user = userEvent.setup()
+    vi.mocked(client.listDevice).mockRejectedValue(new client.ApiError(400, "'GPU-SRV-001' is already listed."))
+    renderDevice()
+
+    await user.type(await screen.findByLabelText(/Asking price/), '45000000')
+    await user.click(screen.getByRole('button', { name: 'List for sale' }))
+
+    expect((await screen.findByRole('alert')).textContent).toContain('already listed')
   })
 })

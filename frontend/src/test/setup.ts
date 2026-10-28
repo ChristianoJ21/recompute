@@ -2,4 +2,7 @@ import { cleanup } from '@testing-library/react'
 import { afterEach } from 'vitest'
 
 // Testing Library only cleans up on its own when Vitest globals are enabled; they are not here.
-afterEach(() => cleanup())
+afterEach(() => {
+  cleanup()
+  sessionStorage.clear()
+})

@@ -7,11 +7,12 @@ interface Props {
   evaluation: Evaluation | null
   evaluating: boolean
   error: string | null
-  onEvaluate: () => void
+  /** Left out when logged out: only a technician may run the engine. */
+  onEvaluate?: () => void
 }
 
 export function WhyPanel({ evaluation, evaluating, error, onEvaluate }: Props) {
-  const evaluateButton = (
+  const evaluateButton = onEvaluate && (
     <button type="button" className={primaryButton} onClick={onEvaluate} disabled={evaluating}>
       {evaluating ? 'Evaluating…' : 'Evaluate'}
     </button>
@@ -28,7 +29,9 @@ export function WhyPanel({ evaluation, evaluating, error, onEvaluate }: Props) {
         <EvaluationDetails evaluation={evaluation} />
       ) : (
         <p className="text-sm text-gray-600">
-          Not evaluated yet. Press Evaluate to run the decision rule on this device's inputs.
+          {onEvaluate
+            ? "Not evaluated yet. Press Evaluate to run the decision rule on this device's inputs."
+            : 'Not evaluated yet. A logged-in technician can run the decision rule on this device.'}
         </p>
       )}
     </Card>
