@@ -1,0 +1,77 @@
+{
+  "device": {
+    "id": "GPU-SRV-001",
+    "model": "AccelServer-v1 (sample)",
+    "device_type": "gpu_server",
+    "install_date": "2022-03-01",
+    "location": "Hall A / large-model training",
+    "components": [
+      {
+        "type": "gpu",
+        "model": "Accel-v1"
+      },
+      {
+        "type": "memory",
+        "model": "HBM-v1"
+      }
+    ],
+    "reliability_ok": true,
+    "inputs": {
+      "I_old": {
+        "low": 8.0,
+        "high": 10.0
+      },
+      "I_new": {
+        "low": 3.0,
+        "high": 4.0
+      },
+      "W": {
+        "low": 100.0,
+        "high": 100.0
+      },
+      "T": {
+        "low": 3.0,
+        "high": 3.0
+      },
+      "E_new": {
+        "low": 900.0,
+        "high": 1100.0
+      }
+    },
+    "upgrade_options": [],
+    "sample_data": true
+  },
+  "events": [
+    {
+      "id": 1,
+      "device_id": "GPU-SRV-001",
+      "created_at": "2026-10-28T11:45:05Z",
+      "kind": "wipe",
+      "payload": {
+        "note": "NIST SP 800-88 Purge (sample)"
+      },
+      "actor": "tech-1"
+    }
+  ],
+  "latest_evaluation": {
+    "device_id": "GPU-SRV-001",
+    "outcome": "REDEPLOY",
+    "reason": "Replacement is justified for the current workload, but on 'student lab (light inference)' keeping the device stays below the break-even at both ends of the input ranges.",
+    "net_min_kg": 100.0,
+    "net_max_kg": 1200.0,
+    "missing_fields": [],
+    "target": "WL-LAB",
+    "scenarios": {
+      "pro_keep": {
+        "outcome": "REDEPLOY",
+        "net_kg": 100.0
+      },
+      "pro_replace": {
+        "outcome": "REDEPLOY",
+        "net_kg": 1200.0
+      }
+    },
+    "evaluated_at": "2026-10-28T11:45:05Z",
+    "sample_data": true
+  }
+}

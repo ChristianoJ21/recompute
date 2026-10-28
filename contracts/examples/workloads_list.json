@@ -1,0 +1,10 @@
+[
+  {
+    "id": "WL-LAB",
+    "name": "student lab (light inference)",
+    "W": {
+      "low": 20.0,
+      "high": 20.0
+    }
+  }
+]

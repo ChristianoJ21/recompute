@@ -1,0 +1,44 @@
+[
+  {
+    "id": "GPU-SRV-001",
+    "model": "AccelServer-v1 (sample)",
+    "location": "Hall A / large-model training",
+    "latest_outcome": "REDEPLOY",
+    "sample_data": true
+  },
+  {
+    "id": "GPU-SRV-002",
+    "model": "AccelServer-v1 (sample)",
+    "location": "Hall A / light inference",
+    "latest_outcome": "KEEP",
+    "sample_data": true
+  },
+  {
+    "id": "GPU-SRV-003",
+    "model": "AccelServer-v1 (sample)",
+    "location": "Hall A / large-model training",
+    "latest_outcome": "UPGRADE",
+    "sample_data": true
+  },
+  {
+    "id": "GPU-SRV-004",
+    "model": "AccelServer-v1 (sample)",
+    "location": "Hall A / large-model training",
+    "latest_outcome": "RECYCLE",
+    "sample_data": true
+  },
+  {
+    "id": "GPU-SRV-005",
+    "model": "AccelServer-v1 (sample)",
+    "location": "Hall A / large-model training",
+    "latest_outcome": "INSUFFICIENT_DATA",
+    "sample_data": true
+  },
+  {
+    "id": "GPU-SRV-006",
+    "model": "AccelServer-v1 (sample)",
+    "location": "Hall A / mid-size training",
+    "latest_outcome": "UNCERTAIN",
+    "sample_data": true
+  }
+]

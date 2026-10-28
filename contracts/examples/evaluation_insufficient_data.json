@@ -1,0 +1,14 @@
+{
+  "device_id": "GPU-SRV-005",
+  "outcome": "INSUFFICIENT_DATA",
+  "reason": "Missing validated inputs: I_old. The engine does not estimate them.",
+  "net_min_kg": null,
+  "net_max_kg": null,
+  "missing_fields": [
+    "I_old"
+  ],
+  "target": null,
+  "scenarios": null,
+  "evaluated_at": "2026-10-28T11:45:05Z",
+  "sample_data": true
+}

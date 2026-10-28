@@ -1,0 +1,10 @@
+{
+  "id": 1,
+  "device_id": "GPU-SRV-001",
+  "created_at": "2026-10-28T11:45:05Z",
+  "kind": "wipe",
+  "payload": {
+    "note": "NIST SP 800-88 Purge (sample)"
+  },
+  "actor": "tech-1"
+}

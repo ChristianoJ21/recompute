@@ -1,0 +1,21 @@
+{
+  "device_id": "GPU-SRV-003",
+  "outcome": "UPGRADE",
+  "reason": "Replacing the memory module saves at least as much as replacing the whole device, at both ends of the input ranges.",
+  "net_min_kg": 100.0,
+  "net_max_kg": 1200.0,
+  "missing_fields": [],
+  "target": "memory module",
+  "scenarios": {
+    "pro_keep": {
+      "outcome": "UPGRADE",
+      "net_kg": 100.0
+    },
+    "pro_replace": {
+      "outcome": "UPGRADE",
+      "net_kg": 1200.0
+    }
+  },
+  "evaluated_at": "2026-10-28T11:45:05Z",
+  "sample_data": true
+}

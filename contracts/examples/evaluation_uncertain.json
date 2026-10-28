@@ -1,0 +1,21 @@
+{
+  "device_id": "GPU-SRV-006",
+  "outcome": "UNCERTAIN",
+  "reason": "The recommendation changes within the input ranges (KEEP at the pro-keep end, REDEPLOY at the pro-replace end); a human decides.",
+  "net_min_kg": -500.0,
+  "net_max_kg": 150.0,
+  "missing_fields": [],
+  "target": null,
+  "scenarios": {
+    "pro_keep": {
+      "outcome": "KEEP",
+      "net_kg": -500.0
+    },
+    "pro_replace": {
+      "outcome": "REDEPLOY",
+      "net_kg": 150.0
+    }
+  },
+  "evaluated_at": "2026-10-28T11:45:05Z",
+  "sample_data": true
+}

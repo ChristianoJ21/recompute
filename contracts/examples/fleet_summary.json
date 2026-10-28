@@ -1,0 +1,13 @@
+{
+  "counts": {
+    "KEEP": 1,
+    "UPGRADE": 1,
+    "REDEPLOY": 1,
+    "RECYCLE": 1,
+    "UNCERTAIN": 1,
+    "INSUFFICIENT_DATA": 1
+  },
+  "devices": 6,
+  "not_evaluated": 0,
+  "sample_data": true
+}

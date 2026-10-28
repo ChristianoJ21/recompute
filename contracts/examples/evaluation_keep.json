@@ -1,0 +1,21 @@
+{
+  "device_id": "GPU-SRV-002",
+  "outcome": "KEEP",
+  "reason": "Replacing does not pay back its manufacturing emissions at either end of the input ranges.",
+  "net_min_kg": -860.0,
+  "net_max_kg": -480.0,
+  "missing_fields": [],
+  "target": null,
+  "scenarios": {
+    "pro_keep": {
+      "outcome": "KEEP",
+      "net_kg": -860.0
+    },
+    "pro_replace": {
+      "outcome": "KEEP",
+      "net_kg": -480.0
+    }
+  },
+  "evaluated_at": "2026-10-28T11:45:05Z",
+  "sample_data": true
+}

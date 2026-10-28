@@ -1,0 +1,12 @@
+{
+  "device_id": "GPU-SRV-004",
+  "outcome": "RECYCLE",
+  "reason": "Failed the reliability check, so it goes to formal recycling with its passport.",
+  "net_min_kg": null,
+  "net_max_kg": null,
+  "missing_fields": [],
+  "target": null,
+  "scenarios": null,
+  "evaluated_at": "2026-10-28T11:45:05Z",
+  "sample_data": true
+}

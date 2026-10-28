@@ -1,0 +1,21 @@
+{
+  "device_id": "GPU-SRV-001",
+  "outcome": "REDEPLOY",
+  "reason": "Replacement is justified for the current workload, but on 'student lab (light inference)' keeping the device stays below the break-even at both ends of the input ranges.",
+  "net_min_kg": 100.0,
+  "net_max_kg": 1200.0,
+  "missing_fields": [],
+  "target": "WL-LAB",
+  "scenarios": {
+    "pro_keep": {
+      "outcome": "REDEPLOY",
+      "net_kg": 100.0
+    },
+    "pro_replace": {
+      "outcome": "REDEPLOY",
+      "net_kg": 1200.0
+    }
+  },
+  "evaluated_at": "2026-10-28T11:45:05Z",
+  "sample_data": true
+}
