@@ -1,6 +1,6 @@
 # PRD: ReCompute Demo App
 
-> **Version:** 1.2 · 28 October 2026 · Owner: Panji · v1.1: decision engine (§5.2) aligned with the essay · v1.2: frontend switched from Streamlit to React + Vite + TypeScript + Tailwind
+> **Version:** 2.0 · 28 October 2026 · Owner: Panji · v1.1: decision engine (§5.2) aligned with the essay · v1.2: frontend switched from Streamlit to React + Vite + TypeScript + Tailwind · **v2.0: phase 2 (§15): public showcase, technician login, market-forecast charts, hosting**
 > **Readers:** Panji, Jose, AI Agent A (backend), AI Agent B (frontend)
 > **Architecture overview:** https://claude.ai/artifact/BNMfdbkQ71VdABKVZMjBjD (share it from the page's Share menu)
 > **Essay first.** No app work before the essay is submitted (Fri 30 Oct). Build during judging (1–8 Nov) so the demo is ready if we reach the Top 5 (announced 9 Nov, Grand Final 14 Nov).
@@ -21,7 +21,7 @@ It must match Section 4 of the essay exactly: same rule, same outcomes, same saf
 ### Non-goals (do not build)
 - Real data-centre integration (no real BMC/Redfish, no real Prometheus scraping). Telemetry is **simulated** and labelled as such.
 - IoT sensors, blockchain, big-data stack.
-- Resale marketplace, payments, user accounts, public access. (Future phase; one placeholder screen at most.)
+- Resale marketplace with payments, orders, carts or customer accounts. (v2.0 adds a public **showcase** with a contact box, §15; buying stays outside the app.)
 - Any real CO₂ figure presented as a measurement. **All numbers in the demo are sample values, shown with a visible "SAMPLE DATA" label.**
 
 ---
@@ -35,6 +35,7 @@ It must match Section 4 of the essay exactly: same rule, same outcomes, same saf
 | Technician | I scan a device's QR code and see its passport | QR opens the device page; passport history listed newest first |
 | Technician | I log what I did (repair, upgrade, wipe, move) | Form adds an event; it appears in the history immediately; old events cannot be edited |
 | Judge (demo viewer) | I see the safeguards working | At least one sample device returns UNCERTAIN and one returns INSUFFICIENT_DATA |
+| Visitor / buyer, logged-in technician | Phase 2 stories | See §15.2 |
 
 ---
 
@@ -163,8 +164,12 @@ devices
 events            -- APPEND-ONLY: no UPDATE, no DELETE anywhere in the code
   id (int, PK)   device_id (FK)   created_at (timestamp, UTC)
   kind (text: telemetry | scan | repair | upgrade | wipe | move | note)
-  payload (json)   actor (text)
+  payload (json)   actor (text; v2.0: the logged-in technician's username)
   prev_hash, hash (text, nullable; used only by stretch S1)
+  -- v2.0 (F9) adds kinds list | unlist, written only by the listing endpoints
+
+technicians       -- v2.0 (F8); created only by tools/create_technician.py
+  username (text, PK)   name (text)   password_hash (text, salted scrypt)   created_at
 
 evaluations
   id (int, PK)   device_id (FK)   created_at   result (json, Section 5.2 shape)
@@ -191,6 +196,8 @@ Dates: ISO 8601, UTC (`2026-11-03T10:00:00Z`).
 | GET | `/workloads` · POST `/workloads` | list / create lighter workloads |
 
 Errors: `{"error": "<what went wrong and how to fix it>"}` with 400 / 404. No PUT/PATCH/DELETE on events. If an endpoint must change, Panji updates `contracts/` first and tells Jose.
+
+**v2.0:** the binding list is `contracts/api_contract.md` v2.0. It adds login (`POST /auth/login`, `GET /auth/me`), a bearer token on every write endpoint, listings (`GET /listings`, `POST /devices/{id}/list`, `POST /devices/{id}/unlist`) and `GET /contact`. See §15.
 
 ---
 
@@ -284,3 +291,62 @@ If we are not in the Top 5, stop on 9 Nov; the work stays useful for portfolios.
 - Backend and frontend tests pass.
 - `README.md` lets someone else run it in under 10 minutes.
 - Demo script rehearsed twice.
+
+---
+
+## 15. Phase 2 (v2.0): public showcase, technician login, market forecast, hosting
+
+> Proposed by Panji 28 Oct (SESSION_CONTEXT open item A7); **Jose agrees the contract, Hanif supplies the forecast numbers.** F1–F7 and §5 are unchanged. Order: contract v2.0 → F8 login → F9 listings → F10 showcase + F11 dashboard → F12 forecast → F13 deploy.
+
+### 15.1 Two areas
+| Area | Who | Login | Pages |
+|---|---|---|---|
+| **Public showcase** | anyone (judges, buyers, visitors) | none | "Available hardware" (listed devices), each linking to its passport page; one **contact box**; market-forecast charts |
+| **Technician area** | data-centre technicians | username + password | fleet dashboard, device page with action form and Evaluate, list / unlist for sale, stats dashboard |
+
+The device/passport page stays **public to read** (a buyer must be able to check the history); its action form, Evaluate button and list/unlist buttons appear only when logged in. Reads are public on purpose: never put a secret in a device record.
+
+### 15.2 Users and stories (added to §2)
+| User | Story | Acceptance |
+|---|---|---|
+| Visitor / buyer | I browse hardware the data centre has released and check its history | "Available hardware" lists only listed devices with model, components, latest outcome, passport-intact badge and wipe date; each opens the passport page |
+| Visitor / buyer | I know whom to contact | One contact box on the showcase, filled from `GET /contact`: a **fictional** sample data centre (`example.com` address), never a real person's details. No message form, no payment, no order |
+| Technician | I log in before changing anything | Write actions without a valid login are refused (401); the passport records the logged-in username as the event's actor |
+| Technician | I put a released device up for sale | "List for sale" works only if the passport holds a `wipe` event; otherwise the API refuses and says why. Listing and unlisting are passport events, so the history shows them |
+| Technician | I see the fleet at a glance | Stats dashboard: counts per outcome, devices not evaluated, devices listed, passports intact vs changed |
+| Judge | I see the market context | Forecast charts on the public site; every point shows its source and page |
+
+### 15.3 Features
+| ID | Feature | Owner | Done when |
+|---|---|---|---|
+| F8 | Technician login | Panji + Agent A | `POST /auth/login` returns a token; every write endpoint returns 401 without one; actor = logged-in username; technicians are created only with `py -m tools.create_technician` (no sign-up page); tests pass |
+| F9 | Listings | Panji + Agent A | `list`/`unlist` events; listing refused without a `wipe` event; `GET /listings`; tests pass |
+| F10 | Public showcase + contact box | Jose + Agent B | Pages per 15.1 work without login on a phone; SAMPLE DATA label shown |
+| F11 | Login page + technician stats dashboard | Jose + Agent B | Login/logout; stats per 15.2 from `/fleet/summary`, `/listings` and `/events/verify` |
+| F12 | Market-forecast charts | Jose + Agent B (numbers: Hanif) | Rules in 15.4 met; no unverified point shown |
+| F13 | Hosting | Panji (backend), Jose (frontend) | Rules in 15.5; offline laptop mode still works |
+
+### 15.4 Market-forecast charts (binding)
+- **Hanif supplies the numbers** from his Analysis 1 sources. A point enters the chart only when it is a **verified** row of the evidence sheet (exact quote + page filled). Jose stores them in `data/market_forecast.json`: each point `{series, year, value, unit, kind: "actual" | "forecast", source, page, evidence_row}`.
+- Each chart shows source + page for every point (tooltip or caption) and labels forecasts as forecasts.
+- Decision 8: Wang et al. (Mt cumulative) and de Vries-Gao (kt/yr) are **never** in the same chart. Decision 10: Shehabi **or** Smith for installed base, never mixed years. Open item 11: the WSTS 2026 forecast stays out until verified.
+- These are published figures, not demo results: label them with their source, **not** "SAMPLE DATA", and never mix them with demo numbers in one chart.
+
+### 15.5 Login and security
+- Passwords are stored only as salted scrypt hashes. Tokens are signed (HMAC-SHA256) with `RECOMPUTE_SECRET_KEY`, last 12 hours, and are sent as `Authorization: Bearer <token>`. The frontend keeps the token in `sessionStorage` (cleared on logout or when the tab closes), never in `localStorage`.
+- Wrong username and wrong password give the same message. After 5 failed logins for one username in 15 minutes the API answers 429 for the rest of that window.
+- Without `RECOMPUTE_SECRET_KEY` the backend makes a random key at start, so tokens end on restart (fine on the laptop; **always set it on Railway**).
+
+### 15.6 Hosting
+- **Frontend: Vercel** (`vite build`). `vercel.json` rewrites `/api/*` to the Railway backend URL, so the browser still calls `/api/*` (same origin, no CORS), and sends every other path to `index.html` so `/device/:id` deep links work.
+- **Backend: Railway Hobby** (about USD 5/month). SQLite on a Railway volume (`RECOMPUTE_DB_URL=sqlite:////data/recompute.db`); env `RECOMPUTE_SECRET_KEY` and `RECOMPUTE_FRONTEND_URL=https://<vercel-app>/device/{device_id}` (so printed QR codes open the hosted page).
+- **Offline fallback** stays as in §4/§13: laptop backend + `vite preview --host`. Print two QR sets (hosted and laptop) or re-print at the venue; test both before 14 Nov.
+- The hosted database holds only sample data and the technician accounts; seed it with `scripts/seed.py` after logging in.
+
+### 15.7 Risks (added to §13)
+| Risk | Mitigation |
+|---|---|
+| Public site mistaken for a real shop | No prices, payment or orders; fictional contact; SAMPLE DATA label; showcase text says "demo" |
+| A forecast number is wrong | Only verified evidence rows; source + page on every point; Hanif checks the JSON before release |
+| Leaked or weak technician password | No sign-up page; accounts made by CLI; min. 10 characters; 429 after repeated failures; demo accounts deleted after 14 Nov |
+| Hosting down at the venue | Offline laptop mode (above) |
