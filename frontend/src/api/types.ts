@@ -59,6 +59,18 @@ export interface PassportEvent {
   hash: string | null
 }
 
+/** GET /devices/{id}/events/verify: is the device's hash chain intact? */
+export interface ChainCheck {
+  device_id: string
+  valid: boolean
+  events_checked: number
+  head_hash: string
+  /** Null when valid. */
+  first_bad_event_id: number | null
+  /** Null when valid. */
+  reason: string | null
+}
+
 export interface NewEvent {
   kind: EventKind
   payload: Record<string, unknown>

@@ -112,7 +112,7 @@ function Passport({ detail, evaluating, evaluateError, onEvaluate, onEventAdded 
       </header>
       <WhyPanel evaluation={latest_evaluation} evaluating={evaluating} error={evaluateError} onEvaluate={onEvaluate} />
       <TechnicianForm deviceId={device.id} onAdded={onEventAdded} />
-      <PassportHistory events={events} />
+      <PassportHistory deviceId={device.id} events={events} />
       <RuleInputs device={device} />
       <div className="grid gap-6 sm:grid-cols-2">
         <DeviceDetails device={device} />

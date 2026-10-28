@@ -1,6 +1,14 @@
 // The only module that talks to the backend. Every URL is relative under /api, which the
 // Vite server (dev and preview) proxies to FastAPI with the prefix stripped; see vite.config.ts.
-import type { DeviceDetail, DeviceSummary, Evaluation, FleetSummary, NewEvent, PassportEvent } from './types'
+import type {
+  ChainCheck,
+  DeviceDetail,
+  DeviceSummary,
+  Evaluation,
+  FleetSummary,
+  NewEvent,
+  PassportEvent,
+} from './types'
 
 const API_BASE = '/api'
 
@@ -55,6 +63,8 @@ export const evaluateDevice = (id: string) => request<Evaluation>(`${devicePath(
 
 export const addEvent = (id: string, event: NewEvent) =>
   request<PassportEvent>(`${devicePath(id)}/events`, { method: 'POST', body: JSON.stringify(event) })
+
+export const verifyEvents = (id: string) => request<ChainCheck>(`${devicePath(id)}/events/verify`)
 
 /** URL of the device's QR code PNG, for an <img src>. The QR opens /device/{id} on this frontend. */
 export const qrCodeUrl = (id: string) => `${API_BASE}${devicePath(id)}/qr`

@@ -1,19 +1,24 @@
-import { useState } from 'react'
-import type { PassportEvent } from '../api/types'
+import { useEffect, useState } from 'react'
+import { verifyEvents } from '../api/client'
+import type { ChainCheck, PassportEvent } from '../api/types'
 import { formatDateTime } from '../lib/format'
 import { Card } from './ui'
 
 const FIRST_PAGE = 15
 
-export function PassportHistory({ events }: { events: PassportEvent[] }) {
+export function PassportHistory({ deviceId, events }: { deviceId: string; events: PassportEvent[] }) {
   const [showAll, setShowAll] = useState(false)
   const newestFirst = [...events].sort((a, b) => b.id - a.id)
   const visible = showAll ? newestFirst : newestFirst.slice(0, FIRST_PAGE)
 
   return (
-    <Card title={`Passport history (${events.length})`}>
+    <Card
+      title={`Passport history (${events.length})`}
+      action={<IntegrityBadge deviceId={deviceId} headHash={newestFirst[0]?.hash ?? null} />}
+    >
       <p className="-mt-2 mb-4 text-xs text-gray-500">
-        Newest first. Events are append-only: nobody can edit or delete them.
+        Newest first. Events are append-only: the app cannot edit or delete them, and any change made in the database is
+        detected.
       </p>
       {events.length === 0 ? (
         <p className="text-sm text-gray-600">No events yet.</p>
@@ -34,6 +39,51 @@ export function PassportHistory({ events }: { events: PassportEvent[] }) {
         </button>
       )}
     </Card>
+  )
+}
+
+type Check = { status: 'checking' } | { status: 'done'; result: ChainCheck } | { status: 'unavailable' }
+
+// Re-checks whenever a new event arrives (the newest hash changes). The check only detects changes;
+// it cannot prevent them, so the wording says "changed", never "protected".
+function IntegrityBadge({ deviceId, headHash }: { deviceId: string; headHash: string | null }) {
+  const [check, setCheck] = useState<Check>({ status: 'checking' })
+
+  useEffect(() => {
+    let active = true
+    setCheck({ status: 'checking' })
+    verifyEvents(deviceId)
+      .then((result) => {
+        if (active) setCheck({ status: 'done', result })
+      })
+      .catch(() => {
+        if (active) setCheck({ status: 'unavailable' })
+      })
+    return () => {
+      active = false
+    }
+  }, [deviceId, headHash])
+
+  const base = 'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold'
+  if (check.status === 'checking') {
+    return <span className={`${base} border-gray-200 bg-gray-50 text-gray-500`}>Checking passport…</span>
+  }
+  if (check.status === 'unavailable') {
+    return <span className={`${base} border-gray-200 bg-gray-50 text-gray-600`}>Integrity check unavailable</span>
+  }
+  const { valid, first_bad_event_id, reason, events_checked } = check.result
+  return valid ? (
+    <span
+      role="status"
+      title={`Hash chain of ${events_checked} events verified`}
+      className={`${base} border-emerald-300 bg-emerald-50 text-emerald-900`}
+    >
+      <span aria-hidden>✔</span> Passport intact
+    </span>
+  ) : (
+    <span role="alert" title={reason ?? undefined} className={`${base} border-red-300 bg-red-50 text-red-900`}>
+      <span aria-hidden>✘</span> Passport changed at event #{first_bad_event_id}
+    </span>
   )
 }
 

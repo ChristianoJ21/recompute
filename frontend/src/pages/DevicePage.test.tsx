@@ -4,17 +4,19 @@ import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import deviceDetail from '../../../contracts/examples/device_detail.json'
 import error404 from '../../../contracts/examples/error_404.json'
+import chainOk from '../../../contracts/examples/events_verify.json'
 import insufficient from '../../../contracts/examples/evaluation_insufficient_data.json'
 import uncertain from '../../../contracts/examples/evaluation_uncertain.json'
 import { App } from '../App'
 import * as client from '../api/client'
-import type { DeviceDetail, Evaluation, PassportEvent } from '../api/types'
+import type { ChainCheck, DeviceDetail, Evaluation, PassportEvent } from '../api/types'
 
 vi.mock('../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api/client')>()),
   getDevice: vi.fn(),
   evaluateDevice: vi.fn(),
   addEvent: vi.fn(),
+  verifyEvents: vi.fn(),
 }))
 
 const detail = deviceDetail as DeviceDetail
@@ -46,6 +48,7 @@ describe('device page', () => {
     localStorage.clear()
     vi.mocked(client.getDevice).mockReset().mockResolvedValue(withHistory)
     vi.mocked(client.addEvent).mockReset()
+    vi.mocked(client.verifyEvents).mockReset().mockResolvedValue(chainOk as ChainCheck)
   })
 
   it('shows the passport history newest first', async () => {
@@ -172,5 +175,43 @@ describe('device page', () => {
 
     await screen.findByRole('list', { name: 'Passport events' })
     expect(screen.getByText('SAMPLE DATA')).toBeTruthy()
+  })
+})
+
+describe('passport integrity badge', () => {
+  beforeEach(() => {
+    vi.mocked(client.getDevice).mockReset().mockResolvedValue(withHistory)
+    vi.mocked(client.verifyEvents).mockReset()
+  })
+
+  it('says the passport is intact when the hash chain verifies', async () => {
+    vi.mocked(client.verifyEvents).mockResolvedValue(chainOk as ChainCheck)
+
+    renderDevice()
+
+    expect(await screen.findByText(/passport intact/i)).toBeTruthy()
+    expect(client.verifyEvents).toHaveBeenCalledWith('GPU-SRV-001')
+  })
+
+  it('names the first changed event when the chain is broken', async () => {
+    vi.mocked(client.verifyEvents).mockResolvedValue({
+      ...(chainOk as ChainCheck),
+      valid: false,
+      first_bad_event_id: 2,
+      reason: 'contents changed after the event was written',
+    })
+
+    renderDevice()
+
+    expect(await screen.findByText(/changed at event #2/i)).toBeTruthy()
+  })
+
+  it('still shows the passport when the check cannot run', async () => {
+    vi.mocked(client.verifyEvents).mockRejectedValue(new Error('offline'))
+
+    renderDevice()
+
+    expect(await screen.findByText(/integrity check unavailable/i)).toBeTruthy()
+    expect(screen.getByRole('list', { name: 'Passport events' })).toBeTruthy()
   })
 })
