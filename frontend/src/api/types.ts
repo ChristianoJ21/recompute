@@ -178,3 +178,10 @@ export interface ForecastPoint {
   page: string
   evidence_row: string
 }
+
+/** Body of POST /auth/technicians: a logged-in technician adds a colleague. */
+export interface NewTechnician {
+  username: string
+  name: string
+  password: string
+}

@@ -4,7 +4,19 @@ import type { ChainCheck, PassportEvent } from '../api/types'
 import { asPrice, formatDateTime, formatPrice } from '../lib/format'
 import { Card } from './ui'
 
-const FIRST_PAGE = 15
+const FIRST_PAGE = 5
+
+const EVENT_LABEL: Record<PassportEvent['kind'], string> = {
+  telemetry: 'Telemetry reading',
+  scan: 'Scan',
+  repair: 'Repair',
+  upgrade: 'Upgrade',
+  wipe: 'Data wipe',
+  move: 'Move',
+  note: 'Note',
+  list: 'Listed for sale',
+  unlist: 'Removed from sale',
+}
 
 export function PassportHistory({ deviceId, events }: { deviceId: string; events: PassportEvent[] }) {
   const [showAll, setShowAll] = useState(false)
@@ -100,9 +112,7 @@ function EventItem({ event }: { event: PassportEvent }) {
   return (
     <li className="rounded-xl border border-gray-200 p-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className={`rounded-md px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${kindStyle}`}>
-          {event.kind}
-        </span>
+        <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${kindStyle}`}>{EVENT_LABEL[event.kind]}</span>
         <time dateTime={event.created_at} className="text-sm text-gray-700">
           {formatDateTime(event.created_at)}
         </time>

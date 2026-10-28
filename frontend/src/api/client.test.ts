@@ -9,6 +9,7 @@ import {
   ApiError,
   SESSION_KEY,
   addEvent,
+  addTechnician,
   currentSession,
   evaluateDevice,
   getContact,
@@ -206,5 +207,22 @@ describe('listings', () => {
     await getContact()
 
     expect(fetchMock.mock.calls.map((call) => call[0])).toEqual(['/api/listings', '/api/contact'])
+  })
+})
+
+describe('adding a technician', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', fetchMock)
+  })
+
+  it('posts the new account to /auth/technicians', async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ username: 'tech-2', name: 'Two' }, 201))
+    const account = { username: 'tech-2', name: 'Two', password: 'long enough pw' }
+
+    await expect(addTechnician(account)).resolves.toEqual({ username: 'tech-2', name: 'Two' })
+
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(url).toBe('/api/auth/technicians')
+    expect(JSON.parse(init?.body as string)).toEqual(account)
   })
 })

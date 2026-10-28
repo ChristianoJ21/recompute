@@ -168,3 +168,20 @@ def login(body: LoginIn, request: Request):
 @router.get("/me")
 def me(technician: Technician = Depends(require_technician)):
     return technician.to_dict()
+
+
+class NewTechnicianIn(BaseModel):
+    username: str = Field(max_length=64)
+    name: str = Field(min_length=1, max_length=200)
+    password: str = Field(max_length=200)
+
+
+@router.post("/technicians", status_code=201, dependencies=[Depends(require_technician)])
+def add_technician(body: NewTechnicianIn, request: Request):
+    """A logged-in technician adds a colleague. There is still no public sign-up (PRD 15.5)."""
+    with request.app.state.session_factory() as session:
+        try:
+            technician = create_technician(session, body.username, body.name, body.password)
+        except ValueError as error:
+            raise HTTPException(400, f"{error}.") from error
+        return technician.to_dict()

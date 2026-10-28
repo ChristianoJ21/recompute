@@ -12,8 +12,10 @@ import type {
   Listing,
   NewEvent,
   NewListing,
+  NewTechnician,
   PassportEvent,
   Session,
+  Technician,
 } from './types'
 
 const API_BASE = '/api'
@@ -166,3 +168,6 @@ export const listDevice = (id: string, listing: NewListing) =>
 
 export const unlistDevice = (id: string, note?: string) =>
   request<PassportEvent>(`${devicePath(id)}/unlist`, { method: 'POST', body: JSON.stringify(note ? { note } : {}) })
+
+export const addTechnician = (account: NewTechnician) =>
+  request<Technician>('/auth/technicians', { method: 'POST', body: JSON.stringify(account) })

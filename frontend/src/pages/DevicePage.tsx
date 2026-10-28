@@ -121,6 +121,7 @@ function Passport({ detail, canEdit, evaluating, evaluateError, onEvaluate, onEv
           </a>
         )}
       </header>
+      {!canEdit && <ListingPanel deviceId={device.id} events={events} canEdit={false} onChanged={onEventAdded} />}
       <WhyPanel
         evaluation={latest_evaluation}
         evaluating={evaluating}
@@ -128,13 +129,21 @@ function Passport({ detail, canEdit, evaluating, evaluateError, onEvaluate, onEv
         onEvaluate={canEdit ? onEvaluate : undefined}
       />
       {canEdit && <TechnicianForm deviceId={device.id} onAdded={onEventAdded} />}
-      <ListingPanel deviceId={device.id} events={events} canEdit={canEdit} onChanged={onEventAdded} />
+      {canEdit && <ListingPanel deviceId={device.id} events={events} canEdit onChanged={onEventAdded} />}
       <PassportHistory deviceId={device.id} events={events} />
-      <RuleInputs device={device} />
-      <div className="grid gap-6 sm:grid-cols-2">
-        <DeviceDetails device={device} />
-        <QrLabel deviceId={device.id} />
-      </div>
+      <details className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <summary className="cursor-pointer px-4 py-4 sm:px-6">
+          <span className="font-semibold text-gray-900">Technical details</span>
+          <span className="ml-2 text-sm text-gray-500">rule inputs, device record, QR label</span>
+        </summary>
+        <div className="space-y-6 px-4 pb-4 sm:px-6 sm:pb-6">
+          <RuleInputs device={device} />
+          <div className="grid gap-6 sm:grid-cols-2">
+            <DeviceDetails device={device} />
+            <QrLabel deviceId={device.id} />
+          </div>
+        </div>
+      </details>
     </>
   )
 }

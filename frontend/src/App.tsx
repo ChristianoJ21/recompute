@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Route, Routes } from 'react-router'
 import { Layout } from './components/Layout'
+import { AddTechnicianPage } from './pages/AddTechnicianPage'
 import { useSession } from './lib/session'
 import { DevicePage } from './pages/DevicePage'
 import { FleetPage } from './pages/FleetPage'
@@ -21,6 +22,14 @@ export function App() {
           element={
             <RequireTechnician>
               <FleetPage />
+            </RequireTechnician>
+          }
+        />
+        <Route
+          path="technicians/new"
+          element={
+            <RequireTechnician>
+              <AddTechnicianPage />
             </RequireTechnician>
           }
         />

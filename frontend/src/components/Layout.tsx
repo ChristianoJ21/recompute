@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'
 import { logout } from '../api/client'
 import { useSession } from '../lib/session'
@@ -11,9 +12,22 @@ export function Layout() {
 
   // Leave the page first: on /fleet, forgetting the token first would bounce to the login page.
   const logOut = () => {
+    loggingOut.current = true
     navigate('/')
     logout()
   }
+
+  // A login that ends without the Log out button (expired or refused token) gets a visible note,
+  // because the action buttons disappear from the page at the same moment.
+  const [loginEnded, setLoginEnded] = useState(false)
+  const previous = useRef(session)
+  const loggingOut = useRef(false)
+  useEffect(() => {
+    if (previous.current && !session && !loggingOut.current) setLoginEnded(true)
+    if (session) setLoginEnded(false)
+    loggingOut.current = false
+    previous.current = session
+  }, [session])
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -61,6 +75,20 @@ export function Layout() {
         </nav>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-6 pb-12">
+        {loginEnded && (
+          <div
+            role="status"
+            className="mb-6 flex flex-wrap items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+          >
+            <span className="flex-1">Your login has ended, so the technician buttons are hidden. Log in again to continue.</span>
+            <Link to="/login" className="font-semibold underline underline-offset-2">
+              Log in
+            </Link>
+            <button type="button" onClick={() => setLoginEnded(false)} className="font-semibold">
+              Dismiss
+            </button>
+          </div>
+        )}
         <Outlet />
       </main>
       <footer className="border-t border-gray-100 bg-gray-50">

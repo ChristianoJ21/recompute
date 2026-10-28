@@ -319,3 +319,50 @@ describe('sale listing', () => {
     expect((await screen.findByRole('alert')).textContent).toContain('already listed')
   })
 })
+
+describe('passport page layout', () => {
+  beforeEach(() => {
+    vi.mocked(client.getDevice).mockReset().mockResolvedValue(withHistory)
+    vi.mocked(client.verifyEvents).mockReset().mockResolvedValue(chainOk as ChainCheck)
+  })
+
+  it('names events in plain words', async () => {
+    renderDevice()
+
+    const history = await screen.findByRole('list', { name: 'Passport events' })
+    expect(within(history).getByText('Data wipe')).toBeTruthy()
+    expect(within(history).getByText('Telemetry reading')).toBeTruthy()
+  })
+
+  it('folds the rule inputs, device record and QR label into one technical-details section', async () => {
+    renderDevice()
+
+    await screen.findByRole('list', { name: 'Passport events' })
+    const details = screen.getByText('Technical details').closest('details')!
+    expect(details.open).toBe(false)
+    expect(within(details).getByRole('img', { name: /QR code/ })).toBeTruthy()
+  })
+
+  it('shows the newest events first and hides older ones behind a button', async () => {
+    const many = Array.from({ length: 8 }, (_, i) => event(i + 1, 'note', `note ${i + 1}`))
+    vi.mocked(client.getDevice).mockResolvedValue({ ...withHistory, events: many })
+    renderDevice()
+
+    const history = await screen.findByRole('list', { name: 'Passport events' })
+    expect(within(history).getAllByRole('listitem')).toHaveLength(5)
+    expect(screen.getByRole('button', { name: 'Show all 8 events' })).toBeTruthy()
+  })
+
+  it('says so when a refused token logs the technician out', async () => {
+    signIn()
+    vi.mocked(client.evaluateDevice).mockImplementation(async () => {
+      client.logout()
+      throw new client.ApiError(401, 'Token expired; log in again with POST /auth/login.')
+    })
+    renderDevice()
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Evaluate' }))
+
+    expect(await screen.findByText(/Your login has ended/)).toBeTruthy()
+  })
+})

@@ -1,4 +1,4 @@
-# ReCompute API contract v2.1
+# ReCompute API contract v2.2
 
 > **Owner:** Panji (backend). **Panji decides changes and tells Jose before they land.** The frontend calls the backend only through `frontend/src/api/client.ts`, via `/api/*` (Vite proxy on the laptop, Vercel rewrite when hosted; both forward to the backend, so no CORS is needed).
 > Spec: `PRD_ReCompute_App.md` Sections 5–7 and 15. Base URL (local): `http://localhost:8000`. Interactive docs: `/docs`.
@@ -41,6 +41,7 @@ Status: **built** = live in the backend; **planned** = shape agreed here, backen
 |---|---|---|---|---|---|
 | POST | `/auth/login` | — | 200 | `{token, token_type: "bearer", expires_at, technician: {username, name}}` | built |
 | GET | `/auth/me` | 🔒 | 200 | `{username, name}` (use it to check a stored token is still valid) | built |
+| POST | `/auth/technicians` | 🔒 | 201 | body `{username, name, password}` → `{username, name}`: a logged-in technician adds a colleague; 400 if the username is taken or invalid, or the password is under 10 characters | built |
 | GET | `/devices` | — | 200 | `[{id, model, location, latest_outcome, sample_data}]`, sorted by id; `latest_outcome` is null until evaluated | built |
 | GET | `/devices/{id}` | — | 200 | `{device, events, latest_evaluation}`; `events` newest first; `latest_evaluation` null until evaluated | built |
 | POST | `/devices` | 🔒 | 201 | the created device | built |
@@ -62,7 +63,7 @@ Status: **built** = live in the backend; **planned** = shape agreed here, backen
 - `POST /auth/login` body `{"username": "tech-1", "password": "..."}`. Wrong username and wrong password give the same 401 message. After **5 failed logins for one username within 15 minutes**, the API answers **429** until the window ends.
 - Tokens last **12 hours** (`expires_at`, ISO 8601 UTC). There is no logout endpoint: logging out = the frontend forgets the token. Keep it in `sessionStorage`, not `localStorage`.
 - On any 401 from a 🔒 endpoint, clear the token and show the login page.
-- There is no sign-up. Accounts are made on the backend machine: `py -m tools.create_technician tech-1 "Technician One"` (asks for a password, min. 10 characters).
+- There is no public sign-up. The first account is made on the backend machine: `py -m tools.create_technician tech-1 "Technician One"` (asks for a password, min. 10 characters); after that, a logged-in technician can add colleagues with `POST /auth/technicians`. Buyers never get accounts: they use the contact box.
 - Reads are public on purpose (a buyer must be able to read a passport). Never put a secret in a device record or event payload.
 
 ## Hash chain (stretch S1)
@@ -147,3 +148,4 @@ Dates: ISO 8601 UTC with `Z`. Dates without time: `YYYY-MM-DD`.
 - **v1.3 (28 Oct 2026)**: stretch S1. Events gain `prev_hash` and `hash`; new `GET /devices/{id}/events/verify`; new error 409. Additive only: existing fields are unchanged.
 - **v2.0 (28 Oct 2026)**: phase 2 (PRD §15). **Breaking:** writes need a bearer token (401 without); `actor` comes from the token. New: `POST /auth/login`, `GET /auth/me`, errors 401 and 429 (built); `GET /listings`, `POST /devices/{id}/list|unlist`, `GET /contact` (planned). Response shapes of v1.3 endpoints are unchanged.
 - **v2.1 (28 Oct 2026)**: listings and contact **built**. `POST /devices/{id}/list` now **requires** `price: {amount, currency}` (stored in the `list` event); Listing gains `install_date`, `reliability_ok`, `price`, `latest_telemetry`. Still no buy button or payment. New examples: `list_request`, `list_created`, `listings`, `contact`.
+- **v2.2 (28 Oct 2026)**: new `POST /auth/technicians` (🔒): technicians add technicians. Additive only; still no public sign-up.

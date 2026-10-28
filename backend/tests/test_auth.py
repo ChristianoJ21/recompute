@@ -188,3 +188,36 @@ def test_cli_creates_a_technician_who_can_log_in(tmp_path, monkeypatch):
 
     client = TestClient(create_app(database_url=url, secret_key="s"))
     assert login(client, "tech-9", "a very long password").status_code == 200
+
+
+# ---- technicians add technicians (no public sign-up) -------------------------------
+
+NEW_TECH = {"username": "tech-2", "name": "Technician Two", "password": "another long password"}
+
+
+def test_logged_in_technician_can_add_a_technician_who_can_log_in(client, anon):
+    response = client.post("/auth/technicians", json=NEW_TECH)
+
+    assert response.status_code == 201
+    assert response.json() == {"username": "tech-2", "name": "Technician Two"}
+    login = anon.post("/auth/login", json={"username": "tech-2", "password": NEW_TECH["password"]})
+    assert login.status_code == 200
+
+
+def test_adding_a_technician_needs_a_login(app, anon):
+    assert anon.post("/auth/technicians", json=NEW_TECH).status_code == 401
+    with app.state.session_factory() as session:
+        assert session.get(Technician, "tech-2") is None
+
+
+@pytest.mark.parametrize("change, problem", [
+    ({"username": "tech-1"}, "already exists"),
+    ({"username": "bad name!"}, "username"),
+    ({"password": "short"}, "password"),
+    ({"name": ""}, "name"),
+])
+def test_invalid_new_technician_is_rejected(client, change, problem):
+    response = client.post("/auth/technicians", json={**NEW_TECH, **change})
+
+    assert response.status_code == 400
+    assert problem in response.json()["error"]

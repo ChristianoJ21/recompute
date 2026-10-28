@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { describeError, getContact, getListings } from '../api/client'
 import type { Contact, Listing, PassportEvent } from '../api/types'
 import { OutcomeBadge } from '../components/OutcomeBadge'
-import { Card, ErrorNotice, Loading } from '../components/ui'
+import { Card, ErrorNotice, Loading, secondaryButton } from '../components/ui'
 import { formatDate, formatDateTime, formatPrice } from '../lib/format'
 
 type State =
@@ -45,6 +45,7 @@ export function ShowcasePage() {
           prices; this demo sells nothing.
         </p>
       </div>
+      <HowItWorks />
       {state.status === 'loading' && <Loading label="Loading the listed hardware…" />}
       {state.status === 'error' && <ErrorNotice message={state.message} onRetry={retry} />}
       {state.status === 'ready' && (
@@ -57,7 +58,7 @@ export function ShowcasePage() {
             ) : (
               <ul aria-label="Listed hardware" className="space-y-4">
                 {state.listings.map((listing) => (
-                  <ListingCard key={listing.device_id} listing={listing} />
+                  <ListingCard key={listing.device_id} listing={listing} email={state.contact.email} />
                 ))}
               </ul>
             )}
@@ -69,7 +70,7 @@ export function ShowcasePage() {
   )
 }
 
-function ListingCard({ listing }: { listing: Listing }) {
+function ListingCard({ listing, email }: { listing: Listing; email: string }) {
   const components = listing.components.map((c) => `${c.type} ${c.model}`).join(', ')
   return (
     <li className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
@@ -101,12 +102,18 @@ function ListingCard({ listing }: { listing: Listing }) {
       </dl>
       {listing.note && <p className="mt-3 text-sm text-gray-800">{listing.note}</p>}
 
-      <Link
-        to={`/device/${encodeURIComponent(listing.device_id)}`}
-        className="mt-4 inline-block text-sm font-semibold text-emerald-800 hover:underline"
-      >
-        Open the passport →
-      </Link>
+      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <Link
+          to={`/device/${encodeURIComponent(listing.device_id)}`}
+          className="text-sm font-semibold text-emerald-800 hover:underline"
+        >
+          Open the passport →
+        </Link>
+        {/* Opens the visitor's own e-mail app: no account, and the app stores nothing. */}
+        <a href={enquiryLink(email, listing)} className={secondaryButton}>
+          Ask about this device
+        </a>
+      </div>
     </li>
   )
 }
@@ -175,5 +182,38 @@ function ContactBox({ contact }: { contact: Contact }) {
         <p className="mt-3 text-sm text-gray-600">Quote the device ID when you ask about it. {contact.note}</p>
       </Card>
     </aside>
+  )
+}
+
+function enquiryLink(email: string, listing: Listing): string {
+  const subject = `Enquiry about ${listing.device_id} (${listing.model})`
+  const body = `Hello,\n\nI am interested in device ${listing.device_id} listed at ${formatPrice(listing.price)}.\n`
+  return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+}
+
+const STEPS = [
+  { title: 'Every device has a passport', text: 'Repairs, upgrades, data wipes and readings are recorded and cannot be changed unnoticed.' },
+  { title: 'A rule decides its next life', text: 'Keep, upgrade, redeploy or recycle: chosen by whether replacing it would really save emissions.' },
+  { title: 'Released hardware is offered here', text: 'Only after a recorded data wipe, with the full passport for any buyer to check.' },
+]
+
+function HowItWorks() {
+  return (
+    <ol aria-label="How ReCompute works" className="grid gap-3 sm:grid-cols-3">
+      {STEPS.map((step, i) => (
+        <li key={step.title} className="flex gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
+          <span
+            aria-hidden
+            className="grid size-7 shrink-0 place-items-center rounded-full bg-emerald-700 text-sm font-semibold text-white"
+          >
+            {i + 1}
+          </span>
+          <span>
+            <span className="block text-sm font-semibold text-gray-900">{step.title}</span>
+            <span className="block text-xs leading-snug text-gray-600">{step.text}</span>
+          </span>
+        </li>
+      ))}
+    </ol>
   )
 }

@@ -56,7 +56,12 @@ export function FleetPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Fleet dashboard</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Fleet dashboard</h1>
+          <Link to="/technicians/new" className="text-sm font-semibold text-emerald-800 hover:underline">
+            + Add technician
+          </Link>
+        </div>
         <p className="mt-1 text-sm text-gray-600">
           What ReCompute recommends for each device, from its latest evaluation.
         </p>

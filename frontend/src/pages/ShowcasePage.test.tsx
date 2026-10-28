@@ -83,3 +83,25 @@ describe('available hardware (public, no login)', () => {
     expect(screen.queryByRole('link', { name: 'Fleet' })).toBeNull()
   })
 })
+
+describe('showcase explains itself', () => {
+  beforeEach(() => {
+    vi.mocked(client.getListings).mockReset().mockResolvedValue(listings as Listing[])
+    vi.mocked(client.getContact).mockReset().mockResolvedValue(contact as Contact)
+  })
+
+  it('says in three steps how ReCompute works', async () => {
+    renderShowcase()
+
+    const steps = await screen.findByRole('list', { name: 'How ReCompute works' })
+    expect(within(steps).getAllByRole('listitem')).toHaveLength(3)
+  })
+
+  it('lets a buyer ask about a device by e-mail, quoting its ID, without an account', async () => {
+    renderShowcase()
+
+    const card = within(await screen.findByRole('list', { name: 'Listed hardware' })).getAllByRole('listitem')[0]
+    const ask = within(card).getByRole('link', { name: /Ask about this device/ })
+    expect(ask.getAttribute('href')).toMatch(/^mailto:hardware@example\.com\?subject=.*GPU-SRV-001/)
+  })
+})

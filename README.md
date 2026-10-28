@@ -40,7 +40,7 @@ Pages: **public** (no login) `/` Available hardware (listed devices, sample pric
 
 ### Technician accounts
 
-There is no sign-up. In `backend/`: `py -m tools.create_technician tech-1 "Technician One"` (asks for a password, min. 10 characters). The seed and telemetry scripts log in with that account through env vars.
+There is no public sign-up and there are no buyer accounts (buyers use the contact box / "Ask about this device" e-mail link). Make the **first** technician in `backend/`: `py -m tools.create_technician tech-1 "Technician One"` (asks for a password, min. 10 characters). After that, a logged-in technician adds colleagues on the Fleet dashboard → "+ Add technician". The seed and telemetry scripts log in with a technician account through env vars.
 
 Load the sample fleet from the repo root (backend running):
 
