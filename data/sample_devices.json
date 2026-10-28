@@ -1,0 +1,153 @@
+{
+  "_comment": "SAMPLE DATA. Toy values that show the decision logic (same numbers as backend/reference_fleet.py). Never measurements, never essay evidence. Each device is a POST /devices body (contracts/examples/device_create_request.json). Load with: python scripts/seed.py",
+  "sample_data": true,
+  "workloads": [
+    {
+      "id": "WL-LAB",
+      "name": "student lab (light inference)",
+      "W": {"low": 20, "high": 20}
+    }
+  ],
+  "devices": [
+    {
+      "id": "GPU-SRV-001",
+      "model": "AccelServer-v1 (sample)",
+      "device_type": "gpu_server",
+      "install_date": "2022-03-01",
+      "location": "Hall A / large-model training",
+      "components": [
+        {"type": "gpu", "model": "Accel-v1"},
+        {"type": "memory", "model": "HBM-v1"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": {"low": 8, "high": 10},
+        "I_new": {"low": 3, "high": 4},
+        "W": {"low": 100, "high": 100},
+        "T": {"low": 3, "high": 3},
+        "E_new": {"low": 900, "high": 1100}
+      },
+      "upgrade_options": [],
+      "sample_data": true
+    },
+    {
+      "id": "GPU-SRV-002",
+      "model": "AccelServer-v1 (sample)",
+      "device_type": "gpu_server",
+      "install_date": "2022-03-01",
+      "location": "Hall A / light inference",
+      "components": [
+        {"type": "gpu", "model": "Accel-v1"},
+        {"type": "memory", "model": "HBM-v1"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": {"low": 8, "high": 10},
+        "I_new": {"low": 3, "high": 4},
+        "W": {"low": 20, "high": 20},
+        "T": {"low": 3, "high": 3},
+        "E_new": {"low": 900, "high": 1100}
+      },
+      "upgrade_options": [],
+      "sample_data": true
+    },
+    {
+      "id": "GPU-SRV-003",
+      "model": "AccelServer-v1 (sample)",
+      "device_type": "gpu_server",
+      "install_date": "2022-03-01",
+      "location": "Hall A / large-model training",
+      "components": [
+        {"type": "gpu", "model": "Accel-v1"},
+        {"type": "memory", "model": "HBM-v1"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": {"low": 8, "high": 10},
+        "I_new": {"low": 3, "high": 4},
+        "W": {"low": 100, "high": 100},
+        "T": {"low": 3, "high": 3},
+        "E_new": {"low": 900, "high": 1100}
+      },
+      "upgrade_options": [
+        {
+          "component": "memory module",
+          "I_upgraded": {"low": 5, "high": 6},
+          "E_component": {"low": 150, "high": 200}
+        }
+      ],
+      "sample_data": true
+    },
+    {
+      "id": "GPU-SRV-004",
+      "model": "AccelServer-v1 (sample)",
+      "device_type": "gpu_server",
+      "install_date": "2022-03-01",
+      "location": "Hall A / large-model training",
+      "components": [
+        {"type": "gpu", "model": "Accel-v1"},
+        {"type": "memory", "model": "HBM-v1"}
+      ],
+      "reliability_ok": false,
+      "inputs": {
+        "I_old": {"low": 8, "high": 10},
+        "I_new": {"low": 3, "high": 4},
+        "W": {"low": 100, "high": 100},
+        "T": {"low": 3, "high": 3},
+        "E_new": {"low": 900, "high": 1100}
+      },
+      "upgrade_options": [],
+      "sample_data": true
+    },
+    {
+      "id": "GPU-SRV-005",
+      "model": "AccelServer-v1 (sample)",
+      "device_type": "gpu_server",
+      "install_date": "2022-03-01",
+      "location": "Hall A / large-model training",
+      "components": [
+        {"type": "gpu", "model": "Accel-v1"},
+        {"type": "memory", "model": "HBM-v1"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": null,
+        "I_new": {"low": 3, "high": 4},
+        "W": {"low": 100, "high": 100},
+        "T": {"low": 3, "high": 3},
+        "E_new": {"low": 900, "high": 1100}
+      },
+      "upgrade_options": [],
+      "sample_data": true
+    },
+    {
+      "id": "GPU-SRV-006",
+      "model": "AccelServer-v1 (sample)",
+      "device_type": "gpu_server",
+      "install_date": "2022-03-01",
+      "location": "Hall A / mid-size training",
+      "components": [
+        {"type": "gpu", "model": "Accel-v1"},
+        {"type": "memory", "model": "HBM-v1"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": {"low": 8, "high": 10},
+        "I_new": {"low": 3, "high": 4},
+        "W": {"low": 50, "high": 50},
+        "T": {"low": 3, "high": 3},
+        "E_new": {"low": 900, "high": 1100}
+      },
+      "upgrade_options": [],
+      "sample_data": true
+    }
+  ],
+  "expected_outcomes": {
+    "GPU-SRV-001": "REDEPLOY",
+    "GPU-SRV-002": "KEEP",
+    "GPU-SRV-003": "UPGRADE",
+    "GPU-SRV-004": "RECYCLE",
+    "GPU-SRV-005": "INSUFFICIENT_DATA",
+    "GPU-SRV-006": "UNCERTAIN"
+  }
+}
