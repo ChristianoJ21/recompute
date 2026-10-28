@@ -1,4 +1,4 @@
-# ReCompute API contract v2.0
+# ReCompute API contract v2.1
 
 > **Owner:** Panji (backend). **Panji decides changes and tells Jose before they land.** The frontend calls the backend only through `frontend/src/api/client.ts`, via `/api/*` (Vite proxy on the laptop, Vercel rewrite when hosted; both forward to the backend, so no CORS is needed).
 > Spec: `PRD_ReCompute_App.md` Sections 5–7 and 15. Base URL (local): `http://localhost:8000`. Interactive docs: `/docs`.
@@ -27,6 +27,10 @@ Status: **built** = live in the backend; **planned** = shape agreed here, backen
 | `evaluation_keep.json` … `evaluation_insufficient_data.json` | `POST /devices/{id}/evaluate`, one per outcome |
 | `fleet_summary.json` | `GET /fleet/summary` |
 | `workloads_list.json` | `GET /workloads` |
+| `list_request.json` | body for `POST /devices/{id}/list` |
+| `list_created.json` | `POST /devices/{id}/list` (the `list` event) |
+| `listings.json` | `GET /listings` |
+| `contact.json` | `GET /contact` |
 | `error_401.json`, `error_404.json` | errors |
 
 ## Endpoints
@@ -47,10 +51,10 @@ Status: **built** = live in the backend; **planned** = shape agreed here, backen
 | GET | `/devices/{id}/qr` | — | 200 | PNG; encodes the frontend device-page URL (default `http://localhost:5173/device/{id}`, set with env `RECOMPUTE_FRONTEND_URL` using the placeholder `{device_id}`) | built |
 | GET | `/workloads` | — | 200 | `[{id, name, W}]` (lighter jobs for REDEPLOY) | built |
 | POST | `/workloads` | 🔒 | 201 | the created workload | built |
-| GET | `/listings` | — | 200 | `[Listing]` (below), devices currently listed, newest listing first | planned |
-| POST | `/devices/{id}/list` | 🔒 | 201 | body `{note?}` → the `list` event; **400 if the passport has no `wipe` event**, 400 if already listed | planned |
-| POST | `/devices/{id}/unlist` | 🔒 | 201 | body `{note?}` → the `unlist` event; 400 if not listed | planned |
-| GET | `/contact` | — | 200 | `{organisation, email, phone, hours, note, sample_data: true}` (below) | planned |
+| GET | `/listings` | — | 200 | `[Listing]` (below), devices currently listed, newest listing first | built |
+| POST | `/devices/{id}/list` | 🔒 | 201 | body `{price: {amount, currency}, note?}` → the `list` event (payload = the body); **400 if the passport has no `wipe` event**, 400 if already listed, 400 if the price is invalid | built |
+| POST | `/devices/{id}/unlist` | 🔒 | 201 | body `{note?}` → the `unlist` event; 400 if not listed | built |
+| GET | `/contact` | — | 200 | `{organisation, email, phone, hours, note, sample_data: true}` (below) | built |
 
 **No PUT, PATCH or DELETE exist.** Events are append-only (the database also refuses UPDATE/DELETE on events). Devices are not edited: a changed device is a new record. Listing and unlisting are **passport events** (`kind` `list` / `unlist`), so they appear in the history and the hash chain; `POST /devices/{id}/events` refuses those two kinds so the wipe rule cannot be skipped.
 
@@ -84,24 +88,25 @@ sample_data     bool, default true
 
 **Workload** (`POST /workloads`): `{id, name, W: Range}`.
 
-**Listing** (planned)
-```json
-{
-  "device_id": "GPU-SRV-001",
-  "model": "Sample GPU server A",
-  "device_type": "GPU server",
-  "components": [{"type": "GPU", "model": "Sample accelerator"}],
-  "latest_outcome": "REDEPLOY",
-  "passport_intact": true,
-  "wiped_at": "2026-11-03T09:00:00Z",
-  "listed_at": "2026-11-03T10:00:00Z",
-  "note": "Released after REDEPLOY review (sample)",
-  "sample_data": true
-}
-```
-`wiped_at` = time of the newest `wipe` event; `passport_intact` = `valid` from `/events/verify`. No price, no stock count, no buy button: buyers use the contact box.
+**Price** `{"amount": 45000000, "currency": "IDR"}`: `amount` is a whole number > 0 in units of the currency; `currency` is a 3-letter ISO 4217 code in capitals. A price is a **sample asking price**: show it with the SAMPLE DATA label.
 
-**Contact** (planned): one **fictional** sample data centre, e.g. `{"organisation": "Sample Data Centre (fictional)", "email": "hardware@example.com", "phone": null, "hours": "Mon–Fri 09:00–17:00 WIB", "note": "Demo only: no real sales.", "sample_data": true}`. Never a real person's details. Read-only: there is no message form (the app collects no visitor data).
+**List** (`POST /devices/{id}/list`): `{price: Price, note?: text (max 500)}`. To change a price: unlist, then list again (both stay in the history).
+
+**Listing** (`GET /listings`, see `examples/listings.json`)
+```
+device_id, model, device_type, install_date, components, reliability_ok   from the device record
+latest_outcome     outcome of the latest evaluation, or null
+passport_intact    `valid` from /events/verify
+wiped_at           time of the newest `wipe` event
+listed_at          time of the `list` event
+price              Price from the `list` event
+note               note from the `list` event, or null
+latest_telemetry   the newest `telemetry` event (full event object), or null
+sample_data        bool
+```
+The price is shown, but there is **no buy button, cart, payment or order**: buyers use the contact box. `location` is left out on purpose (not needed by a buyer).
+
+**Contact** (`GET /contact`): one **fictional** sample data centre, see `examples/contact.json` (`phone` may be null). Never a real person's details. Read-only: there is no message form (the app collects no visitor data).
 
 ## Evaluation object
 
@@ -141,3 +146,4 @@ Dates: ISO 8601 UTC with `Z`. Dates without time: `YYYY-MM-DD`.
 - **v1.2 (28 Oct 2026)**: frontend is React + Vite; QR codes now open `http://localhost:5173/device/{id}` (was the Streamlit URL on port 8501). No endpoint or JSON shape changed.
 - **v1.3 (28 Oct 2026)**: stretch S1. Events gain `prev_hash` and `hash`; new `GET /devices/{id}/events/verify`; new error 409. Additive only: existing fields are unchanged.
 - **v2.0 (28 Oct 2026)**: phase 2 (PRD §15). **Breaking:** writes need a bearer token (401 without); `actor` comes from the token. New: `POST /auth/login`, `GET /auth/me`, errors 401 and 429 (built); `GET /listings`, `POST /devices/{id}/list|unlist`, `GET /contact` (planned). Response shapes of v1.3 endpoints are unchanged.
+- **v2.1 (28 Oct 2026)**: listings and contact **built**. `POST /devices/{id}/list` now **requires** `price: {amount, currency}` (stored in the `list` event); Listing gains `install_date`, `reliability_ok`, `price`, `latest_telemetry`. Still no buy button or payment. New examples: `list_request`, `list_created`, `listings`, `contact`.

@@ -1,0 +1,8 @@
+{
+  "organisation": "Sample Data Centre (fictional)",
+  "email": "hardware@example.com",
+  "phone": null,
+  "hours": "Mon-Fri 09:00-17:00 WIB",
+  "note": "Demo only: no real sales. Prices are sample values.",
+  "sample_data": true
+}

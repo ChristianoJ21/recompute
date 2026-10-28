@@ -1,6 +1,6 @@
 # PRD: ReCompute Demo App
 
-> **Version:** 2.0 · 28 October 2026 · Owner: Panji · v1.1: decision engine (§5.2) aligned with the essay · v1.2: frontend switched from Streamlit to React + Vite + TypeScript + Tailwind · **v2.0: phase 2 (§15): public showcase, technician login, market-forecast charts, hosting**
+> **Version:** 2.1 · 28 October 2026 · Owner: Panji · v1.1: decision engine (§5.2) aligned with the essay · v1.2: frontend switched from Streamlit to React + Vite + TypeScript + Tailwind · **v2.0: phase 2 (§15): public showcase, technician login, market-forecast charts, hosting** · **v2.1: listings show a sample price (§15); still no buy button or payment**
 > **Readers:** Panji, Jose, AI Agent A (backend), AI Agent B (frontend)
 > **Architecture overview:** https://claude.ai/artifact/BNMfdbkQ71VdABKVZMjBjD (share it from the page's Share menu)
 > **Essay first.** No app work before the essay is submitted (Fri 30 Oct). Build during judging (1–8 Nov) so the demo is ready if we reach the Top 5 (announced 9 Nov, Grand Final 14 Nov).
@@ -21,7 +21,7 @@ It must match Section 4 of the essay exactly: same rule, same outcomes, same saf
 ### Non-goals (do not build)
 - Real data-centre integration (no real BMC/Redfish, no real Prometheus scraping). Telemetry is **simulated** and labelled as such.
 - IoT sensors, blockchain, big-data stack.
-- Resale marketplace with payments, orders, carts or customer accounts. (v2.0 adds a public **showcase** with a contact box, §15; buying stays outside the app.)
+- Resale marketplace with payments, orders, carts or customer accounts. (v2.0 adds a public **showcase** with a contact box, §15; v2.1 shows a sample asking price; buying stays outside the app.)
 - Any real CO₂ figure presented as a measurement. **All numbers in the demo are sample values, shown with a visible "SAMPLE DATA" label.**
 
 ---
@@ -309,10 +309,10 @@ The device/passport page stays **public to read** (a buyer must be able to check
 ### 15.2 Users and stories (added to §2)
 | User | Story | Acceptance |
 |---|---|---|
-| Visitor / buyer | I browse hardware the data centre has released and check its history | "Available hardware" lists only listed devices with model, components, latest outcome, passport-intact badge and wipe date; each opens the passport page |
+| Visitor / buyer | I browse hardware the data centre has released and check its history | "Available hardware" lists only listed devices with model, components, latest outcome, passport-intact badge, wipe date and asking price (SAMPLE); each opens the passport page |
 | Visitor / buyer | I know whom to contact | One contact box on the showcase, filled from `GET /contact`: a **fictional** sample data centre (`example.com` address), never a real person's details. No message form, no payment, no order |
 | Technician | I log in before changing anything | Write actions without a valid login are refused (401); the passport records the logged-in username as the event's actor |
-| Technician | I put a released device up for sale | "List for sale" works only if the passport holds a `wipe` event; otherwise the API refuses and says why. Listing and unlisting are passport events, so the history shows them |
+| Technician | I put a released device up for sale | "List for sale" takes an asking price `{amount, currency}` and works only if the passport holds a `wipe` event; otherwise the API refuses and says why. Listing and unlisting are passport events (the price is in the `list` event), so the history shows them; to change the price, unlist and list again |
 | Technician | I see the fleet at a glance | Stats dashboard: counts per outcome, devices not evaluated, devices listed, passports intact vs changed |
 | Judge | I see the market context | Forecast charts on the public site; every point shows its source and page |
 
@@ -320,7 +320,7 @@ The device/passport page stays **public to read** (a buyer must be able to check
 | ID | Feature | Owner | Done when |
 |---|---|---|---|
 | F8 | Technician login | Panji + Agent A | `POST /auth/login` returns a token; every write endpoint returns 401 without one; actor = logged-in username; technicians are created only with `py -m tools.create_technician` (no sign-up page); tests pass |
-| F9 | Listings | Panji + Agent A | `list`/`unlist` events; listing refused without a `wipe` event; `GET /listings`; tests pass |
+| F9 | Listings | Panji + Agent A | `list`/`unlist` events with price; listing refused without a `wipe` event; `GET /listings` (hardware data + price); `GET /contact`; tests pass |
 | F10 | Public showcase + contact box | Jose + Agent B | Pages per 15.1 work without login on a phone; SAMPLE DATA label shown |
 | F11 | Login page + technician stats dashboard | Jose + Agent B | Login/logout; stats per 15.2 from `/fleet/summary`, `/listings` and `/events/verify` |
 | F12 | Market-forecast charts | Jose + Agent B (numbers: Hanif) | Rules in 15.4 met; no unverified point shown |
@@ -329,6 +329,7 @@ The device/passport page stays **public to read** (a buyer must be able to check
 ### 15.4 Market-forecast charts (binding)
 - **Hanif supplies the numbers** from his Analysis 1 sources. A point enters the chart only when it is a **verified** row of the evidence sheet (exact quote + page filled). Jose stores them in `data/market_forecast.json`: each point `{series, year, value, unit, kind: "actual" | "forecast", source, page, evidence_row}`.
 - Each chart shows source + page for every point (tooltip or caption) and labels forecasts as forecasts.
+- Until Hanif's verified rows arrive, `data/market_forecast.json` is an empty list and the page shows an empty state ("waiting for verified figures"), never placeholder numbers.
 - Decision 8: Wang et al. (Mt cumulative) and de Vries-Gao (kt/yr) are **never** in the same chart. Decision 10: Shehabi **or** Smith for installed base, never mixed years. Open item 11: the WSTS 2026 forecast stays out until verified.
 - These are published figures, not demo results: label them with their source, **not** "SAMPLE DATA", and never mix them with demo numbers in one chart.
 
@@ -346,7 +347,7 @@ The device/passport page stays **public to read** (a buyer must be able to check
 ### 15.7 Risks (added to §13)
 | Risk | Mitigation |
 |---|---|
-| Public site mistaken for a real shop | No prices, payment or orders; fictional contact; SAMPLE DATA label; showcase text says "demo" |
+| Public site mistaken for a real shop | Prices are SAMPLE asking prices; no buy button, payment, cart or orders; fictional contact; SAMPLE DATA label; showcase text says "demo" |
 | A forecast number is wrong | Only verified evidence rows; source + page on every point; Hanif checks the JSON before release |
 | Leaked or weak technician password | No sign-up page; accounts made by CLI; min. 10 characters; 429 after repeated failures; demo accounts deleted after 14 Nov |
 | Hosting down at the venue | Offline laptop mode (above) |

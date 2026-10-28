@@ -45,6 +45,13 @@ def main():
     examples["fleet_summary"] = client.get("/fleet/summary").json()
     examples["workloads_list"] = client.get("/workloads").json()
     examples["error_404"] = client.get("/devices/NOPE").json()
+    # listing last, so the examples above keep their v1.3 content
+    client.post("/devices/GPU-SRV-001/events", json={"kind": "telemetry", "payload": {"gpu_temp_c": 61}})
+    examples["list_request"] = {"price": {"amount": 45000000, "currency": "IDR"},
+                                "note": "Released after REDEPLOY review (sample)"}
+    examples["list_created"] = client.post("/devices/GPU-SRV-001/list", json=examples["list_request"]).json()
+    examples["listings"] = client.get("/listings").json()
+    examples["contact"] = client.get("/contact").json()
 
     OUT.mkdir(parents=True, exist_ok=True)
     for name, body in examples.items():

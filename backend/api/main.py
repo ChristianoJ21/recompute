@@ -21,12 +21,21 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from api import auth
 from api.auth import LoginLock, require_technician
 from db.chain import GENESIS_HASH, event_hash, verify
-from db.models import Device, Evaluation, Event, Workload, make_session_factory, utcnow
+from db.models import Device, Evaluation, Event, Workload, iso, make_session_factory, utcnow
 from engine.decision import OUTCOMES, evaluate
 
 DEFAULT_DB_URL = "sqlite:///./recompute.db"
 DEFAULT_FRONTEND_URL = "http://localhost:5173/device/{device_id}"
 EVENT_KINDS = ("telemetry", "scan", "repair", "upgrade", "wipe", "move", "note")
+LISTING_KINDS = ("list", "unlist")  # written only by /list and /unlist, so the wipe rule cannot be skipped
+CONTACT = {  # fictional on purpose: never a real person's details (PRD 15.3)
+    "organisation": "Sample Data Centre (fictional)",
+    "email": "hardware@example.com",
+    "phone": None,
+    "hours": "Mon-Fri 09:00-17:00 WIB",
+    "note": "Demo only: no real sales. Prices are sample values.",
+    "sample_data": True,
+}
 ID_PATTERN = r"^[A-Za-z0-9._-]{1,64}$"
 
 
@@ -88,6 +97,20 @@ class EventIn(BaseModel):
     payload: dict = Field(default_factory=dict)
 
 
+class Price(BaseModel):
+    amount: int = Field(gt=0)  # whole units of the currency
+    currency: str = Field(pattern=r"^[A-Z]{3}$")  # ISO 4217, e.g. IDR
+
+
+class ListIn(BaseModel):
+    price: Price
+    note: str | None = Field(default=None, max_length=500)
+
+
+class UnlistIn(BaseModel):
+    note: str | None = Field(default=None, max_length=500)
+
+
 class WorkloadIn(BaseModel):
     id: str = Field(pattern=ID_PATTERN)
     name: str = Field(min_length=1, max_length=200)
@@ -112,6 +135,54 @@ def head_hash(session, device_id):
     """Hash of the device's newest event, i.e. what the next event links to."""
     latest = session.scalar(select(Event.hash).where(Event.device_id == device_id).order_by(Event.id.desc()).limit(1))
     return latest or GENESIS_HASH
+
+
+def append_event(session, device_id, kind, payload, actor):
+    """Add one event to the device's hash chain (the only way events are written)."""
+    fields = {"device_id": device_id, "created_at": utcnow(), "kind": kind, "payload": payload,
+              "actor": actor, "prev_hash": head_hash(session, device_id)}
+    event = Event(**fields, hash=event_hash(**fields))
+    session.add(event)
+    try:
+        session.commit()
+    except IntegrityError as error:
+        session.rollback()
+        raise HTTPException(409, f"Another event for '{device_id}' was written at the same moment; "
+                                 "send this event again.") from error
+    return event.to_dict()
+
+
+def device_events(session, device_id, kinds=None):
+    """The device's events, oldest first (optionally only some kinds)."""
+    query = select(Event).where(Event.device_id == device_id)
+    if kinds:
+        query = query.where(Event.kind.in_(kinds))
+    return list(session.scalars(query.order_by(Event.id)))
+
+
+def listed_events(session):
+    """{device_id: its 'list' event} for devices whose newest listing event is 'list'."""
+    newest = {}
+    for event in session.scalars(select(Event).where(Event.kind.in_(LISTING_KINDS)).order_by(Event.id)):
+        newest[event.device_id] = event
+    return {device_id: event for device_id, event in newest.items() if event.kind == "list"}
+
+
+def listing_row(session, device, list_event, outcome):
+    events = device_events(session, device.id)
+    wipes = [e for e in events if e.kind == "wipe"]
+    telemetry = [e for e in events if e.kind == "telemetry"]
+    return {
+        "device_id": device.id, "model": device.model, "device_type": device.device_type,
+        "install_date": device.install_date.isoformat(), "components": device.components,
+        "reliability_ok": device.reliability_ok, "latest_outcome": outcome,
+        "passport_intact": verify(device.id, events)["valid"],
+        "wiped_at": iso(wipes[-1].created_at) if wipes else None,
+        "listed_at": iso(list_event.created_at),
+        "price": list_event.payload["price"], "note": list_event.payload.get("note"),
+        "latest_telemetry": telemetry[-1].to_dict() if telemetry else None,
+        "sample_data": device.sample_data,
+    }
 
 
 def latest_results(session):
@@ -163,17 +234,39 @@ def create_device(body: DeviceIn, session=Depends(get_session)):
 @router.post("/devices/{device_id}/events", status_code=201)
 def add_event(device_id: str, body: EventIn, session=Depends(get_session), technician=Depends(require_technician)):
     find_device(session, device_id)
-    fields = {"device_id": device_id, "created_at": utcnow(), **body.model_dump(),
-              "actor": technician.username, "prev_hash": head_hash(session, device_id)}
-    event = Event(**fields, hash=event_hash(**fields))
-    session.add(event)
-    try:
-        session.commit()
-    except IntegrityError as error:
-        session.rollback()
-        raise HTTPException(409, f"Another event for '{device_id}' was written at the same moment; "
-                                 "send this event again.") from error
-    return event.to_dict()
+    return append_event(session, device_id, body.kind, body.payload, technician.username)
+
+
+@router.post("/devices/{device_id}/list", status_code=201)
+def list_for_sale(device_id: str, body: ListIn, session=Depends(get_session), technician=Depends(require_technician)):
+    find_device(session, device_id)
+    if not device_events(session, device_id, ["wipe"]):
+        raise HTTPException(400, f"'{device_id}' has no wipe event. Record a data wipe "
+                                 "(POST /devices/{id}/events, kind 'wipe') before listing it.")
+    if device_id in listed_events(session):
+        raise HTTPException(400, f"'{device_id}' is already listed; unlist it first to change the price.")
+    return append_event(session, device_id, "list", body.model_dump(exclude_none=True), technician.username)
+
+
+@router.post("/devices/{device_id}/unlist", status_code=201)
+def unlist(device_id: str, body: UnlistIn, session=Depends(get_session), technician=Depends(require_technician)):
+    find_device(session, device_id)
+    if device_id not in listed_events(session):
+        raise HTTPException(400, f"'{device_id}' is not listed.")
+    return append_event(session, device_id, "unlist", body.model_dump(exclude_none=True), technician.username)
+
+
+@router.get("/listings")
+def listings(session=Depends(get_session)):
+    listed = sorted(listed_events(session).values(), key=lambda event: event.id, reverse=True)
+    latest = latest_results(session)
+    return [listing_row(session, session.get(Device, e.device_id), e, latest.get(e.device_id, {}).get("outcome"))
+            for e in listed]
+
+
+@router.get("/contact")
+def contact():
+    return CONTACT
 
 
 @router.get("/devices/{device_id}/events/verify")
