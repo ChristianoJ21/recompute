@@ -1,6 +1,6 @@
 {
   "token": "<token: send as 'Authorization: Bearer <token>'>",
-  "expires_at": "2026-10-29T01:39:44Z",
+  "expires_at": "2026-10-29T06:59:19Z",
   "token_type": "bearer",
   "technician": {
     "username": "tech-1",

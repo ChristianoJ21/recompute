@@ -28,6 +28,13 @@ def main():
     client.headers["Authorization"] = f"Bearer {login['token']}"
     examples["login_response"] = {**login, "token": TOKEN_PLACEHOLDER}
     examples["auth_me"] = client.get("/auth/me").json()
+    # v2.3: the technician edits their own account (same name, so the examples below are unchanged)
+    examples["profile_request"] = {"name": "Technician One (sample)"}
+    examples["profile_updated"] = client.patch("/auth/me", json=examples["profile_request"]).json()
+    examples["password_change_request"] = {"current_password": "<current password>",
+                                           "new_password": "<new password, at least 10 characters>"}
+    examples["password_changed"] = client.post(
+        "/auth/password", json={"current_password": password, "new_password": secrets.token_urlsafe(16)}).json()
 
     for workload in WORKLOADS:
         client.post("/workloads", json=workload)

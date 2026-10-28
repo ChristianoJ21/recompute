@@ -221,3 +221,76 @@ def test_invalid_new_technician_is_rejected(client, change, problem):
 
     assert response.status_code == 400
     assert problem in response.json()["error"]
+
+
+# ---- a technician edits their own account (contract v2.3) -------------------------
+
+def test_technician_changes_their_own_name(app, client):
+    response = client.patch("/auth/me", json={"name": "  Technician Uno  "})
+
+    assert response.status_code == 200
+    assert response.json() == {"username": "tech-1", "name": "Technician Uno"}
+    assert client.get("/auth/me").json()["name"] == "Technician Uno"
+
+
+@pytest.mark.parametrize("body", [{"name": ""}, {"name": "   "}, {"name": "x" * 201}, {}])
+def test_invalid_name_is_rejected(client, body):
+    response = client.patch("/auth/me", json=body)
+
+    assert response.status_code == 400
+    assert "name" in response.json()["error"]
+    assert client.get("/auth/me").json()["name"] == TECH["name"]
+
+
+def test_changing_the_name_needs_a_login(anon):
+    assert anon.patch("/auth/me", json={"name": "Someone"}).status_code == 401
+
+
+NEW_PASSWORD = "a brand new passphrase"
+
+
+def test_technician_changes_their_password(client, anon):
+    response = client.post("/auth/password",
+                           json={"current_password": TECH["password"], "new_password": NEW_PASSWORD})
+
+    assert response.status_code == 200
+    assert response.json() == {"username": "tech-1", "name": TECH["name"]}
+    assert login(anon).status_code == 401
+    assert login(anon, password=NEW_PASSWORD).status_code == 200
+
+
+def test_wrong_current_password_is_refused_without_ending_the_login(client, anon):
+    response = client.post("/auth/password",
+                           json={"current_password": "not my password", "new_password": NEW_PASSWORD})
+
+    # 400, not 401: a 401 tells the frontend the token is gone.
+    assert response.status_code == 400
+    assert "Current password" in response.json()["error"]
+    assert login(anon).status_code == 200
+
+
+def test_repeated_wrong_current_passwords_lock_the_username(client):
+    for _ in range(api.auth.MAX_FAILED_LOGINS):
+        client.post("/auth/password", json={"current_password": "guess", "new_password": NEW_PASSWORD})
+
+    response = client.post("/auth/password",
+                           json={"current_password": TECH["password"], "new_password": NEW_PASSWORD})
+    assert response.status_code == 429
+
+
+@pytest.mark.parametrize("new_password, problem", [("short", "at least 10"), (TECH["password"], "different")])
+def test_weak_or_unchanged_new_password_is_rejected(client, anon, new_password, problem):
+    response = client.post("/auth/password",
+                           json={"current_password": TECH["password"], "new_password": new_password})
+
+    assert response.status_code == 400
+    assert problem in response.json()["error"]
+    assert login(anon).status_code == 200
+
+
+def test_changing_the_password_needs_a_login(anon):
+    response = anon.post("/auth/password",
+                         json={"current_password": TECH["password"], "new_password": NEW_PASSWORD})
+
+    assert response.status_code == 401
+    assert login(anon).status_code == 200
