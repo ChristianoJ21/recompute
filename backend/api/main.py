@@ -4,6 +4,7 @@ Run from backend/:  py -m uvicorn api.main:create_app --factory --reload
 """
 import io
 import os
+import secrets
 from datetime import date
 from typing import Literal
 from urllib.parse import quote
@@ -17,6 +18,8 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from api import auth
+from api.auth import LoginLock, require_technician
 from db.chain import GENESIS_HASH, event_hash, verify
 from db.models import Device, Evaluation, Event, Workload, make_session_factory, utcnow
 from engine.decision import OUTCOMES, evaluate
@@ -80,9 +83,9 @@ class DeviceIn(BaseModel):
 
 
 class EventIn(BaseModel):
+    """The actor is the logged-in technician (contract v2.0); an 'actor' field in the body is ignored."""
     kind: Literal[EVENT_KINDS]
     payload: dict = Field(default_factory=dict)
-    actor: str = Field(min_length=1, max_length=100)
 
 
 class WorkloadIn(BaseModel):
@@ -147,7 +150,7 @@ def get_device(device_id: str, session=Depends(get_session)):
     }
 
 
-@router.post("/devices", status_code=201)
+@router.post("/devices", status_code=201, dependencies=[Depends(require_technician)])
 def create_device(body: DeviceIn, session=Depends(get_session)):
     if session.get(Device, body.id) is not None:
         raise HTTPException(400, f"Device '{body.id}' already exists. Passport records are never overwritten; use a new id.")
@@ -158,10 +161,10 @@ def create_device(body: DeviceIn, session=Depends(get_session)):
 
 
 @router.post("/devices/{device_id}/events", status_code=201)
-def add_event(device_id: str, body: EventIn, session=Depends(get_session)):
+def add_event(device_id: str, body: EventIn, session=Depends(get_session), technician=Depends(require_technician)):
     find_device(session, device_id)
     fields = {"device_id": device_id, "created_at": utcnow(), **body.model_dump(),
-              "prev_hash": head_hash(session, device_id)}
+              "actor": technician.username, "prev_hash": head_hash(session, device_id)}
     event = Event(**fields, hash=event_hash(**fields))
     session.add(event)
     try:
@@ -179,7 +182,7 @@ def verify_events(device_id: str, session=Depends(get_session)):
     return verify(device_id, list(session.scalars(select(Event).where(Event.device_id == device_id).order_by(Event.id))))
 
 
-@router.post("/devices/{device_id}/evaluate")
+@router.post("/devices/{device_id}/evaluate", dependencies=[Depends(require_technician)])
 def evaluate_device(device_id: str, session=Depends(get_session)):
     device = find_device(session, device_id)
     workloads = [w.to_dict() for w in session.scalars(select(Workload).order_by(Workload.id))]
@@ -217,7 +220,7 @@ def list_workloads(session=Depends(get_session)):
     return [w.to_dict() for w in session.scalars(select(Workload).order_by(Workload.id))]
 
 
-@router.post("/workloads", status_code=201)
+@router.post("/workloads", status_code=201, dependencies=[Depends(require_technician)])
 def create_workload(body: WorkloadIn, session=Depends(get_session)):
     if session.get(Workload, body.id) is not None:
         raise HTTPException(400, f"Workload '{body.id}' already exists; use a new id.")
@@ -236,7 +239,7 @@ async def http_error(request, exc):
                    "Passport events are append-only; see contracts/api_contract.md.")
     elif message == "Not Found":
         message = f"No endpoint {request.method} {request.url.path}; see contracts/api_contract.md."
-    return JSONResponse({"error": message}, status_code=exc.status_code)
+    return JSONResponse({"error": message}, status_code=exc.status_code, headers=exc.headers)
 
 
 async def validation_error(request, exc):
@@ -245,12 +248,16 @@ async def validation_error(request, exc):
     return JSONResponse({"error": "; ".join(problems)}, status_code=400)
 
 
-def create_app(database_url=None, frontend_url=None):
-    app = FastAPI(title="ReCompute API (SAMPLE DATA demo)", version="1.1")
+def create_app(database_url=None, frontend_url=None, secret_key=None):
+    app = FastAPI(title="ReCompute API (SAMPLE DATA demo)", version="2.0")
     app.state.session_factory = make_session_factory(
         database_url or os.environ.get("RECOMPUTE_DB_URL", DEFAULT_DB_URL))
     app.state.frontend_url = frontend_url or os.environ.get("RECOMPUTE_FRONTEND_URL", DEFAULT_FRONTEND_URL)
+    # Without RECOMPUTE_SECRET_KEY, tokens stop working when the server restarts (fine on the laptop only).
+    app.state.secret_key = secret_key or os.environ.get("RECOMPUTE_SECRET_KEY") or secrets.token_urlsafe(32)
+    app.state.login_lock = LoginLock()
     app.add_exception_handler(StarletteHTTPException, http_error)
     app.add_exception_handler(RequestValidationError, validation_error)
+    app.include_router(auth.router)
     app.include_router(router)
     return app

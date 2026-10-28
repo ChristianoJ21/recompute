@@ -20,6 +20,7 @@ py -m uvicorn api.main:create_app --factory --port 8000   # API at http://localh
 
 - Database: `backend/recompute.db` (SQLite, created on first start). Override with env `RECOMPUTE_DB_URL`.
 - QR codes point to `http://localhost:5173/device/<id>`. Override with env `RECOMPUTE_FRONTEND_URL` (use `{device_id}` as the placeholder), e.g. the laptop's LAN address so a phone can open it at the exhibition.
+- **Login (contract v2.0):** every write endpoint needs a technician token. Create a login once: `py -m tools.create_technician tech-1 "Technician One"` (asks for a password, min. 10 characters; there is no sign-up page). Then `POST /auth/login` and send `Authorization: Bearer <token>`; in `/docs` use the **Authorize** button. Set env `RECOMPUTE_SECRET_KEY` to a long random string so tokens survive a restart (required when hosted).
 - After changing an endpoint: update `contracts/api_contract.md`, run `py -m tools.export_examples`, tell Jose.
 
 ## Frontend
