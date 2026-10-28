@@ -1,0 +1,107 @@
+"""Passport data model (PRD Section 6). Events are append-only: no UPDATE or DELETE anywhere."""
+from datetime import date, datetime, timezone
+
+from sqlalchemy import JSON, Boolean, Date, DateTime, ForeignKey, Integer, String, create_engine, text
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
+from sqlalchemy.pool import StaticPool
+
+# SQLite enforces append-only events itself, so even a bug or a manual SQL edit cannot rewrite history.
+SQLITE_APPEND_ONLY = (
+    "CREATE TRIGGER IF NOT EXISTS events_no_update BEFORE UPDATE ON events "
+    "BEGIN SELECT RAISE(ABORT, 'events are append-only'); END",
+    "CREATE TRIGGER IF NOT EXISTS events_no_delete BEFORE DELETE ON events "
+    "BEGIN SELECT RAISE(ABORT, 'events are append-only'); END",
+)
+
+
+def utcnow():
+    return datetime.now(timezone.utc)
+
+
+def iso(moment):
+    """UTC ISO 8601 with Z, e.g. 2026-11-03T10:00:00Z (SQLite returns naive datetimes)."""
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=timezone.utc)
+    return moment.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class Device(Base):
+    __tablename__ = "devices"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    model: Mapped[str] = mapped_column(String(200))
+    device_type: Mapped[str] = mapped_column(String(100))
+    install_date: Mapped[date] = mapped_column(Date)
+    location: Mapped[str] = mapped_column(String(200))
+    components: Mapped[list] = mapped_column(JSON, default=list)
+    reliability_ok: Mapped[bool] = mapped_column(Boolean)
+    inputs: Mapped[dict] = mapped_column(JSON)
+    upgrade_options: Mapped[list] = mapped_column(JSON, default=list)
+    sample_data: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id, "model": self.model, "device_type": self.device_type,
+            "install_date": self.install_date.isoformat(), "location": self.location,
+            "components": self.components, "reliability_ok": self.reliability_ok,
+            "inputs": self.inputs, "upgrade_options": self.upgrade_options,
+            "sample_data": self.sample_data,
+        }
+
+
+class Event(Base):
+    __tablename__ = "events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    device_id: Mapped[str] = mapped_column(ForeignKey("devices.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    kind: Mapped[str] = mapped_column(String(20))
+    payload: Mapped[dict] = mapped_column(JSON, default=dict)
+    actor: Mapped[str] = mapped_column(String(100))
+    prev_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)  # stretch S1
+    hash: Mapped[str | None] = mapped_column(String(64), nullable=True)       # stretch S1
+
+    def to_dict(self):
+        return {
+            "id": self.id, "device_id": self.device_id, "created_at": iso(self.created_at),
+            "kind": self.kind, "payload": self.payload, "actor": self.actor,
+        }
+
+
+class Evaluation(Base):
+    __tablename__ = "evaluations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    device_id: Mapped[str] = mapped_column(ForeignKey("devices.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    result: Mapped[dict] = mapped_column(JSON)
+
+
+class Workload(Base):
+    __tablename__ = "workloads"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    name: Mapped[str] = mapped_column(String(200))
+    W: Mapped[dict] = mapped_column(JSON)
+
+    def to_dict(self):
+        return {"id": self.id, "name": self.name, "W": self.W}
+
+
+def make_session_factory(url):
+    """Create tables (and SQLite append-only triggers) and return a session factory."""
+    is_sqlite = url.startswith("sqlite")
+    options = {"connect_args": {"check_same_thread": False}} if is_sqlite else {}
+    if url in ("sqlite://", "sqlite:///:memory:"):
+        options["poolclass"] = StaticPool  # one shared in-memory database for tests
+    engine = create_engine(url, **options)
+    Base.metadata.create_all(engine)
+    if is_sqlite:
+        with engine.begin() as conn:
+            for statement in SQLITE_APPEND_ONLY:
+                conn.execute(text(statement))
+    return sessionmaker(engine, expire_on_commit=False)
