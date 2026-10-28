@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><style>
+@keyframes rcFlowX{to{background-position:24px 0}}
+@keyframes rcFlowY{to{background-position:0 24px}}
+@keyframes rcShift{from{transform:translateX(52px)}to{transform:none}}
+@keyframes rcIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+@keyframes rcScan{0%{top:4%}50%{top:92%}100%{top:4%}}
+@keyframes rcPulse{0%,100%{opacity:1}50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></helmet>
+<div ref="{{ rootRef }}" style="position:relative;background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+  <span aria-hidden="true" style="position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:2px solid var(--rc-accent,#2443C9);border-left:2px solid var(--rc-accent,#2443C9)"></span>
+  <span aria-hidden="true" style="position:absolute;top:-1px;right:-1px;width:12px;height:12px;border-top:2px solid var(--rc-accent,#2443C9);border-right:2px solid var(--rc-accent,#2443C9)"></span>
+  <span aria-hidden="true" style="position:absolute;bottom:-1px;left:-1px;width:12px;height:12px;border-bottom:2px solid var(--rc-accent,#2443C9);border-left:2px solid var(--rc-accent,#2443C9)"></span>
+  <span aria-hidden="true" style="position:absolute;bottom:-1px;right:-1px;width:12px;height:12px;border-bottom:2px solid var(--rc-accent,#2443C9);border-right:2px solid var(--rc-accent,#2443C9)"></span>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--rc-line,#D6D6CF);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;color:var(--rc-ink-2,#4A4F57)">
+    <span><strong style="color:var(--rc-ink,#0E1116)">FIG. 1</strong> · PASSPORT → DECISION → SECOND LIFE</span>
+    <span style="display:inline-flex;align-items:center;gap:6px">{{ pulse }}LIVE · SAMPLE DATA</span>
+  </div>
+  <ol aria-label="How ReCompute works" style="list-style:none;margin:0;padding:clamp(20px,3cqi,32px);display:grid;grid-template-columns:{{ cols }};gap:{{ gap }}">
+    <li style="position:relative;display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;flex:none;border-radius:50%;border:1.5px solid var(--rc-accent,#2443C9);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:700;color:var(--rc-accent,#2443C9)">1</span><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--rc-ink-2,#4A4F57)">PASSPORT</span></div>
+      <div aria-hidden="true" style="position:relative;height:120px;border:1px dashed var(--rc-line-strong,#A9A9A0);background:var(--rc-raised,#FAFAF8);overflow:hidden;padding:12px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="display:flex;justify-content:flex-end;overflow:hidden">{{ chain }}</div>
+        <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;color:var(--rc-ink-2,#4A4F57)">{{ chainCap }}</span>
+      </div>
+      <h3 style="margin:0;font-size:17px;font-weight:700">A passport for every device</h3>
+      <p style="margin:0;font-size:15px;color:var(--rc-ink-2,#4A4F57);text-wrap:pretty">Each scan, repair, wipe or reading is appended to the device's history and linked by hash to the event before it, so any later change is detected.</p>
+      {{ conn1 }}
+    </li>
+    <li style="position:relative;display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;flex:none;border-radius:50%;border:1.5px solid var(--rc-accent,#2443C9);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:700;color:var(--rc-accent,#2443C9)">2</span><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--rc-ink-2,#4A4F57)">DECISION RULE</span></div>
+      <div aria-hidden="true" style="position:relative;height:120px;border:1px dashed var(--rc-line-strong,#A9A9A0);background:var(--rc-raised,#FAFAF8);overflow:hidden;padding:12px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:700">{{ ex.id }}</span><dc-import name="RC Badge" outcome="{{ ex.o }}" size="sm" hint-size="90px,22px"></dc-import></div>
+        <div style="position:relative;height:30px">
+          <div style="position:absolute;left:0;right:0;top:12px;height:6px;background:var(--rc-sunken,#EBEBE6)"></div>
+          <div style="position:absolute;left:{{ ex.l }};width:{{ ex.w }};top:9px;height:12px;background:var(--rc-accent,#2443C9);transition:left .9s cubic-bezier(.2,.7,.2,1),width .9s cubic-bezier(.2,.7,.2,1)"></div>
+          <div style="position:absolute;left:{{ z }};top:0;bottom:0;width:2px;margin-left:-1px;background:var(--rc-ink,#0E1116)"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:8px;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:10px;color:var(--rc-ink-2,#4A4F57)"><span>← keep pays back</span><span>0</span><span>replace pays back →</span></div>
+      </div>
+      <h3 style="margin:0;font-size:17px;font-weight:700">A rule picks its next life</h3>
+      <p style="margin:0;font-size:15px;color:var(--rc-ink-2,#4A4F57);text-wrap:pretty">It compares the emissions a newer device would save with the emissions of making it, as a range. If the range sits on one side of zero it recommends Keep, Upgrade, Redeploy or Recycle; if it crosses zero, a person decides.</p>
+      {{ conn2 }}
+    </li>
+    <li style="position:relative;display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;flex:none;border-radius:50%;border:1.5px solid var(--rc-accent,#2443C9);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:700;color:var(--rc-accent,#2443C9)">3</span><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--rc-ink-2,#4A4F57)">SECOND LIFE</span></div>
+      <div aria-hidden="true" style="position:relative;height:120px;border:1px dashed var(--rc-line-strong,#A9A9A0);background:var(--rc-raised,#FAFAF8);overflow:hidden;padding:12px;display:flex;gap:14px;align-items:center">
+        <div style="position:relative;flex:none;width:88px;height:88px;background:#FFFFFF;border:1px solid #0E1116;padding:6px;display:grid;grid-template-columns:repeat(9,1fr);overflow:hidden">
+          <sc-for list="{{ qr }}" as="c" hint-placeholder-count="81"><span style="background:{{ c }}"></span></sc-for>
+          {{ scan }}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+          <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:700">GPU-SRV-001</span>
+          <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;color:var(--rc-ink-2,#4A4F57);overflow-wrap:anywhere">→ /device/GPU-SRV-001</span>
+          <dc-import name="RC Integrity" state="intact" hint-size="140px,24px"></dc-import>
+        </div>
+      </div>
+      <h3 style="margin:0;font-size:17px;font-weight:700">Released with its passport</h3>
+      <p style="margin:0;font-size:15px;color:var(--rc-ink-2,#4A4F57);text-wrap:pretty">Released devices are listed below with their passport and data-wipe record. The QR label on each device opens it. Buyers e-mail the data centre; there is no shop or checkout.</p>
+    </li>
+  </ol>
+  <div style="display:flex;flex-wrap:wrap;border-top:1px solid var(--rc-line,#D6D6CF);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px">
+    <sc-for list="{{ tb }}" as="t" hint-placeholder-count="4">
+      <div style="flex:1 1 140px;display:flex;flex-direction:column;gap:2px;padding:8px 16px;border-right:1px solid var(--rc-line,#D6D6CF)"><span style="font-size:9px;letter-spacing:.1em;color:var(--rc-ink-3,#6A6F77)">{{ t.k }}</span><span style="font-weight:700;color:var(--rc-ink,#0E1116)">{{ t.v }}</span></div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1160,&quot;height&quot;:520}}">
+const MONO = "ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace";
+const EX = [
+  { id: 'GPU-SRV-002', o: 'KEEP', lo: -620, hi: -180 },
+  { id: 'GPU-SRV-001', o: 'REDEPLOY', lo: 120, hi: 410 },
+  { id: 'GPU-SRV-006', o: 'UNCERTAIN', lo: -500, hi: 150 },
+];
+const A = -700, B = 500, P = v => ((v - A) / (B - A) * 100).toFixed(2) + '%';
+const hx = k => ((Math.imul(k + 7, 2654435761) >>> 0).toString(16) + '0000').slice(0, 4);
+const QR = (() => {
+  const on = '#0E1116', off = '#FFFFFF', cells = [];
+  const finder = (r, c, R, C) => { const y = r - R, x = c - C; if (y < 0 || x < 0 || y > 2 || x > 2) return null; return y === 1 && x === 1 ? on : (y === 1 || x === 1) && !(y === 1 && x === 1) ? (y === 1 && x === 1 ? on : (y % 2 === 0 || x % 2 === 0) ? on : off) : on; };
+  for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
+    const f = finder(r, c, 0, 0) || finder(r, c, 0, 6) || finder(r, c, 6, 0);
+    cells.push(f || (((r * 7 + c * 3 + r * c) % 5) < 2 ? on : off));
+  }
+  return cells;
+})();
+class Component extends DCLogic {
+  state = { tick: 0, wide: true };
+  rootRef = React.createRef();
+  componentDidMount() {
+    const el = this.rootRef.current;
+    if (el && window.ResizeObserver) {
+      this._ro = new ResizeObserver(([e]) => { const wide = e.contentRect.width >= 860; if (wide !== this.state.wide) this.setState({ wide }); });
+      this._ro.observe(el);
+    }
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce) this._iv = setInterval(() => this.setState(s => ({ tick: s.tick + 1 })), 2400);
+  }
+  componentWillUnmount() { clearInterval(this._iv); if (this._ro) this._ro.disconnect(); }
+  renderVals() {
+    const h = React.createElement;
+    const { tick, wide } = this.state;
+    const n = 10 + tick, GAP = wide ? 72 : 56;
+    const blocks = [];
+    for (let k = n - 4; k <= n; k++) {
+      const last = k === n;
+      if (k > n - 4) blocks.push(h('span', { key: 'l' + k, style: { width: 8, height: 2, flex: 'none', alignSelf: 'center', background: 'var(--rc-ink-3,#6A6F77)' } }));
+      blocks.push(h('span', { key: 'b' + k, style: {
+        flex: 'none', width: 44, height: 44, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+        border: '1.5px solid ' + (last ? 'var(--rc-accent,#2443C9)' : 'var(--rc-ink,#0E1116)'),
+        background: last ? 'var(--rc-accent,#2443C9)' : 'var(--rc-surface,#FFFFFF)', color: last ? 'var(--rc-surface,#FFFFFF)' : 'var(--rc-ink,#0E1116)',
+        fontFamily: MONO, fontSize: 10, lineHeight: 1.25, animation: last ? 'rcIn .5s .25s both' : undefined } },
+        h('b', null, '#' + k), h('span', { style: { opacity: 0.75 } }, hx(k))));
+    }
+    const chain = h('div', { key: 'row' + n, style: { display: 'flex', animation: 'rcShift .6s cubic-bezier(.2,.7,.2,1)' } }, blocks);
+    const conn = label => h('div', { 'aria-hidden': true, style: wide
+        ? { position: 'absolute', left: '100%', top: 88, width: GAP, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '0 6px' }
+        : { position: 'absolute', top: '100%', left: 0, right: 0, height: GAP, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } },
+      h('span', { style: { fontFamily: MONO, fontSize: 10, letterSpacing: '.06em', color: 'var(--rc-ink-2,#4A4F57)', order: wide ? 0 : 1 } }, label),
+      h('div', { style: wide
+          ? { position: 'relative', width: '100%', height: 2, backgroundImage: 'repeating-linear-gradient(90deg,var(--rc-accent,#2443C9) 0 6px,transparent 6px 12px)', backgroundSize: '24px 2px', animation: 'rcFlowX .8s linear infinite' }
+          : { position: 'relative', width: 2, height: '64%', backgroundImage: 'repeating-linear-gradient(180deg,var(--rc-accent,#2443C9) 0 6px,transparent 6px 12px)', backgroundSize: '2px 24px', animation: 'rcFlowY .8s linear infinite' } },
+        h('span', { style: wide
+          ? { position: 'absolute', right: -3, top: -4, borderLeft: '8px solid var(--rc-accent,#2443C9)', borderTop: '5px solid transparent', borderBottom: '5px solid transparent' }
+          : { position: 'absolute', bottom: -3, left: -4, borderTop: '8px solid var(--rc-accent,#2443C9)', borderLeft: '5px solid transparent', borderRight: '5px solid transparent' } })));
+    const e = EX[Math.floor(tick / 2) % 3];
+    return {
+      rootRef: this.rootRef, chain, chainCap: `event #${n} appended · links to #${n - 1}`,
+      cols: wide ? 'repeat(3,minmax(0,1fr))' : 'minmax(0,1fr)', gap: GAP + 'px',
+      conn1: conn('events'), conn2: conn('outcome'),
+      ex: { id: e.id, o: e.o, l: P(e.lo), w: ((e.hi - e.lo) / (B - A) * 100).toFixed(2) + '%' }, z: P(0),
+      qr: QR,
+      scan: h('span', { style: { position: 'absolute', left: 0, right: 0, height: 2, background: '#2443C9', boxShadow: '0 0 8px 2px rgba(36,67,201,.55)', animation: 'rcScan 2.4s ease-in-out infinite' } }),
+      pulse: h('span', { style: { width: 7, height: 7, background: 'var(--rc-ok,#1D6B3B)', animation: 'rcPulse 1.6s ease-in-out infinite' } }),
+      tb: [{ k: 'DRAWING', v: 'RC-001' }, { k: 'REVISION', v: '3' }, { k: 'SCALE', v: 'Not to scale' }, { k: 'VALUES', v: 'All sample data' }],
+    };
+  }
+}
+</script>
+</body>
+</html>

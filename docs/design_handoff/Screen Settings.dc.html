@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div data-rc-root="" style="container-type:inline-size;background-color:var(--rc-page,#F4F4F1);background-image:linear-gradient(var(--rc-grid,#E6E6DF) 1px,transparent 1px),linear-gradient(90deg,var(--rc-grid,#E6E6DF) 1px,transparent 1px);background-size:24px 24px;color:var(--rc-ink,#0E1116);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5">
+  <dc-import name="RC Header" active="none" tech="{{ tech }}" theme="{{ theme }}" menu-open="{{ menuOpen }}" hint-size="100%,104px"></dc-import>
+  <main style="max-width:1160px;margin:0 auto;padding:clamp(24px,4cqi,40px) clamp(16px,4cqi,40px) 64px;display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--rc-accent,#2443C9)">/ Settings</span>
+      <h1 style="margin:0;font-size:clamp(28px,3.4cqi,40px);font-weight:700;letter-spacing:-.03em;line-height:1.1">Settings</h1>
+      <p style="margin:0;font-size:15px;color:var(--rc-ink-2,#4A4F57)">{{ intro }}</p>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+      <nav aria-label="Settings sections" style="flex:1 1 200px;max-width:100%;position:sticky;top:16px;display:flex;flex-wrap:wrap;gap:4px">
+        <sc-for list="{{ sections }}" as="s" hint-placeholder-count="3">
+          <a href="{{ s.href }}" style="flex:1 1 100px;display:flex;align-items:center;min-height:44px;padding:0 12px;border:1px solid var(--rc-line,#D6D6CF);background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);text-decoration:none;font-size:14px;font-weight:600;gap:8px"><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;color:var(--rc-accent,#2443C9)">{{ s.n }}</span>{{ s.label }}</a>
+        </sc-for>
+      </nav>
+      <div style="flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:16px">
+        <sc-if value="{{ tech }}" hint-placeholder-val="{{ true }}">
+          <section id="profile" aria-labelledby="h-profile" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px clamp(16px,2.4cqi,24px);border-bottom:1px solid var(--rc-line,#D6D6CF)"><h2 id="h-profile" style="margin:0;font-size:18px;font-weight:700">Profile</h2><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;color:var(--rc-ink-2,#4A4F57)">01</span></div>
+            <div style="padding:clamp(16px,2.4cqi,24px);display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;align-items:center;gap:14px">
+                <span aria-hidden="true" style="width:56px;height:56px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--rc-accent,#2443C9);color:var(--rc-surface,#FFFFFF);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:18px;font-weight:700">T1</span>
+                <div style="display:flex;flex-direction:column;min-width:0"><span style="font-size:17px;font-weight:700">Technician One (sample)</span><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:13px;color:var(--rc-ink-2,#4A4F57)">t.one · added by an admin</span></div>
+              </div>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Full name<input value="Technician One (sample)" style="font:inherit;font-size:16px;font-weight:400;min-height:44px;padding:0 12px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)"></input></label>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:16px">
+                <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Username</span><span style="display:flex;align-items:center;min-height:44px;padding:0 12px;background:var(--rc-sunken,#EBEBE6);border:1px solid var(--rc-line,#D6D6CF);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:15px">t.one</span><span style="font-size:13px;color:var(--rc-ink-2,#4A4F57)">Only an admin can change it.</span></div>
+                <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Role</span><span style="display:flex;align-items:center;min-height:44px;padding:0 12px;background:var(--rc-sunken,#EBEBE6);border:1px solid var(--rc-line,#D6D6CF);font-size:15px">Technician</span></div>
+              </div>
+              <div><button type="button" style="min-height:44px;padding:0 18px;border-radius:2px;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-ink,#0E1116);font:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:transform .15s,box-shadow .15s" style-hover="transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--rc-accent,#2443C9)" style-active="transform:none;box-shadow:none">Save profile</button></div>
+            </div>
+          </section>
+          <section id="credentials" aria-labelledby="h-cred" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px clamp(16px,2.4cqi,24px);border-bottom:1px solid var(--rc-line,#D6D6CF)"><h2 id="h-cred" style="margin:0;font-size:18px;font-weight:700">Credentials</h2><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;color:var(--rc-ink-2,#4A4F57)">02</span></div>
+            <div style="padding:clamp(16px,2.4cqi,24px);display:flex;flex-direction:column;gap:16px">
+              <p style="margin:0;font-size:14px;color:var(--rc-ink-2,#4A4F57)">Password last changed 12 Oct 2026 (sample).</p>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Current password<input type="password" autocomplete="current-password" style="font:inherit;font-size:16px;font-weight:400;min-height:44px;padding:0 12px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)"></input></label>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px">
+                <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">New password<input type="password" autocomplete="new-password" style="font:inherit;font-size:16px;font-weight:400;min-height:44px;padding:0 12px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)"></input><span style="font-weight:400;font-size:13px;color:var(--rc-ink-2,#4A4F57)">At least 10 characters.</span></label>
+                <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Confirm new password<input type="password" autocomplete="new-password" style="font:inherit;font-size:16px;font-weight:400;min-height:44px;padding:0 12px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)"></input></label>
+              </div>
+              <div><button type="button" style="min-height:44px;padding:0 18px;border-radius:2px;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-ink,#0E1116);font:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:transform .15s,box-shadow .15s" style-hover="transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--rc-accent,#2443C9)" style-active="transform:none;box-shadow:none">Change password</button></div>
+            </div>
+          </section>
+        </sc-if>
+        <section id="appearance" aria-labelledby="h-app" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px clamp(16px,2.4cqi,24px);border-bottom:1px solid var(--rc-line,#D6D6CF)"><h2 id="h-app" style="margin:0;font-size:18px;font-weight:700">Appearance</h2><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;color:var(--rc-ink-2,#4A4F57)">{{ appN }}</span></div>
+          <div style="padding:clamp(16px,2.4cqi,24px);display:flex;flex-direction:column;gap:14px">
+            <div role="radiogroup" aria-label="Theme" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px">
+              <sc-for list="{{ opts }}" as="o" hint-placeholder-count="3">
+                <button type="button" role="radio" aria-checked="{{ o.on }}" onClick="{{ o.pick }}" style="padding:0;text-align:left;font:inherit;color:var(--rc-ink,#0E1116);background:var(--rc-surface,#FFFFFF);border:1px solid {{ o.bd }};box-shadow:{{ o.ring }};cursor:pointer;display:flex;flex-direction:column">
+                  <span aria-hidden="true" style="display:flex;height:80px;border-bottom:1px solid var(--rc-line,#D6D6CF)">
+                    <sc-for list="{{ o.pv }}" as="p" hint-placeholder-count="1">
+                      <span style="flex:1;background:{{ p.page }};padding:8px;display:flex;flex-direction:column;gap:5px"><span style="height:7px;background:{{ p.bar }}"></span><span style="flex:1;background:{{ p.panel }};border:1px solid {{ p.line }};padding:6px;display:flex;flex-direction:column;gap:5px"><span style="height:4px;width:64%;background:{{ p.ink }}"></span><span style="height:4px;width:36%;background:{{ p.accent }}"></span></span></span>
+                    </sc-for>
+                  </span>
+                  <span style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px">
+                    <span style="width:18px;height:18px;flex:none;margin-top:2px;border-radius:50%;border:2px solid {{ o.rad }};display:flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:{{ o.dot }}"></span></span>
+                    <span style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700">{{ o.label }}</span><span style="font-size:13px;color:var(--rc-ink-2,#4A4F57)">{{ o.sub }}</span></span>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+            <p style="margin:0;font-size:13px;color:var(--rc-ink-2,#4A4F57)">Saved on this device. Applies to every page, including passports opened from a QR label.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <dc-import name="RC Footer" hint-size="100%,80px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:1400},&quot;tech&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;,&quot;system&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const PV = {
+  light: { page: '#F4F4F1', bar: '#0E1116', panel: '#FFFFFF', line: '#D6D6CF', ink: '#0E1116', accent: '#2443C9' },
+  dark: { page: '#0B0D10', bar: '#000000', panel: '#14171C', line: '#2C3038', ink: '#E8EAED', accent: '#8EA2FF' },
+};
+class Component extends DCLogic {
+  state = { pref: 'light' };
+  componentDidMount() {
+    this._h = () => { if (window.RC_THEME) this.setState({ pref: window.RC_THEME.get() }); };
+    window.addEventListener('rc-theme', this._h);
+    let n = 0;
+    const w = () => { if (window.RC_THEME) this._h(); else if (n++ < 100) this._t = setTimeout(w, 50); };
+    w();
+  }
+  componentWillUnmount() { window.removeEventListener('rc-theme', this._h); clearTimeout(this._t); }
+  renderVals() {
+    const tech = this.props.tech ?? true;
+    const opts = [
+      ['light', 'Light', 'Light background', [PV.light]],
+      ['dark', 'Dark', 'Dark background, easier in dim rooms', [PV.dark]],
+      ['system', 'Match device', 'Follows your phone or laptop setting', [PV.light, PV.dark]],
+    ].map(([v, label, sub, pv]) => {
+      const on = this.state.pref === v;
+      return {
+        label, sub, pv, on: String(on),
+        bd: on ? 'var(--rc-accent,#2443C9)' : 'var(--rc-line,#D6D6CF)',
+        ring: on ? '0 0 0 1px var(--rc-accent,#2443C9)' : 'none',
+        rad: on ? 'var(--rc-accent,#2443C9)' : 'var(--rc-line-strong,#A9A9A0)',
+        dot: on ? 'var(--rc-accent,#2443C9)' : 'transparent',
+        pick: () => { if (window.RC_THEME) window.RC_THEME.set(v); },
+      };
+    });
+    const sections = tech
+      ? [{ n: '01', label: 'Profile', href: '#profile' }, { n: '02', label: 'Credentials', href: '#credentials' }, { n: '03', label: 'Appearance', href: '#appearance' }]
+      : [{ n: '01', label: 'Appearance', href: '#appearance' }];
+    return {
+      tech, opts, sections, appN: tech ? '03' : '01',
+      intro: tech ? 'Signed in as Technician One (sample). Profile and password changes apply to this account only.' : 'Visitors can change the appearance. Log in to manage a technician profile and password.',
+      theme: this.props.theme, menuOpen: this.props.menuOpen,
+    };
+  }
+}
+</script>
+</body>
+</html>

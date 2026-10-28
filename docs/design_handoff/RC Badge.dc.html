@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<span style="display:inline-flex;align-items:center;gap:7px;padding:{{ pad }};border-radius:2px;background:{{ bg }};color:{{ fg }};border:1px {{ bs }} {{ bd }};font-size:{{ fs }};font-weight:700;line-height:1;letter-spacing:.04em;white-space:nowrap;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace"><span style="width:7px;height:7px;background:{{ fg }};flex:none"></span>{{ label }}</span>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:220,&quot;height&quot;:60},&quot;outcome&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;KEEP&quot;,&quot;UPGRADE&quot;,&quot;REDEPLOY&quot;,&quot;RECYCLE&quot;,&quot;UNCERTAIN&quot;,&quot;INSUFFICIENT_DATA&quot;,&quot;NOT_EVALUATED&quot;],&quot;default&quot;:&quot;KEEP&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;sm&quot;,&quot;md&quot;,&quot;lg&quot;],&quot;default&quot;:&quot;md&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const OUT = {
+  KEEP: ['KEEP', 'var(--rc-ok,#1D6B3B)', 'var(--rc-ok-bg,#E4F2E8)', 'var(--rc-ok-line,#A9D3B7)', 'solid'],
+  UPGRADE: ['UPGRADE', 'var(--rc-upgrade,#0B5F86)', 'var(--rc-upgrade-bg,#E2F0F8)', 'var(--rc-upgrade-line,#A6CFE6)', 'solid'],
+  REDEPLOY: ['REDEPLOY', 'var(--rc-redeploy,#5B3597)', 'var(--rc-redeploy-bg,#EEE8F8)', 'var(--rc-redeploy-line,#CBBBEA)', 'solid'],
+  RECYCLE: ['RECYCLE', 'var(--rc-recycle,#3F4855)', 'var(--rc-recycle-bg,#E8EBEF)', 'var(--rc-recycle-line,#BCC3CD)', 'solid'],
+  UNCERTAIN: ['UNCERTAIN', 'var(--rc-uncertain,#8A4600)', 'var(--rc-uncertain-bg,#FCE9D6)', 'var(--rc-uncertain-line,#EBBE8E)', 'solid'],
+  INSUFFICIENT_DATA: ['INSUFFICIENT DATA', 'var(--rc-insufficient,#4A4A4A)', 'var(--rc-insufficient-bg,#EEEEEE)', 'var(--rc-insufficient-line,#A0A0A0)', 'dashed'],
+  NOT_EVALUATED: ['NOT EVALUATED', 'var(--rc-not-evaluated,#5A5F67)', 'transparent', 'var(--rc-line-strong,#A9A9A0)', 'dashed'],
+};
+const SIZE = { sm: ['11px', '4px 7px'], md: ['12px', '6px 9px'], lg: ['13px', '8px 11px'] };
+class Component extends DCLogic {
+  renderVals() {
+    const k = String(this.props.outcome ?? 'NOT_EVALUATED').toUpperCase().replace(/ /g, '_');
+    const [label, fg, bg, bd, bs] = OUT[k] || OUT.NOT_EVALUATED;
+    const [fs, pad] = SIZE[this.props.size ?? 'md'] || SIZE.md;
+    return { label, fg, bg, bd, bs, fs, pad };
+  }
+}
+</script>
+</body>
+</html>

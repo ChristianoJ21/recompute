@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div data-rc-root="" style="container-type:inline-size;background-color:var(--rc-page,#F4F4F1);background-image:linear-gradient(var(--rc-grid,#E6E6DF) 1px,transparent 1px),linear-gradient(90deg,var(--rc-grid,#E6E6DF) 1px,transparent 1px);background-size:24px 24px;color:var(--rc-ink,#0E1116);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5">
+  <dc-import name="RC Header" theme="{{ theme }}" menu-open="{{ menuOpen }}" active="{{ navActive }}" tech="{{ tech }}" hint-size="100%,100px"></dc-import>
+  <main style="max-width:1160px;margin:0 auto;padding:20px clamp(16px,4cqi,40px) 64px;display:flex;flex-direction:column;gap:16px">
+    <nav aria-label="Breadcrumb" style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-ink-2,#4A4F57);display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <a href="{{ backHref }}" style="color:var(--rc-accent,#2443C9);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">← {{ backLabel }}</a><span aria-hidden="true">/</span><span>device</span><span aria-hidden="true">/</span><span style="color:var(--rc-ink,#0E1116)">{{ d.id }}</span>
+    </nav>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:stretch">
+      <section aria-label="Device" style="position:relative;flex:2 1 520px;min-width:0;background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22));display:flex;flex-direction:column"><span aria-hidden="true" style="position:absolute;width:12px;height:12px;top:-1px;left:-1px;border-top:2px solid var(--rc-accent,#2443C9);border-left:2px solid var(--rc-accent,#2443C9)"></span><span aria-hidden="true" style="position:absolute;width:12px;height:12px;top:-1px;right:-1px;border-top:2px solid var(--rc-accent,#2443C9);border-right:2px solid var(--rc-accent,#2443C9)"></span><span aria-hidden="true" style="position:absolute;width:12px;height:12px;bottom:-1px;left:-1px;border-bottom:2px solid var(--rc-accent,#2443C9);border-left:2px solid var(--rc-accent,#2443C9)"></span><span aria-hidden="true" style="position:absolute;width:12px;height:12px;bottom:-1px;right:-1px;border-bottom:2px solid var(--rc-accent,#2443C9);border-right:2px solid var(--rc-accent,#2443C9)"></span>
+        <div style="padding:clamp(16px,2.4cqi,24px);display:flex;flex-direction:column;gap:12px">
+          <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--rc-ink-2,#4A4F57)">Device passport</span>
+          <h1 style="margin:0;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:clamp(28px,3.2cqi,38px);font-weight:700;letter-spacing:-.02em;line-height:1.05">{{ d.id }}</h1>
+          <p style="margin:0;font-size:15px;color:var(--rc-ink-2,#4A4F57)">{{ d.model }} · {{ d.location }}</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;padding-top:4px">
+            <dc-import name="RC Badge" outcome="{{ d.outcome }}" size="lg" hint-size="110px,30px"></dc-import>
+            <dc-import name="RC Integrity" state="{{ integ }}" size="lg" hint-size="170px,30px"></dc-import>
+          </div>
+        </div>
+        <div aria-hidden="true" style="margin-top:auto;padding:10px clamp(16px,2.4cqi,24px);border-top:1px dashed var(--rc-line-mid,#C8C8C0);background:var(--rc-raised,#FAFAF8);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.12em;color:var(--rc-ink-3,#6A6F77);overflow-wrap:anywhere">{{ d.mrz }}</div>
+      </section>
+      <sc-if value="{{ d.listed }}" hint-placeholder-val="{{ true }}">
+        <section aria-labelledby="forsale" style="flex:1 1 300px;min-width:0;background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-ink,#0E1116);box-shadow:4px 4px 0 var(--rc-ink,#0E1116);display:flex;flex-direction:column">
+          <div style="padding:10px 16px;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);display:flex;justify-content:space-between;align-items:center">
+            <h2 id="forsale" style="margin:0;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">For sale</h2>
+            <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;color:var(--rc-on-ink-2,#C9CCD1)">listed 28 Oct 2026</span>
+          </div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:12px;flex:1">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--rc-ink-2,#4A4F57)">Sample asking price</span>
+              <span style="font-size:32px;font-weight:700;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ d.price }}</span>
+            </div>
+            <p style="margin:0;font-size:14px;color:var(--rc-ink-2,#4A4F57)">{{ d.saleNote }}</p>
+            <p style="margin:0;font-size:14px">Ask through the contact box: <a href="mailto:hardware@example.com" style="color:var(--rc-accent,#2443C9);font-weight:600;text-underline-offset:3px">hardware@example.com</a> · Sample Data Centre (fictional)</p>
+            <a href="mailto:hardware@example.com?subject=About%20GPU-SRV-001" style="margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);border:1px solid var(--rc-line-strong,#A9A9A0);font-weight:600;font-size:14px;text-decoration:none;transition:border-color .15s,background .15s" style-hover="border-color:var(--rc-ink,#0E1116);background:var(--rc-raised,#FAFAF8)">Ask about this device</a>
+          </div>
+        </section>
+      </sc-if>
+    </div>
+    <section aria-labelledby="why" style="position:relative;background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))"><span aria-hidden="true" style="position:absolute;width:12px;height:12px;top:-1px;left:-1px;border-top:2px solid var(--rc-accent,#2443C9);border-left:2px solid var(--rc-accent,#2443C9)"></span><span aria-hidden="true" style="position:absolute;width:12px;height:12px;top:-1px;right:-1px;border-top:2px solid var(--rc-accent,#2443C9);border-right:2px solid var(--rc-accent,#2443C9)"></span><span aria-hidden="true" style="position:absolute;width:12px;height:12px;bottom:-1px;left:-1px;border-bottom:2px solid var(--rc-accent,#2443C9);border-left:2px solid var(--rc-accent,#2443C9)"></span><span aria-hidden="true" style="position:absolute;width:12px;height:12px;bottom:-1px;right:-1px;border-bottom:2px solid var(--rc-accent,#2443C9);border-right:2px solid var(--rc-accent,#2443C9)"></span>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px clamp(16px,2.4cqi,24px);border-bottom:1px solid var(--rc-line,#D6D6CF)">
+        <h2 id="why" style="margin:0;font-size:18px;font-weight:700;letter-spacing:-.01em">Why this recommendation</h2>
+        <sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-ink-2,#4A4F57)">last run 28 Oct 2026, 20:45 WIB</span>
+            <button type="button" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:2px;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-ink,#0E1116);font:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:transform .15s,box-shadow .15s" style-hover="transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--rc-accent,#2443C9)" style-active="transform:none;box-shadow:none"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" style="fill:var(--rc-surface,#FFFFFF)"></path></svg>Evaluate</button>
+          </div>
+        </sc-if>
+      </div>
+      <div style="padding:clamp(16px,2.4cqi,24px);display:flex;flex-direction:column;gap:20px">
+        <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+          <dc-import name="RC Badge" outcome="{{ d.outcome }}" size="md" hint-size="100px,26px"></dc-import>
+          <p style="margin:0;flex:1 1 280px;font-size:clamp(17px,1.6cqi,19px);font-weight:500;line-height:1.4;text-wrap:pretty">{{ d.reason }}</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-ink-2,#4A4F57)"><span style="font-weight:700;color:var(--rc-ink,#0E1116);text-transform:uppercase;letter-spacing:.06em">Net saving if replaced</span><span>{{ bar.range }}</span></div>
+          <div role="img" aria-label="{{ bar.aria }}" style="position:relative;height:96px">
+            <div style="position:absolute;left:0;width:{{ bar.z }};top:26px;height:12px;background-image:repeating-linear-gradient(135deg,var(--rc-sunken,#EBEBE6) 0 4px,var(--rc-surface,#FFFFFF) 4px 8px);border:1px solid var(--rc-line,#D6D6CF)"></div>
+            <div style="position:absolute;left:{{ bar.z }};right:0;top:26px;height:12px;background:var(--rc-page,#F4F4F1);border:1px solid var(--rc-line,#D6D6CF)"></div>
+            <div style="position:absolute;left:{{ bar.l }};width:{{ bar.w }};top:22px;height:20px;background:var(--rc-accent,#2443C9);box-shadow:0 6px 14px -6px var(--rc-accent,#2443C9);transition:left 1s cubic-bezier(.2,.7,.2,1),width 1s cubic-bezier(.2,.7,.2,1)"></div>
+            <div style="position:absolute;left:{{ bar.z }};top:12px;height:40px;width:2px;margin-left:-1px;background:var(--rc-ink,#0E1116)"></div>
+            <span style="position:absolute;left:{{ bar.z }};top:-6px;transform:translateX(-50%);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:700">0</span>
+            <div style="position:absolute;left:{{ bar.l }};top:44px;height:26px;border-left:1px dashed var(--rc-ink-2,#4A4F57);opacity:{{ bar.op }};transition:opacity .4s .8s,left 1s cubic-bezier(.2,.7,.2,1)"></div>
+            <div style="position:absolute;left:{{ bar.r }};top:44px;height:26px;border-left:1px dashed var(--rc-ink-2,#4A4F57);opacity:{{ bar.op }};transition:opacity .4s .8s,left 1s cubic-bezier(.2,.7,.2,1)"></div>
+            <div style="position:absolute;left:{{ bar.l }};width:{{ bar.w }};top:63px;height:1px;background:var(--rc-ink-2,#4A4F57);opacity:{{ bar.op }};transition:opacity .4s .8s,left 1s cubic-bezier(.2,.7,.2,1),width 1s cubic-bezier(.2,.7,.2,1)">
+              <span style="position:absolute;left:0;top:-4px;border-right:7px solid var(--rc-ink-2,#4A4F57);border-top:4.5px solid transparent;border-bottom:4.5px solid transparent"></span>
+              <span style="position:absolute;right:0;top:-4px;border-left:7px solid var(--rc-ink-2,#4A4F57);border-top:4.5px solid transparent;border-bottom:4.5px solid transparent"></span>
+            </div>
+            <span style="position:absolute;left:{{ bar.mid }};top:72px;transform:translateX(-50%);padding:0 6px;background:var(--rc-surface,#FFFFFF);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:700;white-space:nowrap;opacity:{{ bar.op }};transition:opacity .4s .9s">{{ bar.loT }} … {{ bar.hiT }} kg CO₂e</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--rc-ink-2,#4A4F57)"><span>← Keeping pays back</span><span>Replacing pays back →</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1px;background:var(--rc-line,#D6D6CF);border:1px solid var(--rc-line,#D6D6CF)">
+          <sc-for list="{{ d.scen }}" as="s" hint-placeholder-count="2">
+            <div style="background:var(--rc-surface,#FFFFFF);padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+              <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--rc-ink-2,#4A4F57)">{{ s.name }}</span>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+                <dc-import name="RC Badge" outcome="{{ s.outcome }}" size="sm" hint-size="80px,22px"></dc-import>
+                <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:15px;font-weight:700">net {{ s.net }}</span>
+              </div>
+              <span style="font-size:13px;color:var(--rc-ink-2,#4A4F57)">{{ s.desc }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <dl style="margin:0;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 16px;font-size:14px">
+          <dt style="color:var(--rc-ink-2,#4A4F57);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;padding-top:2px">target</dt><dd style="margin:0">{{ d.target }}</dd>
+        </dl>
+      </div>
+    </section>
+    <sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px">
+        <section aria-labelledby="log" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+          <div style="padding:12px clamp(16px,2.4cqi,24px);border-bottom:1px solid var(--rc-line,#D6D6CF);display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 id="log" style="margin:0;font-size:18px;font-weight:700">Log an action</h2><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;color:var(--rc-ink-2,#4A4F57);letter-spacing:.06em">TECHNICIAN</span></div>
+          <div style="padding:clamp(16px,2.4cqi,24px);display:flex;flex-direction:column;gap:14px">
+            <fieldset style="border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">
+              <legend style="padding:0;margin-bottom:8px;font-size:14px;font-weight:600">Action</legend>
+              <div role="radiogroup" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--rc-line-strong,#A9A9A0);border:1px solid var(--rc-line-strong,#A9A9A0)">
+                <sc-for list="{{ actions }}" as="a" hint-placeholder-count="6">
+                  <button type="button" role="radio" aria-checked="{{ a.on }}" style="min-height:44px;border:0;font:inherit;font-size:14px;font-weight:600;cursor:pointer;background:{{ a.bg }};color:{{ a.fg }}">{{ a.label }}</button>
+                </sc-for>
+              </div>
+            </fieldset>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Details <span style="font-weight:400;color:var(--rc-ink-2,#4A4F57)">(optional)</span>
+              <textarea rows="3" style="font:inherit;font-size:15px;font-weight:400;padding:10px 12px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);resize:vertical">Replaced fan module in bay 2 (sample)</textarea>
+            </label>
+            <div><button type="button" style="display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:2px;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-ink,#0E1116);font:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:transform .15s,box-shadow .15s" style-hover="transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--rc-accent,#2443C9)" style-active="transform:none;box-shadow:none">Add to passport</button></div>
+          </div>
+        </section>
+        <section aria-labelledby="sale" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+          <div style="padding:12px clamp(16px,2.4cqi,24px);border-bottom:1px solid var(--rc-line,#D6D6CF);display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 id="sale" style="margin:0;font-size:18px;font-weight:700">Sale listing</h2><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;color:var(--rc-ink-2,#4A4F57);letter-spacing:.06em">NOT LISTED</span></div>
+          <div style="padding:clamp(16px,2.4cqi,24px);display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--rc-note-bg,#FBF6E6);border:1px solid var(--rc-note-line,#E3CC85);font-size:14px;color:var(--rc-note-ink,#3D2C00)"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style="flex:none;margin-top:2px"><rect width="16" height="16" rx="2" style="fill:var(--rc-note-icon,#5E4300)"></rect><path d="M8 4v5M8 11.2v.8" stroke-width="2" style="stroke:var(--rc-surface,#FFFFFF)"></path></svg><span>Listing needs a <strong>Data wipe</strong> event in the passport first. Log a Wipe on the left.</span></div>
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:8px">
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--rc-ink-3,#6A6F77)">Asking price<input disabled="" placeholder="45000000" style="font:inherit;font-size:15px;min-height:44px;padding:0 12px;border:1px solid var(--rc-line,#D6D6CF);border-radius:2px;background:var(--rc-page,#F4F4F1);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace"></input></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--rc-ink-3,#6A6F77)">Currency<select disabled="" style="font:inherit;font-size:15px;min-height:44px;padding:0 8px;border:1px solid var(--rc-line,#D6D6CF);border-radius:2px;background:var(--rc-page,#F4F4F1)"><option>IDR</option></select></label>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--rc-ink-3,#6A6F77)">Note<input disabled="" style="font:inherit;font-size:15px;min-height:44px;padding:0 12px;border:1px solid var(--rc-line,#D6D6CF);border-radius:2px;background:var(--rc-page,#F4F4F1)"></input></label>
+            <div><button type="button" disabled="" style="display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:2px;background:var(--rc-sunken,#EBEBE6);color:var(--rc-ink-3,#6A6F77);border:1px solid var(--rc-line,#D6D6CF);font:inherit;font-weight:600;font-size:14px;cursor:not-allowed">List for sale</button></div>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+    <section aria-labelledby="hist" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:12px clamp(16px,2.4cqi,24px);border-bottom:1px solid var(--rc-line,#D6D6CF)">
+        <h2 id="hist" style="margin:0;font-size:18px;font-weight:700">Passport history <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:500;color:var(--rc-ink-2,#4A4F57)">{{ d.total }} events · newest first</span></h2>
+        <dc-import name="RC Integrity" state="{{ integ }}" hint-size="150px,26px"></dc-import>
+      </div>
+      <ol aria-label="Passport events" style="list-style:none;margin:0;padding:8px clamp(16px,2.4cqi,24px)">
+        <sc-for list="{{ events }}" as="e" hint-placeholder-count="5">
+          <li style="display:grid;grid-template-columns:20px minmax(0,1fr);gap:12px">
+            <div style="position:relative;display:flex;justify-content:center">
+              <div style="position:absolute;top:0;bottom:0;width:1px;background:var(--rc-line-mid,#C8C8C0)"></div>
+              <div style="position:relative;margin-top:18px;width:10px;height:10px;background:{{ e.node }};border:1.5px solid {{ e.nodeB }};box-shadow:{{ e.glow }};transition:box-shadow .3s"></div>
+            </div>
+            <div style="padding:12px 0;border-bottom:1px solid var(--rc-sunken,#EBEBE6);display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;justify-content:space-between;gap:4px 12px;flex-wrap:wrap;align-items:baseline">
+                <span style="font-size:15px;font-weight:700;color:{{ e.fg }}">{{ e.label }}</span>
+                <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-ink-2,#4A4F57)">{{ e.at }}</span>
+              </div>
+              <span style="font-size:13px;color:var(--rc-ink-2,#4A4F57)">{{ e.who }}</span>
+              <sc-if value="{{ e.note }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px">{{ e.note }}</span></sc-if>
+              <sc-if value="{{ e.details }}" hint-placeholder-val="{{ false }}"><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-ink,#0E1116);background:var(--rc-page,#F4F4F1);padding:4px 8px;align-self:flex-start;overflow-wrap:anywhere">{{ e.details }}</span></sc-if>
+              <span style="display:flex;flex-wrap:wrap;gap:4px 12px;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;color:var(--rc-ink-3,#6A6F77)"><span>#{{ e.n }} · hash {{ e.hash }}</span><span style="color:var(--rc-ok,#1D6B3B);font-weight:700;opacity:{{ e.vOp }};transform:translateX({{ e.vX }});transition:opacity .3s,transform .3s">✔ links to #{{ e.prev }}</span></span>
+            </div>
+          </li>
+        </sc-for>
+      </ol>
+      <div style="padding:12px clamp(16px,2.4cqi,24px) 16px"><button type="button" style="display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);border:1px solid var(--rc-line-strong,#A9A9A0);font:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:border-color .15s,background .15s" style-hover="border-color:var(--rc-ink,#0E1116);background:var(--rc-raised,#FAFAF8)">Show all {{ d.total }} events</button></div>
+    </section>
+    <section aria-labelledby="tech" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+      <button type="button" aria-expanded="{{ tech }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:52px;padding:0 clamp(16px,2.4cqi,24px);background:transparent;border:0;font:inherit;cursor:pointer;color:var(--rc-ink,#0E1116);text-align:left">
+        <span style="display:flex;flex-direction:column"><span id="tech" style="font-size:18px;font-weight:700">Technical details</span><span style="font-size:13px;color:var(--rc-ink-2,#4A4F57)">Rule inputs, device record, QR label</span></span>
+        <span aria-hidden="true" style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:18px">{{ chev }}</span>
+      </button>
+      <sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}">
+        <div style="border-top:1px solid var(--rc-line,#D6D6CF);padding:clamp(16px,2.4cqi,24px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <h3 style="margin:0;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--rc-ink-2,#4A4F57)">Rule inputs (ranges)</h3>
+            <dl style="margin:0;display:grid;grid-template-columns:minmax(0,1fr) max-content;font-size:13px;border-top:1px solid var(--rc-sunken,#EBEBE6)">
+              <sc-for list="{{ inputs }}" as="i" hint-placeholder-count="4"><dt style="padding:6px 0;border-bottom:1px solid var(--rc-sunken,#EBEBE6)">{{ i.k }}</dt><dd style="margin:0;padding:6px 0 6px 12px;border-bottom:1px solid var(--rc-sunken,#EBEBE6);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;text-align:right">{{ i.v }}</dd></sc-for>
+            </dl>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <h3 style="margin:0;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--rc-ink-2,#4A4F57)">Device record</h3>
+            <pre style="margin:0;padding:12px;background:var(--rc-ink,#0E1116);color:var(--rc-code-fg,#E6E8EB);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere">{{ record }}</pre>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <h3 style="margin:0;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--rc-ink-2,#4A4F57)">QR label</h3>
+            <div style="width:160px;height:160px;border:1px dashed var(--rc-line-strong,#A9A9A0);background:var(--rc-raised,#FAFAF8);display:flex;align-items:center;justify-content:center;text-align:center;padding:12px;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;color:var(--rc-ink-2,#4A4F57)">QR label image<br></br>→ /device/{{ d.id }}</div>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+  </main>
+  <dc-import name="RC Footer" hint-size="100%,80px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:2000},&quot;tech&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const EV = {
+  telemetry: ['Telemetry reading', 'var(--rc-surface,#FFFFFF)', 'var(--rc-line-strong,#A9A9A0)', 'var(--rc-ink-2,#4A4F57)'],
+  scan: ['Scan', 'var(--rc-ink,#0E1116)', 'var(--rc-ink,#0E1116)', 'var(--rc-ink,#0E1116)'], repair: ['Repair', 'var(--rc-ink,#0E1116)', 'var(--rc-ink,#0E1116)', 'var(--rc-ink,#0E1116)'],
+  upgrade: ['Upgrade', 'var(--rc-ink,#0E1116)', 'var(--rc-ink,#0E1116)', 'var(--rc-ink,#0E1116)'], wipe: ['Data wipe', 'var(--rc-ok,#1D6B3B)', 'var(--rc-ok,#1D6B3B)', 'var(--rc-ink,#0E1116)'],
+  move: ['Move', 'var(--rc-ink,#0E1116)', 'var(--rc-ink,#0E1116)', 'var(--rc-ink,#0E1116)'], note: ['Note', 'var(--rc-surface,#FFFFFF)', 'var(--rc-ink,#0E1116)', 'var(--rc-ink,#0E1116)'],
+  listed: ['Listed for sale', 'var(--rc-accent,#2443C9)', 'var(--rc-accent,#2443C9)', 'var(--rc-ink,#0E1116)'], unlisted: ['Removed from sale', 'var(--rc-surface,#FFFFFF)', 'var(--rc-accent,#2443C9)', 'var(--rc-ink,#0E1116)'],
+};
+const ev = (n, kind, at, who, note, details, hash) => {
+  const [label, node, nodeB, fg] = EV[kind];
+  return { n, label, node, nodeB, fg, at, who, note, details, hash };
+};
+const T1 = 'Technician One (sample)', SYS = 'Telemetry agent (sample)';
+const DEV = {
+  visitor: {
+    id: 'GPU-SRV-001', model: 'AccelServer-v1 (sample)', location: 'Hall A / Release bay', outcome: 'REDEPLOY', listed: true,
+    price: 'IDR 45,000,000', saleNote: 'Released after REDEPLOY review (sample)', total: 14,
+    mrz: 'GPU-SRV-001<<GPU_SERVER<<INSTALLED<2022-03-01<<14<EVENTS<<HEAD<7c1e…a90b',
+    reason: 'Across the whole input range, a newer device saves more than it costs to make in this role, so this server moves to a lighter workload.',
+    lo: 120, hi: 410, target: 'Workload: light inference (sample)',
+    scen: [{ name: 'Pro-keep end', outcome: 'REDEPLOY', net: '+120 kg CO₂e', desc: 'Inputs set to the values that most favour keeping.' },
+           { name: 'Pro-replace end', outcome: 'REDEPLOY', net: '+410 kg CO₂e', desc: 'Inputs set to the values that most favour replacing.' }],
+    events: [
+      ev(14, 'telemetry', '28 Oct 2026, 20:40 WIB', SYS, '', 'utilization_pct=55  power_w=583  inlet_temp_c=23.1', '7c1e…a90b'),
+      ev(13, 'listed', '28 Oct 2026, 20:39 WIB', T1, 'Released after REDEPLOY review (sample)', 'price=IDR 45,000,000', '3b07…e4d2'),
+      ev(12, 'wipe', '28 Oct 2026, 20:39 WIB', T1, 'Full purge of all drives, verified (sample)', '', 'f12a…09c7'),
+      ev(11, 'move', '28 Oct 2026, 20:31 WIB', T1, '', 'from=Hall A / Row 1  to=Hall A / Release bay', '9d44…b1e0'),
+      ev(10, 'note', '28 Oct 2026, 20:30 WIB', T1, 'REDEPLOY review passed (sample)', '', '05ce…7a3f'),
+    ],
+  },
+  tech: {
+    id: 'GPU-SRV-006', model: 'AccelServer-v1 (sample)', location: 'Hall A / Row 4', outcome: 'UNCERTAIN', listed: false, total: 9,
+    mrz: 'GPU-SRV-006<<GPU_SERVER<<INSTALLED<2022-09-12<<9<EVENTS<<HEAD<c8b2…41fe',
+    reason: 'The recommendation changes within the input ranges, so a person should decide.',
+    lo: -500, hi: 150, target: 'Decided by a person (KEEP or REDEPLOY)',
+    scen: [{ name: 'Pro-keep end', outcome: 'KEEP', net: '−500 kg CO₂e', desc: 'Inputs set to the values that most favour keeping.' },
+           { name: 'Pro-replace end', outcome: 'REDEPLOY', net: '+150 kg CO₂e', desc: 'Inputs set to the values that most favour replacing.' }],
+    events: [
+      ev(9, 'telemetry', '28 Oct 2026, 20:50 WIB', SYS, '', 'utilization_pct=72  power_w=640  inlet_temp_c=24.0', 'c8b2…41fe'),
+      ev(8, 'note', '28 Oct 2026, 20:46 WIB', T1, 'Recommendation is UNCERTAIN; waiting for a person to decide (sample)', '', '6e19…d03a'),
+      ev(7, 'repair', '27 Oct 2026, 14:12 WIB', T1, 'Replaced fan module (sample)', 'part=fan-module  bay=2', 'a4f0…2c88'),
+      ev(6, 'scan', '27 Oct 2026, 14:05 WIB', T1, 'QR label scanned at rack', '', '1b7d…e5a9'),
+      ev(5, 'telemetry', '27 Oct 2026, 08:00 WIB', SYS, '', 'utilization_pct=68  power_w=622  inlet_temp_c=23.6', '88c3…0f17'),
+    ],
+  },
+};
+class Component extends DCLogic {
+  state = { action: 'Repair', barIn: false, step: 0 };
+  componentDidMount() {
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { this.setState({ barIn: true, step: 99 }); return; }
+    this._t1 = setTimeout(() => this.setState({ barIn: true }), 350);
+    this._iv = setInterval(() => this.setState(s => { if (s.step > 6) { clearInterval(this._iv); return null; } return { step: s.step + 1 }; }), 260);
+  }
+  componentWillUnmount() { clearTimeout(this._t1); clearInterval(this._iv); }
+  renderVals() { return { ...this._rv(), theme: this.props.theme, menuOpen: this.props.menuOpen }; }
+  _rv() {
+    const tech = !!this.props.tech;
+    const d = DEV[tech ? 'tech' : 'visitor'];
+    const min = Math.min(d.lo, 0), max = Math.max(d.hi, 0), pad = (max - min) * 0.18;
+    const a = min - pad, b = max + pad, p = v => ((v - a) / (b - a) * 100).toFixed(2) + '%';
+    const fmt = v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v);
+    const bar = { z: p(0), l: p(d.lo), r: p(d.hi), w: ((d.hi - d.lo) / (b - a) * 100).toFixed(2) + '%', loT: fmt(d.lo), hiT: fmt(d.hi),
+      range: `${fmt(d.lo)} to ${fmt(d.hi)} kg CO₂e`, aria: `Net saving range from ${fmt(d.lo)} to ${fmt(d.hi)} kg CO2e; zero marked` };
+    const on = this.state.barIn;
+    bar.mid = p((d.lo + d.hi) / 2); bar.op = on ? 1 : 0;
+    if (!on) { bar.l = bar.z; bar.r = bar.z; bar.w = '0%'; }
+    const len = d.events.length, step = this.state.step;
+    const events = d.events.map((e, i) => { const ok = step >= len - i; return { ...e, prev: e.n - 1, vOp: ok ? 1 : 0, vX: ok ? '0' : '-6px', glow: ok ? '0 0 0 4px var(--rc-ok-bg,#E4F2E8)' : 'none' }; });
+    const integ = step > len ? 'intact' : 'checking';
+    const actions = ['Scan', 'Repair', 'Upgrade', 'Wipe', 'Move', 'Note'].map(label => {
+      const on = label === this.state.action;
+      return { label, on: String(on), bg: on ? 'var(--rc-ink,#0E1116)' : 'var(--rc-surface,#FFFFFF)', fg: on ? 'var(--rc-surface,#FFFFFF)' : 'var(--rc-ink,#0E1116)' };
+    });
+    return {
+      tech, d, bar, actions, events, integ, chev: tech ? '−' : '+',
+      navActive: tech ? 'fleet' : 'none', backHref: tech ? '/fleet' : '/', backLabel: tech ? 'Fleet' : 'Available hardware',
+      inputs: [
+        { k: 'Remaining service life', v: '1–3 yr' }, { k: 'Grid intensity', v: '0.6–0.8 kg/kWh' },
+        { k: 'Power saving, newer device', v: '15–35 %' }, { k: 'Manufacturing, new device', v: '1,800–2,600 kg CO₂e' },
+      ],
+      record: `device_id: ${d.id}\ndevice_type: gpu_server\nmodel: ${d.model}\nlocation: ${d.location}\ncomponents:\n  - gpu: Accel-v1\n  - memory: HBM-v1\nreliability_ok: true\nsample_data: true`,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<span style="display:inline-flex;align-items:center;gap:7px;padding:{{ pad }};border-radius:2px;background:{{ bg }};color:{{ fg }};border:1px solid {{ bd }};font-size:{{ fs }};font-weight:600;line-height:1.1;white-space:nowrap;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace">
+  <sc-if value="{{ isIntact }}" hint-placeholder-val="{{ true }}"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" style="flex:none"><rect width="16" height="16" rx="2" style="fill:var(--rc-ok,#1D6B3B)"></rect><path d="M4.5 8.2l2.3 2.3 4.7-4.9" fill="none" stroke-width="1.9" stroke-linecap="square" style="stroke:var(--rc-surface,#FFFFFF)"></path></svg></sc-if>
+  <sc-if value="{{ isChanged }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" style="flex:none"><rect width="16" height="16" rx="2" style="fill:var(--rc-danger,#B3261E)"></rect><path d="M5.2 5.2l5.6 5.6M10.8 5.2l-5.6 5.6" stroke-width="1.9" style="stroke:var(--rc-surface,#FFFFFF)"></path></svg></sc-if>
+  <sc-if value="{{ isChecking }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" style="flex:none"><circle cx="8" cy="8" r="6.5" fill="none" stroke-width="2" style="stroke:var(--rc-line-mid,#C8C8C0)"></circle><path d="M8 1.5a6.5 6.5 0 0 1 6.5 6.5" fill="none" stroke-width="2" style="stroke:var(--rc-ink-2,#4A4F57)"></path></svg></sc-if>
+  <sc-if value="{{ isUnavailable }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" style="flex:none"><rect x=".8" y=".8" width="14.4" height="14.4" rx="2" fill="none" stroke-width="1.6" stroke-dasharray="2.5 2" style="stroke:var(--rc-ink-3,#6A6F77)"></rect><path d="M5 8h6" stroke-width="1.8" style="stroke:var(--rc-ink-3,#6A6F77)"></path></svg></sc-if>
+  <span>{{ label }}</span>
+</span>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:320,&quot;height&quot;:60},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;intact&quot;,&quot;changed&quot;,&quot;checking&quot;,&quot;unavailable&quot;],&quot;default&quot;:&quot;intact&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;event&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;md&quot;,&quot;lg&quot;],&quot;default&quot;:&quot;md&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const ST = {
+  intact: ['Passport intact', 'var(--rc-ok,#1D6B3B)', 'var(--rc-ok-bg,#E4F2E8)', 'var(--rc-ok-line,#A9D3B7)'],
+  changed: ['Passport changed at event #', 'var(--rc-danger,#B3261E)', 'var(--rc-danger-bg,#FBE9E7)', 'var(--rc-danger-line,#EBA8A1)'],
+  checking: ['Checking…', 'var(--rc-ink-2,#4A4F57)', 'var(--rc-surface,#FFFFFF)', 'var(--rc-line,#D6D6CF)'],
+  unavailable: ['Integrity check unavailable', 'var(--rc-ink-2,#4A4F57)', 'var(--rc-sunken,#EBEBE6)', 'var(--rc-line-mid,#C8C8C0)'],
+};
+class Component extends DCLogic {
+  renderVals() {
+    const s = ST[this.props.state] ? this.props.state : 'intact';
+    let [label, fg, bg, bd] = ST[s];
+    if (s === 'changed') label += (this.props.event ?? 4);
+    const lg = this.props.size === 'lg';
+    return {
+      label, fg, bg, bd,
+      fs: lg ? '13px' : '12px', pad: lg ? '7px 11px 7px 8px' : '5px 9px 5px 6px',
+      isIntact: s === 'intact', isChanged: s === 'changed', isChecking: s === 'checking', isUnavailable: s === 'unavailable',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div data-rc-root="" style="container-type:inline-size;background-color:var(--rc-page,#F4F4F1);background-image:linear-gradient(var(--rc-grid,#E6E6DF) 1px,transparent 1px),linear-gradient(90deg,var(--rc-grid,#E6E6DF) 1px,transparent 1px);background-size:24px 24px;color:var(--rc-ink,#0E1116);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5">
+  <dc-import name="RC Header" theme="{{ theme }}" menu-open="{{ menuOpen }}" active="home" hint-size="100%,100px"></dc-import>
+  <section style="border-bottom:1px solid var(--rc-line,#D6D6CF)">
+    <div style="max-width:1160px;margin:0 auto;padding:clamp(32px,5cqi,64px) clamp(16px,4cqi,40px);display:flex;flex-direction:column;gap:16px">
+      <p style="margin:0;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--rc-accent,#2443C9)">/ Available hardware</p>
+      <h1 style="margin:0;max-width:20ch;font-size:clamp(32px,4.4cqi,54px);line-height:1.05;font-weight:700;letter-spacing:-.03em;text-wrap:balance">Second-life AI servers, each with a passport you can check.</h1>
+      <p style="margin:0;max-width:62ch;font-size:clamp(16px,1.4cqi,18px);color:var(--rc-ink-2,#4A4F57);text-wrap:pretty">ReCompute helps a data centre keep AI servers in use longer instead of scrapping them early. Every device carries a digital passport of what happened to it, a decision rule recommends its next life, and released hardware is listed here with that passport attached.</p>
+    </div>
+  </section>
+  <main style="max-width:1160px;margin:0 auto;padding:clamp(32px,4cqi,48px) clamp(16px,4cqi,40px) 64px;display:flex;flex-direction:column;gap:clamp(40px,5cqi,56px)">
+    <section aria-labelledby="how" style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--rc-ink,#0E1116)">
+        <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-accent,#2443C9);font-weight:600">01</span>
+        <h2 id="how" style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em">How ReCompute works</h2>
+      </div>
+      <dc-import name="RC Schematic" hint-size="100%,520px"></dc-import>
+    </section>
+    <section aria-labelledby="listed" style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--rc-ink,#0E1116)">
+        <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-accent,#2443C9);font-weight:600">02</span>
+        <h2 id="listed" style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em">Listed hardware</h2>
+        <span style="margin-left:auto;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-ink-2,#4A4F57)">2 devices</span>
+      </div>
+      <ul aria-label="Listed hardware" style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:16px">
+        <sc-for list="{{ listings }}" as="l" hint-placeholder-count="2">
+          <li style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22));display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s" style-hover="transform:translateY(-3px);box-shadow:0 2px 4px rgba(14,17,22,.08),0 18px 36px -16px rgba(14,17,22,.35)">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--rc-line,#D6D6CF);background:var(--rc-raised,#FAFAF8)">
+              <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:13px;font-weight:700">{{ l.id }}</span>
+              <dc-import name="RC Badge" outcome="{{ l.outcome }}" size="sm" hint-size="90px,22px"></dc-import>
+            </div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:14px">
+              <h3 style="margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;line-height:1.25">{{ l.model }}</h3>
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px 16px;flex-wrap:wrap">
+                <div style="display:flex;flex-direction:column;gap:2px">
+                  <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--rc-ink-2,#4A4F57)">Sample asking price</span>
+                  <span style="font-size:30px;font-weight:700;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ l.price }}</span>
+                </div>
+                <dc-import name="RC Integrity" state="intact" hint-size="150px,26px"></dc-import>
+              </div>
+            </div>
+            <dl style="margin:0;padding:0;display:grid;grid-template-columns:max-content minmax(0,1fr);font-size:14px;border-top:1px solid var(--rc-line,#D6D6CF)">
+              <dt style="padding:8px 16px;border-bottom:1px solid var(--rc-sunken,#EBEBE6);color:var(--rc-ink-2,#4A4F57);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px">type</dt><dd style="margin:0;padding:8px 16px 8px 0;border-bottom:1px solid var(--rc-sunken,#EBEBE6)">{{ l.type }}</dd>
+              <dt style="padding:8px 16px;border-bottom:1px solid var(--rc-sunken,#EBEBE6);color:var(--rc-ink-2,#4A4F57);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px">installed</dt><dd style="margin:0;padding:8px 16px 8px 0;border-bottom:1px solid var(--rc-sunken,#EBEBE6)">{{ l.installed }}</dd>
+              <dt style="padding:8px 16px;border-bottom:1px solid var(--rc-sunken,#EBEBE6);color:var(--rc-ink-2,#4A4F57);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px">components</dt><dd style="margin:0;padding:8px 16px 8px 0;border-bottom:1px solid var(--rc-sunken,#EBEBE6)">{{ l.components }}</dd>
+              <dt style="padding:8px 16px;border-bottom:1px solid var(--rc-sunken,#EBEBE6);color:var(--rc-ink-2,#4A4F57);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px">reliability</dt>
+              <dd style="margin:0;padding:8px 16px 8px 0;border-bottom:1px solid var(--rc-sunken,#EBEBE6);display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><rect width="16" height="16" rx="2" style="fill:var(--rc-ok,#1D6B3B)"></rect><path d="M4.5 8.2l2.3 2.3 4.7-4.9" fill="none" stroke-width="1.9" style="stroke:var(--rc-surface,#FFFFFF)"></path></svg>Check passed</dd>
+              <dt style="padding:8px 16px;border-bottom:1px solid var(--rc-sunken,#EBEBE6);color:var(--rc-ink-2,#4A4F57);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px">data wipe</dt><dd style="margin:0;padding:8px 16px 8px 0;border-bottom:1px solid var(--rc-sunken,#EBEBE6)">{{ l.wiped }}</dd>
+              <dt style="padding:8px 16px;color:var(--rc-ink-2,#4A4F57);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px">telemetry</dt>
+              <dd style="margin:0;padding:8px 16px 8px 0;display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;flex-wrap:wrap;gap:4px 14px;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:13px">
+                  <sc-for list="{{ l.tel }}" as="t" hint-placeholder-count="3"><span><span style="color:var(--rc-ink-2,#4A4F57)">{{ t.k }}</span> <strong style="font-weight:700">{{ t.v }}</strong></span></sc-for>
+                </div>
+                <span style="font-size:12px;color:var(--rc-ink-2,#4A4F57)">{{ l.telAt }}</span>
+              </dd>
+            </dl>
+            <p style="margin:0;padding:12px 16px;border-top:1px solid var(--rc-line,#D6D6CF);font-size:14px;color:var(--rc-ink-2,#4A4F57)">{{ l.note }}</p>
+            <div style="margin-top:auto;padding:0 16px 16px;display:flex;gap:8px;flex-wrap:wrap">
+              <a href="{{ l.href }}" style="flex:1 1 170px;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:2px;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-ink,#0E1116);font-weight:600;font-size:14px;text-decoration:none;transition:transform .15s,box-shadow .15s" style-hover="transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--rc-accent,#2443C9)" style-active="transform:none;box-shadow:none">Open the passport →</a>
+              <a href="{{ l.mail }}" style="flex:1 1 170px;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:2px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);border:1px solid var(--rc-line-strong,#A9A9A0);font-weight:600;font-size:14px;text-decoration:none;transition:border-color .15s,background .15s" style-hover="border-color:var(--rc-ink,#0E1116);background:var(--rc-raised,#FAFAF8)"><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><rect x=".8" y=".8" width="14.4" height="10.4" fill="none" stroke-width="1.5" style="stroke:var(--rc-ink,#0E1116)"></rect><path d="M1.5 1.8L8 7l6.5-5.2" fill="none" stroke-width="1.5" style="stroke:var(--rc-ink,#0E1116)"></path></svg>Ask about this device</a>
+            </div>
+          </li>
+        </sc-for>
+      </ul>
+    </section>
+    <section aria-labelledby="contact" style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--rc-ink,#0E1116)">
+        <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-accent,#2443C9);font-weight:600">03</span>
+        <h2 id="contact" style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em">Contact the data centre</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px 40px;background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22));padding:20px">
+        <p style="margin:0;font-size:15px;color:var(--rc-ink-2,#4A4F57);max-width:46ch">Interested in a device? E-mail the data centre with its device ID. There is no order form; your own e-mail app opens.</p>
+        <dl style="margin:0;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 16px;font-size:15px">
+          <dt style="color:var(--rc-ink-2,#4A4F57);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;padding-top:2px">organisation</dt><dd style="margin:0">Sample Data Centre (fictional)</dd>
+          <dt style="color:var(--rc-ink-2,#4A4F57);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;padding-top:2px">e-mail</dt><dd style="margin:0"><a href="mailto:hardware@example.com" style="color:var(--rc-accent,#2443C9);font-weight:600;text-underline-offset:3px">hardware@example.com</a></dd>
+          <dt style="color:var(--rc-ink-2,#4A4F57);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;padding-top:2px">hours</dt><dd style="margin:0">Mon–Fri 09:00–17:00 WIB</dd>
+          <dt style="color:var(--rc-ink-2,#4A4F57);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;padding-top:2px">note</dt><dd style="margin:0">Demo only: no real sales. Prices are sample values.</dd>
+        </dl>
+      </div>
+    </section>
+  </main>
+  <dc-import name="RC Footer" hint-size="100%,80px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:1800}}">
+class Component extends DCLogic {
+  renderVals() { return { ...this._rv(), theme: this.props.theme, menuOpen: this.props.menuOpen }; }
+  _rv() {
+    const mk = id => `mailto:hardware@example.com?subject=${encodeURIComponent('About ' + id + ' (ReCompute demo)')}`;
+    return {
+      listings: [
+        { id: 'GPU-SRV-001', model: 'AccelServer-v1 (sample)', outcome: 'REDEPLOY', price: 'IDR 45,000,000', type: 'GPU server', installed: '1 Mar 2022',
+          components: 'GPU Accel-v1 · Memory HBM-v1', wiped: '28 Oct 2026, 20:39 WIB', telAt: 'Read 28 Oct 2026, 20:40 WIB',
+          tel: [{ k: 'util', v: '55 %' }, { k: 'power', v: '583 W' }, { k: 'inlet', v: '23.1 °C' }],
+          note: 'Released after REDEPLOY review (sample)', href: '/device/GPU-SRV-001', mail: mk('GPU-SRV-001') },
+        { id: 'GPU-SRV-003', model: 'AccelServer-v1 (sample)', outcome: 'UPGRADE', price: 'IDR 38,000,000', type: 'GPU server', installed: '15 Jun 2022',
+          components: 'GPU Accel-v1 · Memory HBM-v1', wiped: '28 Oct 2026, 20:44 WIB', telAt: 'Read 28 Oct 2026, 20:45 WIB',
+          tel: [{ k: 'util', v: '41 %' }, { k: 'power', v: '512 W' }, { k: 'inlet', v: '22.4 °C' }],
+          note: 'Memory upgrade path documented in the passport (sample)', href: '/device/GPU-SRV-003', mail: mk('GPU-SRV-003') },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
