@@ -95,6 +95,19 @@ class Workload(Base):
         return {"id": self.id, "name": self.name, "W": self.W}
 
 
+class Technician(Base):
+    """A login for write actions (PRD 15.5). Created only by tools/create_technician.py; no sign-up."""
+    __tablename__ = "technicians"
+
+    username: Mapped[str] = mapped_column(String(64), primary_key=True)
+    name: Mapped[str] = mapped_column(String(200))
+    password_hash: Mapped[str] = mapped_column(String(300))  # salted scrypt, see api/auth.py
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    def to_dict(self):
+        return {"username": self.username, "name": self.name}
+
+
 def make_session_factory(url):
     """Create tables (and SQLite append-only triggers) and return a session factory."""
     is_sqlite = url.startswith("sqlite")

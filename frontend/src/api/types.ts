@@ -1,10 +1,13 @@
-// Shapes from contracts/api_contract.md (v1.3). Every number in them is SAMPLE DATA.
+// Shapes from contracts/api_contract.md (v2.1). Every number in them is SAMPLE DATA.
 
 export const OUTCOMES = ['KEEP', 'UPGRADE', 'REDEPLOY', 'RECYCLE', 'UNCERTAIN', 'INSUFFICIENT_DATA'] as const
 export type Outcome = (typeof OUTCOMES)[number]
 
 export const EVENT_KINDS = ['telemetry', 'scan', 'repair', 'upgrade', 'wipe', 'move', 'note'] as const
 export type EventKind = (typeof EVENT_KINDS)[number]
+
+/** Written only by POST /devices/{id}/list and /unlist, never by the generic events endpoint. */
+export type ListingKind = 'list' | 'unlist'
 
 /** A point value has low === high. */
 export interface Range {
@@ -52,7 +55,7 @@ export interface PassportEvent {
   id: number
   device_id: string
   created_at: string
-  kind: EventKind
+  kind: EventKind | ListingKind
   payload: Record<string, unknown>
   actor: string
   prev_hash: string | null
@@ -71,10 +74,10 @@ export interface ChainCheck {
   reason: string | null
 }
 
+/** The server sets the actor from the login token (contract v2.0). */
 export interface NewEvent {
   kind: EventKind
   payload: Record<string, unknown>
-  actor: string
 }
 
 export interface ScenarioResult {
@@ -109,4 +112,69 @@ export interface FleetSummary {
   devices: number
   not_evaluated: number
   sample_data: boolean
+}
+
+export interface Technician {
+  username: string
+  name: string
+}
+
+/** POST /auth/login answer, kept in sessionStorage while the technician is logged in. */
+export interface Session {
+  token: string
+  token_type: string
+  expires_at: string
+  technician: Technician
+}
+
+/** A sample asking price: whole units of an ISO 4217 currency. */
+export interface Price {
+  amount: number
+  currency: string
+}
+
+/** Body of POST /devices/{id}/list. */
+export interface NewListing {
+  price: Price
+  note?: string
+}
+
+/** One row of GET /listings: a device currently listed for sale. */
+export interface Listing {
+  device_id: string
+  model: string
+  device_type: string
+  install_date: string
+  components: { type: string; model: string }[]
+  reliability_ok: boolean
+  latest_outcome: Outcome | null
+  passport_intact: boolean
+  wiped_at: string | null
+  listed_at: string
+  price: Price
+  note: string | null
+  latest_telemetry: PassportEvent | null
+  sample_data: boolean
+}
+
+/** GET /contact: one fictional sample data centre. */
+export interface Contact {
+  organisation: string
+  email: string
+  phone: string | null
+  hours: string
+  note: string
+  sample_data: boolean
+}
+
+/** One point of data/market_forecast.json (PRD 15.4): a published figure, never demo data. */
+export interface ForecastPoint {
+  series: string
+  year: number
+  value: number
+  unit: string
+  kind: 'actual' | 'forecast'
+  source: string
+  page: string
+  evidence_row: string
 }

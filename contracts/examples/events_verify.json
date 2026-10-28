@@ -2,7 +2,7 @@
   "device_id": "GPU-SRV-001",
   "valid": true,
   "events_checked": 1,
-  "head_hash": "766369ccb1f8feb6b2115e69759898e062a54fcfad91fdf2b47145873561452d",
+  "head_hash": "f14fc010f369c6666208afd76a22d61c6836e24dc0b3e137f71001542fd74861",
   "first_bad_event_id": null,
   "reason": null
 }

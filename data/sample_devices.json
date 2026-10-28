@@ -149,5 +149,17 @@
     "GPU-SRV-004": "RECYCLE",
     "GPU-SRV-005": "INSUFFICIENT_DATA",
     "GPU-SRV-006": "UNCERTAIN"
-  }
+  },
+  "listings": [
+    {
+      "device_id": "GPU-SRV-001",
+      "price": {"amount": 45000000, "currency": "IDR"},
+      "note": "Released after REDEPLOY review (sample)"
+    },
+    {
+      "device_id": "GPU-SRV-003",
+      "price": {"amount": 38000000, "currency": "IDR"},
+      "note": "Memory upgrade path documented in the passport (sample)"
+    }
+  ]
 }

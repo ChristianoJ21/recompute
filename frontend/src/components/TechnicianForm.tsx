@@ -13,31 +13,12 @@ const ACTIONS: { kind: EventKind; label: string }[] = [
   { kind: 'note', label: 'Note' },
 ]
 
-const ACTOR_KEY = 'recompute.actor'
-
-function rememberedActor(): string {
-  try {
-    return localStorage.getItem(ACTOR_KEY) ?? ''
-  } catch {
-    return ''
-  }
-}
-
-function rememberActor(actor: string) {
-  try {
-    localStorage.setItem(ACTOR_KEY, actor)
-  } catch {
-    // Storage blocked (private mode): the technician just types their name again next time.
-  }
-}
-
 const fieldClass =
   'mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/30'
 
 export function TechnicianForm({ deviceId, onAdded }: { deviceId: string; onAdded: () => Promise<void> }) {
   const [kind, setKind] = useState<EventKind>('scan')
   const [note, setNote] = useState('')
-  const [actor, setActor] = useState(rememberedActor)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [added, setAdded] = useState<string | null>(null)
@@ -45,19 +26,14 @@ export function TechnicianForm({ deviceId, onAdded }: { deviceId: string; onAdde
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
-    const who = actor.trim()
     const details = note.trim()
     setError(null)
     setAdded(null)
-    if (!who) {
-      setError('Enter your name or technician ID.')
-      return
-    }
 
     setSaving(true)
     try {
-      const created = await addEvent(deviceId, { kind, actor: who, payload: details ? { note: details } : {} })
-      rememberActor(who)
+      // No actor field: the server records the logged-in technician (contract v2.0).
+      const created = await addEvent(deviceId, { kind, payload: details ? { note: details } : {} })
       setNote('')
       setAdded(`Added ${created.kind} event #${created.id} to the passport.`)
     } catch (err) {
@@ -107,20 +83,6 @@ export function TechnicianForm({ deviceId, onAdded }: { deviceId: string; onAdde
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="e.g. replaced a fan, wiped the disks"
-            className={fieldClass}
-          />
-        </div>
-        <div>
-          <label htmlFor={`${ids}-actor`} className="text-sm font-medium text-gray-900">
-            Your name or technician ID
-          </label>
-          <input
-            id={`${ids}-actor`}
-            required
-            maxLength={100}
-            value={actor}
-            onChange={(e) => setActor(e.target.value)}
-            autoComplete="name"
             className={fieldClass}
           />
         </div>

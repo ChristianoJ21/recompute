@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 
 export const primaryButton =
   'inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 disabled:cursor-not-allowed disabled:opacity-60'
@@ -17,10 +17,13 @@ export function Card({
   id?: string
   children: ReactNode
 }) {
+  const headingId = useId()
   return (
-    <section id={id} className="scroll-mt-20 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+    <section id={id} aria-labelledby={headingId} className="scroll-mt-20 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-gray-900">{title}</h2>
+        <h2 id={headingId} className="text-base font-semibold text-gray-900">
+          {title}
+        </h2>
         {action}
       </div>
       {children}

@@ -1,0 +1,41 @@
+[
+  {
+    "device_id": "GPU-SRV-001",
+    "model": "AccelServer-v1 (sample)",
+    "device_type": "gpu_server",
+    "install_date": "2022-03-01",
+    "components": [
+      {
+        "type": "gpu",
+        "model": "Accel-v1"
+      },
+      {
+        "type": "memory",
+        "model": "HBM-v1"
+      }
+    ],
+    "reliability_ok": true,
+    "latest_outcome": "REDEPLOY",
+    "passport_intact": true,
+    "wiped_at": "2026-10-28T13:39:44Z",
+    "listed_at": "2026-10-28T13:39:44Z",
+    "price": {
+      "amount": 45000000,
+      "currency": "IDR"
+    },
+    "note": "Released after REDEPLOY review (sample)",
+    "latest_telemetry": {
+      "id": 2,
+      "device_id": "GPU-SRV-001",
+      "created_at": "2026-10-28T13:39:44Z",
+      "kind": "telemetry",
+      "payload": {
+        "gpu_temp_c": 61
+      },
+      "actor": "tech-1",
+      "prev_hash": "f14fc010f369c6666208afd76a22d61c6836e24dc0b3e137f71001542fd74861",
+      "hash": "53c347f2dbc96959025ed4f2471bb05bdb24cbaaf86a591179dc23d06cf0dc44"
+    },
+    "sample_data": true
+  }
+]

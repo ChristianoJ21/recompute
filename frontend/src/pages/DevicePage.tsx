@@ -3,11 +3,13 @@ import { Link, useParams } from 'react-router'
 import { describeError, evaluateDevice, getDevice } from '../api/client'
 import type { DeviceDetail } from '../api/types'
 import { DeviceDetails, QrLabel, RuleInputs } from '../components/DeviceFacts'
+import { ListingPanel } from '../components/ListingPanel'
 import { OutcomeBadge } from '../components/OutcomeBadge'
 import { PassportHistory } from '../components/PassportHistory'
 import { TechnicianForm } from '../components/TechnicianForm'
 import { ErrorNotice, Loading, secondaryButton } from '../components/ui'
 import { WhyPanel } from '../components/WhyPanel'
+import { useSession } from '../lib/session'
 
 export function DevicePage() {
   const { id = '' } = useParams()
@@ -18,6 +20,8 @@ export function DevicePage() {
 type State = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; detail: DeviceDetail }
 
 function DevicePassport({ id }: { id: string }) {
+  // Reading is public; the form, Evaluate and listing buttons appear only for a logged-in technician.
+  const canEdit = useSession() !== null
   const [state, setState] = useState<State>({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
   const [evaluating, setEvaluating] = useState(false)
@@ -67,14 +71,18 @@ function DevicePassport({ id }: { id: string }) {
 
   return (
     <div className="space-y-6">
-      <Link to="/" className="inline-block text-sm font-semibold text-emerald-800 hover:underline">
-        ← Fleet
+      <Link
+        to={canEdit ? '/fleet' : '/'}
+        className="inline-block text-sm font-semibold text-emerald-800 hover:underline"
+      >
+        {canEdit ? '← Fleet' : '← Available hardware'}
       </Link>
       {state.status === 'loading' && <Loading label="Loading the passport…" />}
       {state.status === 'error' && <ErrorNotice message={state.message} onRetry={retry} />}
       {state.status === 'ready' && (
         <Passport
           detail={state.detail}
+          canEdit={canEdit}
           evaluating={evaluating}
           evaluateError={evaluateError}
           onEvaluate={evaluate}
@@ -87,13 +95,14 @@ function DevicePassport({ id }: { id: string }) {
 
 interface PassportProps {
   detail: DeviceDetail
+  canEdit: boolean
   evaluating: boolean
   evaluateError: string | null
   onEvaluate: () => void
   onEventAdded: () => Promise<void>
 }
 
-function Passport({ detail, evaluating, evaluateError, onEvaluate, onEventAdded }: PassportProps) {
+function Passport({ detail, canEdit, evaluating, evaluateError, onEvaluate, onEventAdded }: PassportProps) {
   const { device, events, latest_evaluation } = detail
   return (
     <>
@@ -106,12 +115,20 @@ function Passport({ detail, evaluating, evaluateError, onEvaluate, onEventAdded 
           {device.model} · {device.location}
         </p>
         {/* Technicians arrive here from the QR code; take them straight to the form. */}
-        <a href="#log-action" className={`${secondaryButton} mt-2`}>
-          Log an action
-        </a>
+        {canEdit && (
+          <a href="#log-action" className={`${secondaryButton} mt-2`}>
+            Log an action
+          </a>
+        )}
       </header>
-      <WhyPanel evaluation={latest_evaluation} evaluating={evaluating} error={evaluateError} onEvaluate={onEvaluate} />
-      <TechnicianForm deviceId={device.id} onAdded={onEventAdded} />
+      <WhyPanel
+        evaluation={latest_evaluation}
+        evaluating={evaluating}
+        error={evaluateError}
+        onEvaluate={canEdit ? onEvaluate : undefined}
+      />
+      {canEdit && <TechnicianForm deviceId={device.id} onAdded={onEventAdded} />}
+      <ListingPanel deviceId={device.id} events={events} canEdit={canEdit} onChanged={onEventAdded} />
       <PassportHistory deviceId={device.id} events={events} />
       <RuleInputs device={device} />
       <div className="grid gap-6 sm:grid-cols-2">

@@ -7,7 +7,7 @@ export function NotFoundPage() {
       <h1 className="text-2xl font-semibold">Page not found</h1>
       <p className="mt-2 text-gray-600">This address is not part of the ReCompute demo.</p>
       <Link to="/" className={`${primaryButton} mt-6`}>
-        Go to the fleet
+        Go to available hardware
       </Link>
     </div>
   )

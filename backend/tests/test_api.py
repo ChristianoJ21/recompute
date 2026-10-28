@@ -3,24 +3,12 @@ import json
 from pathlib import Path
 
 import pytest
-from fastapi.testclient import TestClient
 from sqlalchemy import text
 
-from api.main import create_app
 from engine.decision import OUTCOMES
 from reference_fleet import DEVICES, EXPECTED, WORKLOADS
 
 EXAMPLES = Path(__file__).resolve().parents[2] / "contracts" / "examples"
-
-
-@pytest.fixture
-def app():
-    return create_app(database_url="sqlite://", frontend_url="http://localhost:5173/device/{device_id}")
-
-
-@pytest.fixture
-def client(app):
-    return TestClient(app)
 
 
 @pytest.fixture
@@ -268,6 +256,7 @@ def test_qr_for_unknown_device_returns_404(client):
     ("fleet_summary", "/fleet/summary"),
     ("workloads_list", "/workloads"),
     ("events_verify", "/devices/GPU-SRV-001/events/verify"),
+    ("auth_me", "/auth/me"),
 ])
 def test_contract_examples_have_live_shape(fleet, name, path):
     for device_id in EXPECTED:
