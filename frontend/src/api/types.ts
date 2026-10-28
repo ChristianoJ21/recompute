@@ -1,4 +1,4 @@
-// Shapes from contracts/api_contract.md (v2.1). Every number in them is SAMPLE DATA.
+// Shapes from contracts/api_contract.md (v2.3). Every number in them is SAMPLE DATA.
 
 export const OUTCOMES = ['KEEP', 'UPGRADE', 'REDEPLOY', 'RECYCLE', 'UNCERTAIN', 'INSUFFICIENT_DATA'] as const
 export type Outcome = (typeof OUTCOMES)[number]

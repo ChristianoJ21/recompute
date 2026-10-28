@@ -75,7 +75,7 @@ describe('technician login', () => {
     await user.click(await screen.findByRole('button', { name: 'Log out' }))
 
     expect(client.currentSession()).toBeNull()
-    expect(await screen.findByRole('heading', { name: 'Available hardware' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { level: 1, name: /Second-life AI servers/ })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Technician login' })).toBeTruthy()
   })
 })

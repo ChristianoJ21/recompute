@@ -1,145 +1,129 @@
-import { useEffect, useState } from 'react'
-import { verifyEvents } from '../api/client'
-import type { ChainCheck, PassportEvent } from '../api/types'
+import { useState } from 'react'
+import type { PassportEvent } from '../api/types'
 import { asPrice, formatDateTime, formatPrice } from '../lib/format'
-import { Card } from './ui'
+import type { PassportCheck } from '../lib/passportCheck'
+import { IntegrityBadge } from './IntegrityBadge'
+import { Panel, secondaryButton } from './ui'
 
 const FIRST_PAGE = 5
 
-const EVENT_LABEL: Record<PassportEvent['kind'], string> = {
-  telemetry: 'Telemetry reading',
-  scan: 'Scan',
-  repair: 'Repair',
-  upgrade: 'Upgrade',
-  wipe: 'Data wipe',
-  move: 'Move',
-  note: 'Note',
-  list: 'Listed for sale',
-  unlist: 'Removed from sale',
+// Node fill + border mark the kind; the label says it in words.
+const EVENT_STYLE: Record<PassportEvent['kind'], { label: string; node: string; text: string }> = {
+  telemetry: { label: 'Telemetry reading', node: 'border-line-strong bg-surface', text: 'text-ink-2' },
+  scan: { label: 'Scan', node: 'border-ink bg-ink', text: 'text-ink' },
+  repair: { label: 'Repair', node: 'border-ink bg-ink', text: 'text-ink' },
+  upgrade: { label: 'Upgrade', node: 'border-ink bg-ink', text: 'text-ink' },
+  wipe: { label: 'Data wipe', node: 'border-ok bg-ok', text: 'text-ink' },
+  move: { label: 'Move', node: 'border-ink bg-ink', text: 'text-ink' },
+  note: { label: 'Note', node: 'border-ink bg-surface', text: 'text-ink' },
+  list: { label: 'Listed for sale', node: 'border-accent bg-accent', text: 'text-ink' },
+  unlist: { label: 'Removed from sale', node: 'border-accent bg-surface', text: 'text-ink' },
 }
 
-export function PassportHistory({ deviceId, events }: { deviceId: string; events: PassportEvent[] }) {
+interface PassportHistoryProps {
+  events: PassportEvent[]
+  check: PassportCheck
+}
+
+export function PassportHistory({ events, check }: PassportHistoryProps) {
   const [showAll, setShowAll] = useState(false)
   const newestFirst = [...events].sort((a, b) => b.id - a.id)
   const visible = showAll ? newestFirst : newestFirst.slice(0, FIRST_PAGE)
+  // The event each one links to by hash: the next older one of this device.
+  const previous = new Map(newestFirst.map((event, i) => [event.id, newestFirst[i + 1]?.id ?? null]))
+
+  const aside = (
+    <div className="flex flex-wrap items-center gap-3">
+      <span className="font-mono text-xs text-ink-2">
+        {events.length} {events.length === 1 ? 'event' : 'events'} · newest first
+      </span>
+      <IntegrityBadge integrity={check.integrity} live />
+    </div>
+  )
 
   return (
-    <Card
-      title={`Passport history (${events.length})`}
-      action={<IntegrityBadge deviceId={deviceId} headHash={newestFirst[0]?.hash ?? null} />}
-    >
-      <p className="-mt-2 mb-4 text-xs text-gray-500">
-        Newest first. Events are append-only: the app cannot edit or delete them, and any change made in the database is
-        detected.
-      </p>
+    <Panel title="Passport history" aside={aside}>
       {events.length === 0 ? (
-        <p className="text-sm text-gray-600">No events yet.</p>
+        <p className="text-sm text-ink-2">No events yet.</p>
       ) : (
-        <ol aria-label="Passport events" className="space-y-3">
+        <ol aria-label="Passport events" className="-my-2">
           {visible.map((event) => (
-            <EventItem key={event.id} event={event} />
+            <EventItem
+              key={event.id}
+              event={event}
+              previousId={previous.get(event.id) ?? null}
+              link={check.linkState(event)}
+              reason={check.reason}
+            />
           ))}
         </ol>
       )}
       {newestFirst.length > FIRST_PAGE && (
-        <button
-          type="button"
-          onClick={() => setShowAll((value) => !value)}
-          className="mt-4 text-sm font-semibold text-emerald-800 underline-offset-2 hover:underline"
-        >
-          {showAll ? 'Show fewer' : `Show all ${newestFirst.length} events`}
-        </button>
+        <div>
+          <button type="button" onClick={() => setShowAll((value) => !value)} className={secondaryButton}>
+            {showAll ? 'Show fewer' : `Show all ${newestFirst.length} events`}
+          </button>
+        </div>
       )}
-    </Card>
+    </Panel>
   )
 }
 
-type Check = { status: 'checking' } | { status: 'done'; result: ChainCheck } | { status: 'unavailable' }
-
-// Re-checks whenever a new event arrives (the newest hash changes). The check only detects changes;
-// it cannot prevent them, so the wording says "changed", never "protected".
-function IntegrityBadge({ deviceId, headHash }: { deviceId: string; headHash: string | null }) {
-  const [check, setCheck] = useState<Check>({ status: 'checking' })
-
-  useEffect(() => {
-    let active = true
-    setCheck({ status: 'checking' })
-    verifyEvents(deviceId)
-      .then((result) => {
-        if (active) setCheck({ status: 'done', result })
-      })
-      .catch(() => {
-        if (active) setCheck({ status: 'unavailable' })
-      })
-    return () => {
-      active = false
-    }
-  }, [deviceId, headHash])
-
-  const base = 'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold'
-  if (check.status === 'checking') {
-    return <span className={`${base} border-gray-200 bg-gray-50 text-gray-500`}>Checking passport…</span>
-  }
-  if (check.status === 'unavailable') {
-    return <span className={`${base} border-gray-200 bg-gray-50 text-gray-600`}>Integrity check unavailable</span>
-  }
-  const { valid, first_bad_event_id, reason, events_checked } = check.result
-  return valid ? (
-    <span
-      role="status"
-      title={`Hash chain of ${events_checked} events verified`}
-      className={`${base} border-emerald-300 bg-emerald-50 text-emerald-900`}
-    >
-      <span aria-hidden>✔</span> Passport intact
-    </span>
-  ) : (
-    <span role="alert" title={reason ?? undefined} className={`${base} border-red-300 bg-red-50 text-red-900`}>
-      <span aria-hidden>✘</span> Passport changed at event #{first_bad_event_id}
-    </span>
-  )
+interface EventItemProps {
+  event: PassportEvent
+  previousId: number | null
+  link: PassportCheck['linkState'] extends (e: PassportEvent) => infer L ? L : never
+  reason: string | null
 }
 
-function EventItem({ event }: { event: PassportEvent }) {
+function EventItem({ event, previousId, link, reason }: EventItemProps) {
+  const style = EVENT_STYLE[event.kind]
   const note = typeof event.payload.note === 'string' ? event.payload.note : null
-  const details = Object.entries(event.payload).filter(([key]) => !(key === 'note' && note !== null))
-  const kindStyle =
-    event.kind === 'telemetry'
-      ? 'bg-gray-100 text-gray-600'
-      : event.kind === 'list' || event.kind === 'unlist'
-        ? 'bg-amber-100 text-amber-900'
-        : 'bg-emerald-100 text-emerald-900'
+  const details = Object.entries(event.payload)
+    // The simulated / sample_data flags are said once for the whole demo, not on every row.
+    .filter(([key]) => !(key === 'note' && note !== null) && key !== 'simulated' && key !== 'sample_data')
+    .map(([key, value]) => `${key}=${showValue(key, value)}`)
+    .join('  ')
+  const hash = event.hash ? `${event.hash.slice(0, 4)}…${event.hash.slice(-4)}` : 'none'
 
   return (
-    <li className="rounded-xl border border-gray-200 p-3">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${kindStyle}`}>{EVENT_LABEL[event.kind]}</span>
-        <time dateTime={event.created_at} className="text-sm text-gray-700">
-          {formatDateTime(event.created_at)}
-        </time>
-        <span className="text-sm text-gray-500">by {event.actor}</span>
+    <li className="grid grid-cols-[20px_minmax(0,1fr)] gap-3">
+      <div className="relative flex justify-center">
+        <div className="absolute inset-y-0 w-px bg-line-mid" />
+        <div
+          className={`relative mt-[18px] size-2.5 border-[1.5px] transition-shadow duration-300 ${style.node} ${
+            link === 'verified' ? 'shadow-[0_0_0_4px_var(--color-ok-bg)]' : link === 'bad' ? 'shadow-[0_0_0_4px_var(--color-danger-bg)]' : ''
+          }`}
+        />
       </div>
-      {note && <p className="mt-2 text-sm text-gray-900">{note}</p>}
-      {details.length > 0 && (
-        <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600">
-          {details.map(([key, value]) => (
-            <div key={key}>
-              <dt className="inline">{key}: </dt>
-              <dd className="inline font-mono">{showValue(key, value)}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-      {event.hash && (
-        <p className="mt-2 font-mono text-[11px] text-gray-400" title={event.hash}>
-          #{event.id} · hash {event.hash.slice(0, 12)}…
-        </p>
-      )}
+      <div className="flex min-w-0 flex-col gap-1 border-b border-sunken py-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <span className={`text-[15px] font-bold ${style.text}`}>{style.label}</span>
+          <time dateTime={event.created_at} className="font-mono text-xs text-ink-2">
+            {formatDateTime(event.created_at)}
+          </time>
+        </div>
+        <span className="text-[13px] text-ink-2">by {event.actor}</span>
+        {note && <span className="text-sm">{note}</span>}
+        {details && <span className="self-start bg-page px-2 py-1 font-mono text-xs break-all text-ink">{details}</span>}
+        <span className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] text-ink-3">
+          <span title={event.hash ?? undefined}>
+            #{event.id} · hash {hash}
+          </span>
+          {link === 'verified' && (
+            <span className="animate-tick font-bold text-ok">
+              ✔ {previousId === null ? 'first event of the chain' : `links to #${previousId}`}
+            </span>
+          )}
+          {link === 'bad' && <span className="font-bold text-danger">✘ {reason ?? 'changed after it was written'}</span>}
+        </span>
+      </div>
     </li>
   )
 }
 
 function showValue(key: string, value: unknown): string {
   const price = key === 'price' ? asPrice(value) : null
-  if (price) return `${formatPrice(price)} (sample)`
+  if (price) return formatPrice(price)
   return typeof value === 'object' ? JSON.stringify(value) : String(value)
 }

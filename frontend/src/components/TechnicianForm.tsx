@@ -1,7 +1,7 @@
 import { useId, useState, type FormEvent } from 'react'
 import { addEvent, describeError } from '../api/client'
 import type { EventKind } from '../api/types'
-import { Card, ErrorNotice, primaryButton } from './ui'
+import { ErrorNotice, Notice, Panel, PanelTag, fieldClass, labelClass, primaryButton } from './ui'
 
 // Telemetry is left out on purpose: only the simulator writes it.
 const ACTIONS: { kind: EventKind; label: string }[] = [
@@ -13,15 +13,12 @@ const ACTIONS: { kind: EventKind; label: string }[] = [
   { kind: 'note', label: 'Note' },
 ]
 
-const fieldClass =
-  'mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/30'
-
 export function TechnicianForm({ deviceId, onAdded }: { deviceId: string; onAdded: () => Promise<void> }) {
   const [kind, setKind] = useState<EventKind>('scan')
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [added, setAdded] = useState<string | null>(null)
+  const [added, setAdded] = useState<number | null>(null)
   const ids = useId()
 
   const submit = async (event: FormEvent) => {
@@ -35,7 +32,7 @@ export function TechnicianForm({ deviceId, onAdded }: { deviceId: string; onAdde
       // No actor field: the server records the logged-in technician (contract v2.0).
       const created = await addEvent(deviceId, { kind, payload: details ? { note: details } : {} })
       setNote('')
-      setAdded(`Added ${created.kind} event #${created.id} to the passport.`)
+      setAdded(created.id)
     } catch (err) {
       setError(describeError(err))
       setSaving(false)
@@ -50,13 +47,13 @@ export function TechnicianForm({ deviceId, onAdded }: { deviceId: string; onAdde
   }
 
   return (
-    <Card title="Log an action" id="log-action">
-      <form onSubmit={submit} className="space-y-4">
-        <fieldset>
-          <legend className="text-sm font-medium text-gray-900">What did you do?</legend>
-          <div className="mt-2 grid grid-cols-3 gap-2">
+    <Panel title="Log an action" id="log-action" aside={<PanelTag>TECHNICIAN</PanelTag>}>
+      <form onSubmit={submit} className="flex flex-col gap-3.5">
+        <fieldset className="flex flex-col">
+          <legend className="mb-2 text-sm font-semibold">Action</legend>
+          <div className="grid grid-cols-3 gap-px border border-line-strong bg-line-strong">
             {ACTIONS.map((action) => (
-              <label key={action.kind} className="cursor-pointer">
+              <label key={action.kind} className="relative">
                 <input
                   type="radio"
                   name={`${ids}-kind`}
@@ -65,37 +62,38 @@ export function TechnicianForm({ deviceId, onAdded }: { deviceId: string; onAdde
                   onChange={() => setKind(action.kind)}
                   className="peer sr-only"
                 />
-                <span className="block rounded-lg border border-gray-300 px-2 py-2.5 text-center text-sm font-medium text-gray-700 peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-checked:text-emerald-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-emerald-700">
+                <span className="flex min-h-11 cursor-pointer items-center justify-center bg-surface text-sm font-semibold text-ink peer-checked:bg-ink peer-checked:text-surface peer-focus-visible:outline-3 peer-focus-visible:-outline-offset-3 peer-focus-visible:outline-accent">
                   {action.label}
                 </span>
               </label>
             ))}
           </div>
         </fieldset>
-        <div>
-          <label htmlFor={`${ids}-note`} className="text-sm font-medium text-gray-900">
-            Details <span className="font-normal text-gray-500">(optional)</span>
-          </label>
+        <label className={labelClass}>
+          <span>
+            Details <span className="font-normal text-ink-2">(optional)</span>
+          </span>
           <textarea
-            id={`${ids}-note`}
-            rows={2}
+            rows={3}
             maxLength={500}
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="e.g. replaced a fan, wiped the disks"
-            className={fieldClass}
+            className={`${fieldClass} resize-y py-2.5 text-[15px]`}
           />
-        </div>
+        </label>
         {error && <ErrorNotice message={error} />}
-        {added && (
-          <p role="status" className="text-sm font-medium text-emerald-800">
-            {added}
-          </p>
+        {added !== null && (
+          <Notice tone="success">
+            <strong>Added to passport</strong> as event #{added}.
+          </Notice>
         )}
-        <button type="submit" className={`${primaryButton} w-full sm:w-auto`} disabled={saving}>
-          {saving ? 'Saving…' : 'Add to passport'}
-        </button>
+        <div>
+          <button type="submit" className={primaryButton} disabled={saving}>
+            {saving ? 'Saving…' : 'Add to passport'}
+          </button>
+        </div>
       </form>
-    </Card>
+    </Panel>
   )
 }

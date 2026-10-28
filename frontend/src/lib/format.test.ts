@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { asPrice, formatKg, formatPrice, formatRange, netBarGeometry } from './format'
+import { asPrice, formatDate, formatDateTime, formatKg, formatPrice, formatRange, netBarGeometry, telemetryReadings } from './format'
 
 describe('formatKg', () => {
   it('signs the value and uses a typographic minus', () => {
@@ -24,7 +24,7 @@ describe('netBarGeometry', () => {
     expect(start).toBeLessThan(zero)
     expect(zero).toBeLessThan(end)
     expect([start, end, zero].every(inside)).toBe(true)
-    expect(zero).toBeCloseTo((552 / 754) * 100)
+    expect(zero).toBeCloseTo((617 / 884) * 100) // 18 % padding each side
   })
 
   it('keeps zero on the bar when both ends are negative (KEEP)', () => {
@@ -63,5 +63,40 @@ describe('asPrice', () => {
     expect(asPrice({ amount: 5, currency: 'IDR' })).toEqual({ amount: 5, currency: 'IDR' })
     expect(asPrice({ amount: '5', currency: 'IDR' })).toBeNull()
     expect(asPrice(null)).toBeNull()
+  })
+})
+
+describe('times in WIB (UTC+7)', () => {
+  it('shows an API timestamp as Jakarta time', () => {
+    expect(formatDateTime('2026-10-28T13:39:44Z')).toBe('28 Oct 2026, 20:39 WIB')
+  })
+
+  it('moves to the next day when UTC evening is already past midnight in Jakarta', () => {
+    expect(formatDate('2026-10-28T20:00:00Z')).toBe('29 Oct 2026')
+  })
+
+  it('shows a plain calendar date as written, without shifting it', () => {
+    expect(formatDate('2022-03-01')).toBe('1 Mar 2022')
+  })
+})
+
+describe('telemetryReadings', () => {
+  it('names known readings with short labels and units, and skips the flags', () => {
+    expect(
+      telemetryReadings({ utilization_pct: 55, power_w: 583, inlet_temp_c: 23.1, simulated: true, sample_data: true }),
+    ).toEqual([
+      { label: 'util', value: '55 %' },
+      { label: 'power', value: '583 W' },
+      { label: 'inlet', value: '23.1 °C' },
+    ])
+  })
+
+  it('keeps unknown readings under their own key and shows at most four', () => {
+    expect(telemetryReadings({ gpu_temp_c: 61, fan: 3 })).toEqual([
+      { label: 'gpu temp', value: '61 °C' },
+      { label: 'fan', value: '3' },
+    ])
+    expect(telemetryReadings({ a: 1, b: 2, c: 3, d: 4, e: 5 })).toHaveLength(4)
+    expect(telemetryReadings({ corrected_memory_errors: 0 })).toEqual([{ label: 'mem errors', value: '0' }])
   })
 })

@@ -1,7 +1,10 @@
-import type { Evaluation, ScenarioResult } from '../api/types'
-import { formatDateTime, formatKg, netBarGeometry } from '../lib/format'
+import { useEffect, useState } from 'react'
+import type { Evaluation } from '../api/types'
+import { formatDateTime, formatKg, formatSigned, netBarGeometry } from '../lib/format'
+import { prefersReducedMotion } from '../lib/theme'
+import { PlayIcon } from './icons'
 import { OutcomeBadge } from './OutcomeBadge'
-import { Card, ErrorNotice, primaryButton } from './ui'
+import { ErrorNotice, Panel, monoLabel, primaryButton } from './ui'
 
 interface Props {
   evaluation: Evaluation | null
@@ -12,148 +15,150 @@ interface Props {
 }
 
 export function WhyPanel({ evaluation, evaluating, error, onEvaluate }: Props) {
-  const evaluateButton = onEvaluate && (
-    <button type="button" className={primaryButton} onClick={onEvaluate} disabled={evaluating}>
-      {evaluating ? 'Evaluating…' : 'Evaluate'}
-    </button>
+  const controls = onEvaluate && (
+    <div className="flex flex-wrap items-center gap-3">
+      {evaluation && <span className="font-mono text-xs text-ink-2">last run {formatDateTime(evaluation.evaluated_at)}</span>}
+      <button type="button" className={primaryButton} onClick={onEvaluate} disabled={evaluating}>
+        <PlayIcon />
+        {evaluating ? 'Evaluating…' : 'Evaluate'}
+      </button>
+    </div>
   )
 
   return (
-    <Card title="Why this recommendation" action={evaluateButton}>
-      {error && (
-        <div className="mb-4">
-          <ErrorNotice message={error} />
-        </div>
-      )}
+    <Panel title="Why this recommendation" aside={controls} corners>
+      {error && <ErrorNotice message={error} />}
       {evaluation ? (
         <EvaluationDetails evaluation={evaluation} />
       ) : (
-        <p className="text-sm text-gray-600">
+        <p className="text-[15px] text-ink-2">
           {onEvaluate
             ? "Not evaluated yet. Press Evaluate to run the decision rule on this device's inputs."
             : 'Not evaluated yet. A logged-in technician can run the decision rule on this device.'}
         </p>
       )}
-    </Card>
+    </Panel>
   )
 }
+
+const SCENARIOS = [
+  { key: 'pro_keep', name: 'Pro-keep end', text: 'Inputs set to the values that most favour keeping.' },
+  { key: 'pro_replace', name: 'Pro-replace end', text: 'Inputs set to the values that most favour replacing.' },
+] as const
+
+const dt = 'pt-0.5 font-mono text-xs text-ink-2'
 
 function EvaluationDetails({ evaluation }: { evaluation: Evaluation }) {
   const { outcome, reason, target, missing_fields, net_min_kg, net_max_kg, scenarios } = evaluation
   return (
-    <div className="space-y-5">
-      <div className="space-y-3">
-        <OutcomeBadge outcome={outcome} size="lg" />
-        <p className="text-base leading-relaxed text-gray-900">{reason}</p>
-        {target && (
-          <p className="text-sm text-gray-700">
-            {outcome === 'UPGRADE' ? 'Component to replace' : 'Lighter workload'}:{' '}
-            <strong className="font-semibold text-gray-900">{target}</strong>
-          </p>
-        )}
-        {missing_fields.length > 0 && (
-          <div className="text-sm text-gray-700">
-            <p>Missing inputs (the engine never estimates them):</p>
-            <ul className="mt-2 flex flex-wrap gap-2">
-              {missing_fields.map((field) => (
-                <li
-                  key={field}
-                  className="rounded-md border border-amber-300 bg-amber-50 px-2 py-0.5 font-mono text-xs text-amber-900"
-                >
-                  {field}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-start gap-3">
+        <OutcomeBadge outcome={outcome} size="md" />
+        <p className="flex-[1_1_280px] text-[clamp(17px,1.6vw,19px)] leading-[1.4] font-medium text-pretty">{reason}</p>
       </div>
-
-      {net_min_kg !== null && net_max_kg !== null && <NetRangeBar min={net_min_kg} max={net_max_kg} />}
-
+      {net_min_kg !== null && net_max_kg !== null && <NetSavingBar min={net_min_kg} max={net_max_kg} />}
       {scenarios && (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <ScenarioCard title="Pro-keep end" hint="Every range set to the end that favours keeping" result={scenarios.pro_keep} />
-          <ScenarioCard
-            title="Pro-replace end"
-            hint="Every range set to the end that favours replacing"
-            result={scenarios.pro_replace}
-          />
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-px border border-line bg-line">
+          {SCENARIOS.map(({ key, name, text }) => (
+            <div key={key} className="flex flex-col gap-2 bg-surface px-4 py-3.5">
+              <span className={monoLabel}>{name}</span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <OutcomeBadge outcome={scenarios[key].outcome} />
+                <span className="font-mono text-[15px] font-bold">net {formatKg(scenarios[key].net_kg)}</span>
+              </div>
+              <span className="text-[13px] text-ink-2">{text}</span>
+            </div>
+          ))}
         </div>
       )}
-
-      <p className="text-xs text-gray-500">Evaluated {formatDateTime(evaluation.evaluated_at)} · sample data</p>
+      {(target || missing_fields.length > 0) && (
+        <dl className="grid grid-cols-[max-content_minmax(0,1fr)] gap-x-4 gap-y-1.5 text-sm">
+          {target && (
+            <>
+              <dt className={dt}>target</dt>
+              <dd>{target}</dd>
+            </>
+          )}
+          {missing_fields.length > 0 && (
+            <>
+              <dt className={dt}>missing inputs</dt>
+              <dd className="flex flex-col gap-1.5">
+                <ul className="flex flex-wrap gap-2">
+                  {missing_fields.map((field) => (
+                    <li key={field} className="border border-dashed border-insufficient-line bg-insufficient-bg px-2 py-0.5 font-mono text-xs text-insufficient">
+                      {field}
+                    </li>
+                  ))}
+                </ul>
+                <span className="text-[13px] text-ink-2">The engine never estimates them.</span>
+              </dd>
+            </>
+          )}
+        </dl>
+      )}
     </div>
   )
 }
 
-function NetRangeBar({ min, max }: { min: number; max: number }) {
+const dimension = 'absolute transition-opacity delay-800 duration-400'
+
+/** The range of net saving if replaced, drawn against zero; it grows from the zero line when shown. */
+function NetSavingBar({ min, max }: { min: number; max: number }) {
+  const [ready, setReady] = useState(prefersReducedMotion)
+  useEffect(() => {
+    if (ready) return
+    const timer = setTimeout(() => setReady(true), 350)
+    return () => clearTimeout(timer)
+  }, [ready])
+
   const { start, end, zero } = netBarGeometry(min, max)
-  const keepEnd = Math.min(end, zero)
-  const replaceStart = Math.max(start, zero)
+  const low = formatSigned(Math.min(min, max))
+  const high = formatSigned(Math.max(min, max))
+  const shown = ready ? 'opacity-100' : 'opacity-0'
+  const at = (value: number) => ({ left: `${value}%` })
 
   return (
-    <figure className="space-y-2 rounded-xl bg-gray-50 p-3 sm:p-4">
-      <figcaption className="text-sm text-gray-700">
-        Net saving from replacing, <span className="font-mono text-xs">(I_old − I_new) × W × T − E_new</span>
-      </figcaption>
+    <div className="flex flex-col gap-1.5">
+      <div className="flex flex-wrap justify-between gap-2 font-mono text-xs text-ink-2">
+        <span className="font-bold tracking-[.06em] text-ink uppercase">Net saving if replaced</span>
+        <span>
+          {low} to {high} kg CO₂e
+        </span>
+      </div>
       <div
         role="img"
         aria-label={`Net saving from replacing ranges from ${formatKg(min)} to ${formatKg(max)}; zero is marked`}
-        className="relative h-12"
+        className="relative h-24"
       >
-        <div className="absolute inset-x-0 top-6 h-3 rounded-full bg-gray-200" />
-        {keepEnd > start && (
-          <div className="absolute top-6 h-3 bg-emerald-500" style={{ left: `${start}%`, width: `${keepEnd - start}%` }} />
-        )}
-        {end > replaceStart && (
-          <div
-            className="absolute top-6 h-3 bg-sky-500"
-            style={{ left: `${replaceStart}%`, width: `${end - replaceStart}%` }}
-          />
-        )}
-        {start === end && (
-          <div className="absolute top-5 h-5 w-1.5 -translate-x-1/2 rounded bg-gray-700" style={{ left: `${start}%` }} />
-        )}
-        <div className="absolute top-4 h-7 w-0.5 -translate-x-1/2 bg-gray-900" style={{ left: `${zero}%` }} />
-        <span
-          className="absolute top-0 -translate-x-1/2 text-xs font-semibold leading-none text-gray-900"
-          style={{ left: `${zero}%` }}
-        >
+        <div
+          className="absolute top-[26px] left-0 h-3 border border-line"
+          style={{ width: `${zero}%`, backgroundImage: 'repeating-linear-gradient(135deg, var(--color-sunken) 0 4px, var(--color-surface) 4px 8px)' }}
+        />
+        <div className="absolute top-[26px] right-0 h-3 border border-line bg-page" style={at(zero)} />
+        <div
+          className="absolute top-[22px] h-5 min-w-1 bg-accent shadow-[0_6px_14px_-6px_var(--color-accent)] transition-[left,width] duration-1000 ease-draw"
+          style={{ left: `${ready ? start : zero}%`, width: `${ready ? end - start : 0}%` }}
+        />
+        <div className="absolute top-3 -ml-px h-10 w-0.5 bg-ink" style={at(zero)} />
+        <span className="absolute -top-1.5 -translate-x-1/2 font-mono text-[11px] font-bold" style={at(zero)}>
           0
         </span>
-      </div>
-      <div className="flex justify-between gap-4 text-sm text-gray-600">
-        <span>
-          Pro-keep end
-          <strong className="block font-semibold tabular-nums text-gray-900">{formatKg(min)}</strong>
-        </span>
-        <span className="text-right">
-          Pro-replace end
-          <strong className="block font-semibold tabular-nums text-gray-900">{formatKg(max)}</strong>
-        </span>
-      </div>
-      <div className="flex justify-between gap-4 text-xs text-gray-500">
-        <span className="flex items-center gap-1.5">
-          <span aria-hidden className="size-2 rounded-full bg-emerald-500" />
-          below 0: keeping is better
-        </span>
-        <span className="flex items-center gap-1.5 text-right">
-          <span aria-hidden className="size-2 rounded-full bg-sky-500" />
-          above 0: replacing pays back
+        <div className={`${dimension} top-11 h-[26px] border-l border-dashed border-ink-2 ${shown}`} style={at(start)} />
+        <div className={`${dimension} top-11 h-[26px] border-l border-dashed border-ink-2 ${shown}`} style={at(end)} />
+        <div className={`${dimension} top-[63px] h-px bg-ink-2 ${shown}`} style={{ left: `${start}%`, width: `${end - start}%` }}>
+          <span className="absolute -top-1 left-0 border-y-[4.5px] border-r-[7px] border-y-transparent border-r-ink-2" />
+          <span className="absolute -top-1 right-0 border-y-[4.5px] border-l-[7px] border-y-transparent border-l-ink-2" />
+        </div>
+        <span
+          className={`${dimension} top-[72px] -translate-x-1/2 bg-surface px-1.5 font-mono text-[11px] font-bold whitespace-nowrap ${shown}`}
+          style={{ left: `clamp(84px, ${(start + end) / 2}%, calc(100% - 84px))` }}
+        >
+          {low} … {high} kg CO₂e
         </span>
       </div>
-    </figure>
-  )
-}
-
-function ScenarioCard({ title, hint, result }: { title: string; hint: string; result: ScenarioResult }) {
-  return (
-    <div className="rounded-xl border border-gray-200 p-3">
-      <p className="text-sm font-semibold text-gray-900">{title}</p>
-      <p className="text-xs text-gray-500">{hint}</p>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-        <OutcomeBadge outcome={result.outcome} />
-        <span className="text-sm tabular-nums text-gray-700">net {formatKg(result.net_kg)}</span>
+      <div className="flex justify-between gap-2 text-[13px] text-ink-2">
+        <span>← Keeping pays back</span>
+        <span>Replacing pays back →</span>
       </div>
     </div>
   )

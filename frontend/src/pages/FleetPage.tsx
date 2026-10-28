@@ -2,17 +2,20 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { describeError, getFleetSummary, getListings, listDevices, verifyEvents } from '../api/client'
 import { OUTCOMES, type DeviceSummary, type FleetSummary } from '../api/types'
+import { CheckIcon, CrossIcon } from '../components/icons'
 import { OutcomeBadge } from '../components/OutcomeBadge'
-import { ErrorNotice, Loading } from '../components/ui'
+import { EmptyState, ErrorNotice, Loading, PageIntro, SectionHeader, container, panelClass, secondaryButton } from '../components/ui'
+import { formatDateTime } from '../lib/format'
 import { OUTCOME_STYLE } from '../lib/outcomes'
 
 /** Technician stats (PRD 15.2) beyond the outcome counts. */
 interface Stats {
-  listed: number
+  listed: string[]
   intact: number
-  changed: number
+  changed: string[]
   /** Passports whose hash chain could be checked; the rest failed to answer. */
   checked: number
+  checkedAt: string
 }
 
 type State =
@@ -25,10 +28,19 @@ async function loadFleet() {
   // One check per device; a failed check is left out of the counts instead of failing the page.
   const checks = await Promise.allSettled(devices.map((device) => verifyEvents(device.id)))
   const results = checks.flatMap((check) => (check.status === 'fulfilled' ? [check.value] : []))
-  const intact = results.filter((result) => result.valid).length
-  const stats = { listed: listings.length, intact, changed: results.length - intact, checked: results.length }
+  const stats: Stats = {
+    listed: listings.map((listing) => listing.device_id),
+    intact: results.filter((result) => result.valid).length,
+    changed: results.filter((result) => !result.valid).map((result) => result.device_id),
+    checked: results.length,
+    checkedAt: new Date().toISOString(),
+  }
   return { devices, summary, stats }
 }
+
+/** "Hall A" from locations like "Hall A / Row 1". */
+const halls = (devices: DeviceSummary[]) => [...new Set(devices.map((d) => d.location.split(' / ')[0]))].join(', ')
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
 export function FleetPage() {
   const [state, setState] = useState<State>({ status: 'loading' })
@@ -54,17 +66,16 @@ export function FleetPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Fleet dashboard</h1>
-          <Link to="/technicians/new" className="text-sm font-semibold text-emerald-800 hover:underline">
-            + Add technician
-          </Link>
-        </div>
-        <p className="mt-1 text-sm text-gray-600">
-          What ReCompute recommends for each device, from its latest evaluation.
-        </p>
+    <div className={`${container} flex flex-col gap-8 pt-[clamp(24px,4vw,40px)] pb-16`}>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <PageIntro eyebrow="/ Fleet" title="Fleet dashboard">
+          {state.status === 'ready' && state.devices.length > 0 && (
+            <p className="text-sm text-ink-2">{`${halls(state.devices)} · ${plural(state.summary.devices, 'device')}`}</p>
+          )}
+        </PageIntro>
+        <Link to="/technicians/new" className={secondaryButton}>
+          + Add technician
+        </Link>
       </div>
       {state.status === 'loading' && <Loading label="Loading the fleet…" />}
       {state.status === 'error' && <ErrorNotice message={state.message} onRetry={retry} />}
@@ -76,63 +87,50 @@ export function FleetPage() {
 function Fleet({ devices, summary, stats }: { devices: DeviceSummary[]; summary: FleetSummary; stats: Stats }) {
   if (devices.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-gray-300 p-6 text-sm text-gray-600">
-        No devices yet. Load the sample fleet with <code className="font-mono">py scripts/seed.py</code> (see README).
-      </p>
+      <EmptyState title="No devices yet">
+        Load the sample fleet with <code className="font-mono">py scripts/seed.py</code> (see README).
+      </EmptyState>
     )
   }
 
   return (
     <>
-      <StatsTiles summary={summary} stats={stats} />
-      <section aria-labelledby="counts-heading">
-        <h2 id="counts-heading" className="sr-only">
-          Devices per outcome
-        </h2>
-        <p className="mb-3 text-sm text-gray-600">
-          {summary.devices} {summary.devices === 1 ? 'device' : 'devices'}
-          {summary.not_evaluated > 0 && ` · ${summary.not_evaluated} not evaluated yet`}
-        </p>
-        <ul aria-labelledby="counts-heading" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <StatsTiles devices={devices} summary={summary} stats={stats} />
+      <section aria-labelledby="per-outcome" className="flex flex-col gap-3.5">
+        <SectionHeader index="01" title="Devices per outcome" id="per-outcome" />
+        <ul
+          aria-label="Devices per outcome"
+          className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-px border border-line bg-line"
+        >
           {OUTCOMES.map((outcome) => (
-            <li key={outcome} className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
-              <span className="text-3xl font-semibold tabular-nums text-gray-900">{summary.counts[outcome]}</span>
-              <span>
+            <li key={outcome} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 bg-surface px-4 py-3.5">
+              <span className="justify-self-start">
                 <OutcomeBadge outcome={outcome} />
               </span>
-              <span className="text-xs leading-snug text-gray-500">{OUTCOME_STYLE[outcome].meaning}</span>
+              <span className="font-mono text-[22px] font-bold tabular-nums">{summary.counts[outcome]}</span>
+              <span className="col-span-full text-sm text-ink-2">{OUTCOME_STYLE[outcome].meaning}</span>
             </li>
           ))}
         </ul>
       </section>
-
-      <section aria-labelledby="devices-heading">
-        <h2 id="devices-heading" className="text-base font-semibold">
-          Devices
-        </h2>
-        <ul
-          aria-labelledby="devices-heading"
-          className="mt-3 divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
-        >
+      <section aria-labelledby="devices" className="flex flex-col gap-3.5">
+        <SectionHeader index="02" title="Devices" id="devices" />
+        <ul aria-label="Devices" className={panelClass}>
           {devices.map((device) => (
-            <li key={device.id}>
+            <li key={device.id} className="border-b border-sunken last:border-b-0">
               <Link
                 to={`/device/${encodeURIComponent(device.id)}`}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-emerald-50/60 focus-visible:bg-emerald-50 focus-visible:outline-none"
+                className="flex min-h-14 flex-wrap items-center gap-x-5 gap-y-1.5 px-4 py-2.5 text-ink no-underline hover:bg-raised"
               >
-                <span className="min-w-0 flex-1">
-                  <span className="block font-mono text-sm font-semibold text-gray-900">{device.id}</span>
-                  <span className="block truncate text-sm text-gray-600">{device.location}</span>
-                  <span className="block truncate text-xs text-gray-500">{device.model}</span>
+                <span className="flex-[0_0_120px] font-mono text-sm font-bold">{device.id}</span>
+                <span className="flex min-w-0 flex-[1_1_220px] flex-col">
+                  <span className="text-[15px] font-semibold">{device.model}</span>
+                  <span className="text-[13px] text-ink-2">{device.location}</span>
                 </span>
                 <OutcomeBadge outcome={device.latest_outcome} />
-                <svg aria-hidden viewBox="0 0 20 20" fill="currentColor" className="size-5 shrink-0 text-gray-400">
-                  <path
-                    fillRule="evenodd"
-                    d="M7.2 14.8a.75.75 0 0 1 0-1.06L10.94 10 7.2 6.26a.75.75 0 1 1 1.06-1.06l4.27 4.27a.75.75 0 0 1 0 1.06l-4.27 4.27a.75.75 0 0 1-1.06 0Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <span aria-hidden className="font-mono text-accent">
+                  →
+                </span>
               </Link>
             </li>
           ))}
@@ -142,34 +140,62 @@ function Fleet({ devices, summary, stats }: { devices: DeviceSummary[]; summary:
   )
 }
 
-function StatsTiles({ summary, stats }: { summary: FleetSummary; stats: Stats }) {
-  const tiles = [
-    { label: 'Devices', value: String(summary.devices) },
-    { label: 'Not evaluated', value: String(summary.not_evaluated) },
-    { label: 'Listed for sale', value: String(stats.listed) },
-    { label: 'Passports intact', value: `${stats.intact} of ${stats.checked}` },
+interface Tile {
+  label: string
+  value: string
+  sub: string
+  tone?: 'ok' | 'danger'
+}
+
+function StatsTiles({ devices, summary, stats }: { devices: DeviceSummary[]; summary: FleetSummary; stats: Stats }) {
+  const allIntact = stats.checked > 0 && stats.intact === stats.checked
+  const tiles: Tile[] = [
+    { label: 'Devices', value: String(summary.devices), sub: `in ${halls(devices)}` },
+    {
+      label: 'Not evaluated',
+      value: String(summary.not_evaluated),
+      sub: summary.not_evaluated === 0 ? 'rule has run on all' : 'press Evaluate on each',
+    },
+    { label: 'Listed for sale', value: String(stats.listed.length), sub: stats.listed.join(', ') || 'none listed' },
+    {
+      label: 'Passports intact',
+      value: `${stats.intact} of ${stats.checked}`,
+      sub:
+        stats.checked < devices.length
+          ? `${devices.length - stats.checked} could not be checked`
+          : `checked ${formatDateTime(stats.checkedAt)}`,
+      tone: allIntact ? 'ok' : undefined,
+    },
+    {
+      label: 'Passports changed',
+      value: String(stats.changed.length),
+      sub: stats.changed.join(', ') || 'none detected',
+      tone: stats.changed.length > 0 ? 'danger' : undefined,
+    },
   ]
-  const tileClass = 'flex flex-col gap-1 rounded-xl border bg-white p-3 shadow-sm'
   return (
-    <ul aria-label="Fleet stats" className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+    <ul aria-label="Fleet stats" className="flex flex-wrap gap-px border border-line bg-line">
       {tiles.map((tile) => (
-        <li key={tile.label} className={`${tileClass} border-gray-200`}>
-          <span className="text-2xl font-semibold tabular-nums text-gray-900">{tile.value}</span>
-          <span className="text-xs text-gray-600">{tile.label}</span>
+        // Status is shown with an icon and words, never colour alone.
+        <li
+          key={tile.label}
+          className={`flex min-w-0 flex-[1_1_160px] flex-col gap-1.5 p-4 ${tile.tone === 'danger' ? 'bg-danger-bg shadow-[inset_3px_0_0_var(--color-danger)]' : 'bg-surface'}`}
+        >
+          <span className={`font-mono text-[11px] font-semibold tracking-[.06em] uppercase ${tile.tone === 'danger' ? 'text-danger-ink' : 'text-ink-2'}`}>
+            {tile.label}
+          </span>
+          <span
+            className={`flex items-center gap-2 text-[30px] leading-[1.1] font-bold tracking-[-.02em] tabular-nums ${
+              tile.tone === 'ok' ? 'text-ok' : tile.tone === 'danger' ? 'text-danger' : 'text-ink'
+            }`}
+          >
+            {tile.tone === 'ok' && <CheckIcon size={18} />}
+            {tile.tone === 'danger' && <CrossIcon size={18} />}
+            {tile.value}
+          </span>
+          <span className="text-xs break-words text-ink-2">{tile.sub}</span>
         </li>
       ))}
-      {/* Status shown with an icon and words, never colour alone. */}
-      <li className={`${tileClass} ${stats.changed > 0 ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}>
-        <span className="text-2xl font-semibold tabular-nums text-gray-900">
-          {stats.changed > 0 && (
-            <span aria-hidden className="mr-1 text-red-700">
-              ✘
-            </span>
-          )}
-          {stats.changed}
-        </span>
-        <span className="text-xs text-gray-600">Passports changed</span>
-      </li>
     </ul>
   )
 }

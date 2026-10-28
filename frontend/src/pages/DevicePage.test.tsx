@@ -20,6 +20,7 @@ vi.mock('../api/client', async (importOriginal) => ({
   verifyEvents: vi.fn(),
   listDevice: vi.fn(),
   unlistDevice: vi.fn(),
+  getContact: vi.fn(async () => (await import('../../../contracts/examples/contact.json')).default),
 }))
 
 const detail = deviceDetail as DeviceDetail
@@ -72,8 +73,8 @@ describe('device page', () => {
 
     expect(await screen.findByText(detail.latest_evaluation!.reason)).toBeTruthy()
     expect(screen.getByRole('img', { name: /from \+100 kg CO₂e to \+1,200 kg CO₂e; zero is marked/ })).toBeTruthy()
-    expect(screen.getByText('Pro-keep end', { selector: 'p' })).toBeTruthy()
-    expect(screen.getByText('Pro-replace end', { selector: 'p' })).toBeTruthy()
+    expect(screen.getByText('Pro-keep end')).toBeTruthy()
+    expect(screen.getByText('Pro-replace end')).toBeTruthy()
     expect(screen.getByText('net +100 kg CO₂e')).toBeTruthy()
     expect(screen.getByText('net +1,200 kg CO₂e')).toBeTruthy()
     expect(screen.getByText('WL-LAB')).toBeTruthy()
@@ -94,7 +95,7 @@ describe('device page', () => {
     vi.mocked(client.getDevice).mockResolvedValue({ ...detail, latest_evaluation: insufficient as Evaluation })
     renderDevice()
 
-    expect(await screen.findByText(/Missing inputs/)).toBeTruthy()
+    expect(await screen.findByText(/missing inputs/i)).toBeTruthy()
     expect(screen.getByText('I_old', { selector: 'li' })).toBeTruthy()
     expect(screen.queryByRole('img', { name: /Net saving/ })).toBeNull()
   })
@@ -107,11 +108,21 @@ describe('device page', () => {
     expect(screen.getAllByText('NOT EVALUATED').length).toBeGreaterThan(0)
   })
 
-  it('shows the API message for an unknown device', async () => {
+  it('tells a visitor who scanned an unknown ID to check it, instead of showing the API message', async () => {
     vi.mocked(client.getDevice).mockRejectedValue(new client.ApiError(404, error404.error))
     renderDevice('NOPE')
 
-    expect((await screen.findByRole('alert')).textContent).toContain(error404.error)
+    expect(await screen.findByRole('heading', { name: 'No page or device at this address' })).toBeTruthy()
+    expect(screen.queryByText(error404.error)).toBeNull()
+  })
+
+  it('shows the API message and Try again for other errors', async () => {
+    vi.mocked(client.getDevice).mockRejectedValueOnce(new client.ApiError(0, 'Cannot reach the ReCompute server.'))
+    renderDevice()
+
+    expect((await screen.findByRole('alert')).textContent).toContain('Cannot reach')
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }))
+    expect(await screen.findByRole('list', { name: 'Passport events' })).toBeTruthy()
   })
 
   it('offers the six technician actions, without telemetry', async () => {
@@ -144,7 +155,7 @@ describe('device page', () => {
     // No actor in the body: the server takes it from the login token.
     expect(client.addEvent).toHaveBeenCalledWith('GPU-SRV-001', { kind: 'wipe', payload: { note: 'wiped for redeploy' } })
     expect(screen.queryByLabelText(/Your name/)).toBeNull()
-    expect(await screen.findByText('Added wipe event #4 to the passport.')).toBeTruthy()
+    expect(await screen.findByText(/as event #4/)).toBeTruthy()
     const items = within(screen.getByRole('list', { name: 'Passport events' })).getAllByRole('listitem')
     expect(items).toHaveLength(4)
     expect(items[0].textContent).toContain('wiped for redeploy')
@@ -188,7 +199,8 @@ describe('passport integrity badge', () => {
 
     renderDevice()
 
-    expect(await screen.findByText(/passport intact/i)).toBeTruthy()
+    // Shown on the identity card and in the history header.
+    expect(await screen.findAllByText(/passport intact/i)).toHaveLength(2)
     expect(client.verifyEvents).toHaveBeenCalledWith('GPU-SRV-001')
   })
 
@@ -202,7 +214,8 @@ describe('passport integrity badge', () => {
 
     renderDevice()
 
-    expect(await screen.findByText(/changed at event #2/i)).toBeTruthy()
+    expect((await screen.findAllByText(/changed at event #2/i)).length).toBeGreaterThan(0)
+    expect(screen.queryByText(/passport intact/i)).toBeNull()
   })
 
   it('still shows the passport when the check cannot run', async () => {
@@ -210,7 +223,7 @@ describe('passport integrity badge', () => {
 
     renderDevice()
 
-    expect(await screen.findByText(/integrity check unavailable/i)).toBeTruthy()
+    expect((await screen.findAllByText(/integrity check unavailable/i)).length).toBeGreaterThan(0)
     expect(screen.getByRole('list', { name: 'Passport events' })).toBeTruthy()
   })
 })
@@ -289,7 +302,7 @@ describe('sale listing', () => {
     vi.mocked(client.getDevice).mockResolvedValue({ ...withHistory, events: withHistory.events.slice(0, 2) })
     renderDevice()
 
-    expect(await screen.findByText(/Record a wipe event first/)).toBeTruthy()
+    expect(await screen.findByText(/Listing needs a/)).toBeTruthy()
     expect((screen.getByRole('button', { name: 'List for sale' }) as HTMLButtonElement).disabled).toBe(true)
   })
 

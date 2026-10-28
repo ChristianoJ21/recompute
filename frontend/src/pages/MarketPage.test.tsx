@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it } from 'vitest'
 import { App } from '../App'
@@ -38,7 +39,7 @@ describe('market page', () => {
 })
 
 describe('forecast charts', () => {
-  it('draws one chart per series with source and page on every point', () => {
+  it('draws one chart per series with source and page on every point', async () => {
     render(
       <ForecastCharts
         points={[
@@ -51,9 +52,14 @@ describe('forecast charts', () => {
     )
 
     expect(screen.getAllByRole('img')).toHaveLength(2)
-    const table = screen.getAllByRole('table')[0]
+    const toTable = screen.getAllByRole('button', { name: 'Table' })[0]
+    expect(toTable.getAttribute('aria-pressed')).toBe('false')
+    await userEvent.click(toTable)
+    expect(toTable.getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getAllByRole('img')).toHaveLength(1)
+    const table = screen.getByRole('table')
     expect(within(table).getAllByText('Test source, p. 12')).toHaveLength(3)
-    expect(within(table).getByText('forecast')).toBeTruthy()
+    expect(within(table).getByText('Forecast')).toBeTruthy()
   })
 
   it('leaves out any point that is not traced to an evidence row', () => {

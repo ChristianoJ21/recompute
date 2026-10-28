@@ -10,6 +10,7 @@ import {
   SESSION_KEY,
   addEvent,
   addTechnician,
+  changePassword,
   currentSession,
   evaluateDevice,
   getContact,
@@ -22,6 +23,7 @@ import {
   qrCodeUrl,
   subscribeSession,
   unlistDevice,
+  updateProfile,
 } from './client'
 
 const fetchMock = vi.fn<typeof fetch>()
@@ -224,5 +226,42 @@ describe('adding a technician', () => {
     const [url, init] = fetchMock.mock.calls[0]
     expect(url).toBe('/api/auth/technicians')
     expect(JSON.parse(init?.body as string)).toEqual(account)
+  })
+})
+
+describe('own account (contract v2.3)', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', fetchMock)
+  })
+
+  it('changes the full name and keeps the stored login in step', async () => {
+    signIn()
+    const listener = vi.fn()
+    const unsubscribe = subscribeSession(listener)
+    fetchMock.mockResolvedValue(jsonResponse({ username: TECH_SESSION.technician.username, name: 'New Name' }))
+
+    await updateProfile('New Name')
+
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(url).toBe('/api/auth/me')
+    expect(init?.method).toBe('PATCH')
+    expect(JSON.parse(init?.body as string)).toEqual({ name: 'New Name' })
+    expect(currentSession()?.technician.name).toBe('New Name')
+    expect(currentSession()?.token).toBe('test-token')
+    expect(listener).toHaveBeenCalled()
+    unsubscribe()
+  })
+
+  it('changes the password with the current one', async () => {
+    signIn()
+    fetchMock.mockResolvedValue(jsonResponse(TECH_SESSION.technician))
+
+    await changePassword('old password 1', 'new password 22')
+
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(url).toBe('/api/auth/password')
+    expect(init?.method).toBe('POST')
+    expect(JSON.parse(init?.body as string)).toEqual({ current_password: 'old password 1', new_password: 'new password 22' })
+    expect(currentSession()).not.toBeNull()
   })
 })

@@ -1,42 +1,39 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { addTechnician, describeError } from '../api/client'
-import { ErrorNotice, primaryButton } from '../components/ui'
+import { ErrorNotice, Notice, TextField, panelClass, primaryButton } from '../components/ui'
 
 const MIN_PASSWORD = 10 // same rule as the backend (api/auth.py)
 
-const fieldClass =
-  'mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/30'
+type Field = 'username' | 'name' | 'password'
 
 /** Technicians add technicians; there is no public sign-up and no buyer account (PRD 15.5). */
 export function AddTechnicianPage() {
-  const [username, setUsername] = useState('')
-  const [name, setName] = useState('')
-  const [password, setPassword] = useState('')
+  const [values, setValues] = useState<Record<Field, string>>({ username: '', name: '', password: '' })
+  const [problems, setProblems] = useState<Partial<Record<Field, string>>>({})
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [added, setAdded] = useState<string | null>(null)
-  const ids = useId()
+  const set = (field: Field) => (event: { target: { value: string } }) => setValues({ ...values, [field]: event.target.value })
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
     setError(null)
     setAdded(null)
-    if (!username.trim() || !name.trim()) {
-      setError('Fill in a username and the full name.')
-      return
-    }
-    if (password.length < MIN_PASSWORD) {
-      setError(`The password needs at least ${MIN_PASSWORD} characters.`)
-      return
-    }
+    const username = values.username.trim()
+    const name = values.name.trim()
+    const found: Partial<Record<Field, string>> = {}
+    if (!username) found.username = 'Enter a username.'
+    if (!name) found.name = 'Enter the full name.'
+    if (values.password.length < MIN_PASSWORD) found.password = `Password needs at least ${MIN_PASSWORD} characters.`
+    setProblems(found)
+    if (Object.keys(found).length > 0) return
+
     setSaving(true)
     try {
-      const technician = await addTechnician({ username: username.trim(), name: name.trim(), password })
-      setAdded(`Added ${technician.name}: ${technician.username} can now log in.`)
-      setUsername('')
-      setName('')
-      setPassword('')
+      const technician = await addTechnician({ username, name, password: values.password })
+      setAdded(technician.username)
+      setValues({ username: '', name: '', password: '' })
     } catch (err) {
       setError(describeError(err))
     } finally {
@@ -45,72 +42,47 @@ export function AddTechnicianPage() {
   }
 
   return (
-    <div className="mx-auto max-w-sm space-y-6 py-4">
-      <div>
-        <Link to="/fleet" className="text-sm font-semibold text-emerald-800 hover:underline">
-          ← Fleet dashboard
-        </Link>
-        <h1 className="mt-3 text-2xl font-semibold tracking-tight">Add a technician</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Give a colleague their own login, so the passport records who did what. Only logged-in technicians can add
-          accounts; buyers never need one (they use the contact box). Tell your colleague the password in person.
-        </p>
+    <div className="mx-auto flex w-full max-w-[520px] flex-col gap-5 px-4 pt-[clamp(28px,5vw,56px)] pb-16">
+      <Link to="/fleet" className="inline-flex min-h-8 items-center self-start font-mono text-xs text-accent no-underline hover:underline">
+        ← Fleet
+      </Link>
+      <div className="flex flex-col gap-1.5">
+        <h1 className="text-[30px] leading-[1.1] font-bold tracking-[-.03em]">Add a technician</h1>
+        <p className="text-[15px] text-ink-2">Creates a login for a colleague. Share the password with them in person.</p>
       </div>
-      <form
-        onSubmit={submit}
-        noValidate
-        className="space-y-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6"
-      >
-        <div>
-          <label htmlFor={`${ids}-username`} className="text-sm font-medium text-gray-900">
-            Username
-          </label>
-          <input
-            id={`${ids}-username`}
-            autoComplete="off"
-            autoCapitalize="none"
-            maxLength={64}
-            placeholder="e.g. tech-2"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className={fieldClass}
-          />
-          <p className="mt-1 text-xs text-gray-500">Letters, digits, dot, dash or underscore.</p>
-        </div>
-        <div>
-          <label htmlFor={`${ids}-name`} className="text-sm font-medium text-gray-900">
-            Full name
-          </label>
-          <input
-            id={`${ids}-name`}
-            maxLength={200}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={fieldClass}
-          />
-        </div>
-        <div>
-          <label htmlFor={`${ids}-password`} className="text-sm font-medium text-gray-900">
-            Password <span className="font-normal text-gray-500">(at least {MIN_PASSWORD} characters)</span>
-          </label>
-          <input
-            id={`${ids}-password`}
-            type="password"
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={fieldClass}
-          />
-        </div>
-        {error && <ErrorNotice message={error} />}
+      <form onSubmit={submit} noValidate className={`flex flex-col gap-4 p-5 ${panelClass}`}>
         {added && (
-          <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-900">
-            ✔ {added}
-          </p>
+          <Notice tone="success">
+            <strong>Technician added.</strong> {added} can log in now.
+          </Notice>
         )}
-        <button type="submit" className={`${primaryButton} w-full`} disabled={saving}>
-          {saving ? 'Adding…' : 'Add technician'}
-        </button>
+        {error && <ErrorNotice message={error} />}
+        <TextField
+          label="Username"
+          mono
+          autoComplete="off"
+          autoCapitalize="none"
+          maxLength={64}
+          hint="Letters, digits, dot, dash or underscore."
+          error={problems.username}
+          value={values.username}
+          onChange={set('username')}
+        />
+        <TextField label="Full name" maxLength={200} error={problems.name} value={values.name} onChange={set('name')} />
+        <TextField
+          label="Password"
+          type="password"
+          autoComplete="new-password"
+          hint={`At least ${MIN_PASSWORD} characters.`}
+          error={problems.password}
+          value={values.password}
+          onChange={set('password')}
+        />
+        <div>
+          <button type="submit" className={`${primaryButton} min-h-12 px-5 text-[15px]`} disabled={saving}>
+            {saving ? 'Adding…' : 'Add technician'}
+          </button>
+        </div>
       </form>
     </div>
   )

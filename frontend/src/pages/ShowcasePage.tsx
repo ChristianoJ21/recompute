@@ -1,10 +1,24 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { describeError, getContact, getListings } from '../api/client'
-import type { Contact, Listing, PassportEvent } from '../api/types'
+import type { Contact, Listing } from '../api/types'
+import { EnvelopeIcon, CheckIcon, CrossIcon } from '../components/icons'
+import { IntegrityBadge } from '../components/IntegrityBadge'
 import { OutcomeBadge } from '../components/OutcomeBadge'
-import { Card, ErrorNotice, Loading, secondaryButton } from '../components/ui'
-import { formatDate, formatDateTime, formatPrice } from '../lib/format'
+import { Schematic } from '../components/Schematic'
+import {
+  EmptyState,
+  ErrorNotice,
+  Loading,
+  SectionHeader,
+  container,
+  monoLabel,
+  panelClass,
+  primaryButton,
+  secondaryButton,
+} from '../components/ui'
+import { formatComponents, formatDate, formatDateTime, formatDeviceType, formatPrice, telemetryReadings } from '../lib/format'
+import { enquiryLink } from '../lib/listing'
 
 type State =
   | { status: 'loading' }
@@ -35,82 +49,110 @@ export function ShowcasePage() {
     setAttempt((n) => n + 1)
   }
 
+  const count = state.status === 'ready' ? `${state.listings.length} ${state.listings.length === 1 ? 'device' : 'devices'}` : undefined
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Available hardware</h1>
-        <p className="mt-1 max-w-2xl text-sm text-gray-600">
-          Devices a (fictional) data centre has released after a ReCompute review. Each one carries its passport:
-          open it to check the history, the data wipe and whether the record is still intact. Prices are sample asking
-          prices; this demo sells nothing.
-        </p>
-      </div>
-      <HowItWorks />
-      {state.status === 'loading' && <Loading label="Loading the listed hardware…" />}
-      {state.status === 'error' && <ErrorNotice message={state.message} onRetry={retry} />}
-      {state.status === 'ready' && (
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            {state.listings.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-gray-300 p-6 text-sm text-gray-600">
-                No hardware is listed right now.
-              </p>
+    <>
+      <section className="border-b border-line">
+        <div className={`${container} flex flex-col gap-4 py-[clamp(32px,5vw,64px)]`}>
+          <p className="font-mono text-xs font-semibold tracking-[.08em] text-accent uppercase">/ Available hardware</p>
+          <h1 className="max-w-[20ch] text-[clamp(32px,4.4vw,54px)] leading-[1.05] font-bold tracking-[-.03em] text-balance">
+            Second-life AI servers, each with a passport you can check.
+          </h1>
+          <p className="max-w-[62ch] text-[clamp(16px,1.4vw,18px)] text-pretty text-ink-2">
+            ReCompute helps a data centre keep AI servers in use longer instead of scrapping them early. Every device
+            carries a digital passport of what happened to it, a decision rule recommends its next life, and released
+            hardware is listed here with that passport attached.
+          </p>
+        </div>
+      </section>
+      <div className={`${container} flex flex-col gap-[clamp(40px,5vw,56px)] pt-[clamp(32px,4vw,48px)] pb-16`}>
+        <section aria-labelledby="how" className="flex flex-col gap-3.5">
+          <SectionHeader index="01" title="How ReCompute works" id="how" />
+          <Schematic />
+        </section>
+        <section aria-labelledby="listed" className="flex flex-col gap-3.5">
+          <SectionHeader index="02" title="Listed hardware" id="listed" aside={count} />
+          {state.status === 'loading' && <Loading label="Loading listings…" />}
+          {state.status === 'error' && <ErrorNotice message={state.message} onRetry={retry} />}
+          {state.status === 'ready' &&
+            (state.listings.length === 0 ? (
+              <EmptyState title="No hardware is listed right now">Released devices appear here with their passport.</EmptyState>
             ) : (
-              <ul aria-label="Listed hardware" className="space-y-4">
+              <ul aria-label="Listed hardware" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] gap-4">
                 {state.listings.map((listing) => (
                   <ListingCard key={listing.device_id} listing={listing} email={state.contact.email} />
                 ))}
               </ul>
-            )}
-          </div>
-          <ContactBox contact={state.contact} />
-        </div>
-      )}
-    </div>
+            ))}
+        </section>
+        {state.status === 'ready' && <ContactBox contact={state.contact} />}
+      </div>
+    </>
   )
 }
 
+const dt = 'border-b border-sunken px-4 py-2 font-mono text-xs text-ink-2'
+const dd = 'border-b border-sunken py-2 pr-4'
+
 function ListingCard({ listing, email }: { listing: Listing; email: string }) {
-  const components = listing.components.map((c) => `${c.type} ${c.model}`).join(', ')
+  const telemetry = listing.latest_telemetry
   return (
-    <li className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="text-base font-semibold text-gray-900">{listing.model}</h2>
-          <p className="font-mono text-xs text-gray-500">{listing.device_id}</p>
-        </div>
+    <li className={`flex flex-col ${panelClass} transition-[translate,box-shadow] duration-200 hover:-translate-y-[3px] hover:shadow-panel-hover`}>
+      <div className="flex items-center justify-between gap-2 border-b border-line bg-raised px-4 py-2.5">
+        <span className="font-mono text-[13px] font-bold">{listing.device_id}</span>
         <OutcomeBadge outcome={listing.latest_outcome} />
       </div>
-
-      <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-2xl font-semibold tabular-nums text-gray-900">{formatPrice(listing.price)}</p>
-          <p className="text-xs text-gray-500">Sample asking price</p>
+      <div className="flex flex-col gap-3.5 p-4">
+        <h3 className="text-[19px] leading-tight font-bold tracking-[-.01em]">{listing.model}</h3>
+        <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2.5">
+          <div className="flex flex-col gap-0.5">
+            <span className={monoLabel}>Sample asking price</span>
+            <span className="text-[30px] leading-[1.1] font-bold tracking-[-.02em] tabular-nums">{formatPrice(listing.price)}</span>
+          </div>
+          <IntegrityBadge integrity={{ status: listing.passport_intact ? 'intact' : 'changed' }} />
         </div>
-        <IntactBadge intact={listing.passport_intact} />
       </div>
-
-      <dl className="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-        <Fact label="Type">{listing.device_type}</Fact>
-        <Fact label="Installed">{formatDate(listing.install_date)}</Fact>
-        <Fact label="Components">{components || 'none recorded'}</Fact>
-        <Fact label="Reliability check">{listing.reliability_ok ? 'passed' : 'failed'}</Fact>
-        <Fact label="Data wiped">{listing.wiped_at ? formatDateTime(listing.wiped_at) : 'not recorded'}</Fact>
-        <Fact label="Latest telemetry">
-          {listing.latest_telemetry ? <TelemetrySummary event={listing.latest_telemetry} /> : 'none yet'}
-        </Fact>
+      <dl className="grid grid-cols-[max-content_minmax(0,1fr)] border-t border-line text-sm">
+        <dt className={dt}>type</dt>
+        <dd className={dd}>{formatDeviceType(listing.device_type)}</dd>
+        <dt className={dt}>installed</dt>
+        <dd className={dd}>{formatDate(listing.install_date)}</dd>
+        <dt className={dt}>components</dt>
+        <dd className={dd}>{formatComponents(listing.components) || 'none recorded'}</dd>
+        <dt className={dt}>reliability</dt>
+        <dd className={`${dd} flex items-center gap-1.5`}>
+          {listing.reliability_ok ? <CheckIcon size={13} /> : <CrossIcon size={13} />}
+          {listing.reliability_ok ? 'Check passed' : 'Check failed'}
+        </dd>
+        <dt className={dt}>data wipe</dt>
+        <dd className={dd}>{listing.wiped_at ? formatDateTime(listing.wiped_at) : 'not recorded'}</dd>
+        <dt className={`${dt} border-b-0`}>telemetry</dt>
+        <dd className="flex flex-col gap-1.5 py-2 pr-4">
+          {telemetry ? (
+            <>
+              <span className="flex flex-wrap gap-x-3.5 gap-y-1 font-mono text-[13px]">
+                {telemetryReadings(telemetry.payload).map((reading) => (
+                  <span key={reading.label}>
+                    <span className="text-ink-2">{reading.label}</span> <strong className="font-bold">{reading.value}</strong>
+                  </span>
+                ))}
+              </span>
+              <span className="text-xs text-ink-2">Read {formatDateTime(telemetry.created_at)}</span>
+            </>
+          ) : (
+            'none yet'
+          )}
+        </dd>
       </dl>
-      {listing.note && <p className="mt-3 text-sm text-gray-800">{listing.note}</p>}
-
-      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
-        <Link
-          to={`/device/${encodeURIComponent(listing.device_id)}`}
-          className="text-sm font-semibold text-emerald-800 hover:underline"
-        >
+      {listing.note && <p className="border-t border-line px-4 py-3 text-sm text-ink-2">{listing.note}</p>}
+      <div className="mt-auto flex flex-wrap gap-2 px-4 pt-3 pb-4">
+        <Link to={`/device/${encodeURIComponent(listing.device_id)}`} className={`${primaryButton} flex-[1_1_170px]`}>
           Open the passport →
         </Link>
         {/* Opens the visitor's own e-mail app: no account, and the app stores nothing. */}
-        <a href={enquiryLink(email, listing)} className={secondaryButton}>
+        <a href={enquiryLink(email, listing.device_id)} className={`${secondaryButton} flex-[1_1_170px]`}>
+          <EnvelopeIcon />
           Ask about this device
         </a>
       </div>
@@ -118,102 +160,38 @@ function ListingCard({ listing, email }: { listing: Listing; email: string }) {
   )
 }
 
-function Fact({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div>
-      <dt className="text-xs text-gray-500">{label}</dt>
-      <dd className="text-gray-900">{children}</dd>
-    </div>
-  )
-}
-
-// Labels like "simulated" and "sample_data" are shown by the page itself, so only readings are listed here.
-function TelemetrySummary({ event }: { event: PassportEvent }) {
-  const readings = Object.entries(event.payload)
-    .filter(([key, value]) => key !== 'simulated' && key !== 'sample_data' && typeof value !== 'object')
-    .slice(0, 4)
-    .map(([key, value]) => `${key}: ${String(value)}`)
-  return (
-    <>
-      <span className="block">{readings.join(', ') || 'no readings'}</span>
-      <span className="block text-xs text-gray-500">{formatDateTime(event.created_at)}</span>
-    </>
-  )
-}
-
-function IntactBadge({ intact }: { intact: boolean }) {
-  const base = 'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold'
-  return intact ? (
-    <span className={`${base} border-emerald-300 bg-emerald-50 text-emerald-900`}>
-      <span aria-hidden>✔</span> Passport intact
-    </span>
-  ) : (
-    <span className={`${base} border-red-300 bg-red-50 text-red-900`}>
-      <span aria-hidden>✘</span> Passport changed
-    </span>
-  )
-}
+const contactKey = 'pt-0.5 font-mono text-xs text-ink-2'
 
 function ContactBox({ contact }: { contact: Contact }) {
   return (
-    <aside>
-      <Card title="Contact the data centre">
-        <p className="font-semibold text-gray-900">{contact.organisation}</p>
-        <dl className="mt-3 space-y-2 text-sm">
-          <div>
-            <dt className="text-xs text-gray-500">E-mail</dt>
-            <dd>
-              <a href={`mailto:${contact.email}`} className="font-semibold text-emerald-800 underline underline-offset-2">
-                {contact.email}
-              </a>
-            </dd>
-          </div>
+    <section aria-labelledby="contact" className="flex flex-col gap-3.5">
+      <SectionHeader index="03" title="Contact the data centre" id="contact" />
+      <div className={`grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-x-10 gap-y-4 p-5 ${panelClass}`}>
+        <p className="max-w-[46ch] text-[15px] text-ink-2">
+          Interested in a device? E-mail the data centre with its device ID. There is no order form; your own e-mail app
+          opens.
+        </p>
+        <dl className="grid grid-cols-[max-content_minmax(0,1fr)] gap-x-4 gap-y-2 text-[15px]">
+          <dt className={contactKey}>organisation</dt>
+          <dd>{contact.organisation}</dd>
+          <dt className={contactKey}>e-mail</dt>
+          <dd>
+            <a href={`mailto:${contact.email}`} className="font-semibold text-accent underline underline-offset-[3px]">
+              {contact.email}
+            </a>
+          </dd>
           {contact.phone && (
-            <div>
-              <dt className="text-xs text-gray-500">Phone</dt>
+            <>
+              <dt className={contactKey}>phone</dt>
               <dd>{contact.phone}</dd>
-            </div>
+            </>
           )}
-          <div>
-            <dt className="text-xs text-gray-500">Hours</dt>
-            <dd>{contact.hours}</dd>
-          </div>
+          <dt className={contactKey}>hours</dt>
+          <dd>{contact.hours}</dd>
+          <dt className={contactKey}>note</dt>
+          <dd>{contact.note}</dd>
         </dl>
-        <p className="mt-3 text-sm text-gray-600">Quote the device ID when you ask about it. {contact.note}</p>
-      </Card>
-    </aside>
-  )
-}
-
-function enquiryLink(email: string, listing: Listing): string {
-  const subject = `Enquiry about ${listing.device_id} (${listing.model})`
-  const body = `Hello,\n\nI am interested in device ${listing.device_id} listed at ${formatPrice(listing.price)}.\n`
-  return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-}
-
-const STEPS = [
-  { title: 'Every device has a passport', text: 'Repairs, upgrades, data wipes and readings are recorded and cannot be changed unnoticed.' },
-  { title: 'A rule decides its next life', text: 'Keep, upgrade, redeploy or recycle: chosen by whether replacing it would really save emissions.' },
-  { title: 'Released hardware is offered here', text: 'Only after a recorded data wipe, with the full passport for any buyer to check.' },
-]
-
-function HowItWorks() {
-  return (
-    <ol aria-label="How ReCompute works" className="grid gap-3 sm:grid-cols-3">
-      {STEPS.map((step, i) => (
-        <li key={step.title} className="flex gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
-          <span
-            aria-hidden
-            className="grid size-7 shrink-0 place-items-center rounded-full bg-emerald-700 text-sm font-semibold text-white"
-          >
-            {i + 1}
-          </span>
-          <span>
-            <span className="block text-sm font-semibold text-gray-900">{step.title}</span>
-            <span className="block text-xs leading-snug text-gray-600">{step.text}</span>
-          </span>
-        </li>
-      ))}
-    </ol>
+      </div>
+    </section>
   )
 }

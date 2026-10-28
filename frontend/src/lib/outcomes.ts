@@ -4,45 +4,45 @@ export interface OutcomeStyle {
   label: string
   /** One plain-language line, worded like the engine's reasons. */
   meaning: string
+  /** Border, background and text colour of the badge (full class strings so Tailwind finds them). */
   badge: string
 }
 
-// Full class strings (not built from parts) so Tailwind finds them at build time.
 export const OUTCOME_STYLE: Record<Outcome, OutcomeStyle> = {
   KEEP: {
     label: 'KEEP',
     meaning: 'Replacing would not pay back its manufacturing emissions',
-    badge: 'border-emerald-300 bg-emerald-100 text-emerald-900',
+    badge: 'border-ok-line bg-ok-bg text-ok',
   },
   UPGRADE: {
     label: 'UPGRADE',
     meaning: 'Replace one component instead of the whole device',
-    badge: 'border-sky-300 bg-sky-100 text-sky-900',
+    badge: 'border-upgrade-line bg-upgrade-bg text-upgrade',
   },
   REDEPLOY: {
     label: 'REDEPLOY',
     meaning: 'Move it to a lighter workload',
-    badge: 'border-violet-300 bg-violet-100 text-violet-900',
+    badge: 'border-redeploy-line bg-redeploy-bg text-redeploy',
   },
   RECYCLE: {
     label: 'RECYCLE',
     meaning: 'Formal recycling, with its passport',
-    badge: 'border-slate-300 bg-slate-200 text-slate-800',
+    badge: 'border-recycle-line bg-recycle-bg text-recycle',
   },
   UNCERTAIN: {
     label: 'UNCERTAIN',
     meaning: 'The answer changes within the input ranges; a human decides',
-    badge: 'border-amber-300 bg-amber-100 text-amber-900',
+    badge: 'border-uncertain-line bg-uncertain-bg text-uncertain',
   },
   INSUFFICIENT_DATA: {
     label: 'INSUFFICIENT DATA',
     meaning: 'Inputs are missing, and the engine never guesses them',
-    badge: 'border-gray-300 bg-gray-100 text-gray-700',
+    badge: 'border-dashed border-insufficient-line bg-insufficient-bg text-insufficient',
   },
 }
 
 export const NOT_EVALUATED_STYLE: OutcomeStyle = {
   label: 'NOT EVALUATED',
   meaning: 'The decision rule has not run on this device yet',
-  badge: 'border-dashed border-gray-300 bg-white text-gray-500',
+  badge: 'border-dashed border-line-strong bg-transparent text-not-evaluated',
 }

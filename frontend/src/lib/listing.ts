@@ -10,3 +10,8 @@ export function currentListing(events: PassportEvent[]): PassportEvent | null {
 
 /** The API refuses a listing until the passport holds a wipe event. */
 export const hasWipe = (events: PassportEvent[]): boolean => events.some((event) => event.kind === 'wipe')
+
+/** Opens the visitor's own e-mail app with the device ID in the subject; the app stores nothing. */
+export function enquiryLink(email: string, deviceId: string): string {
+  return `mailto:${email}?subject=${encodeURIComponent(`About ${deviceId} (ReCompute demo)`)}`
+}

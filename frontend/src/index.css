@@ -1,12 +1,172 @@
 @import "tailwindcss";
 
+/* Design tokens from docs/design_handoff (rc-theme.js). Light values here; dark values below on
+   [data-theme=dark], which index.html sets on <html> before the first paint. */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+
+  --color-ink: #0E1116;
+  --color-ink-2: #4A4F57;
+  --color-ink-3: #6A6F77;
+  --color-line-strong: #A9A9A0;
+  --color-line-mid: #C8C8C0;
+  --color-line: #D6D6CF;
+  --color-sunken: #EBEBE6;
+  --color-page: #F4F4F1;
+  --color-raised: #FAFAF8;
+  --color-surface: #FFFFFF;
+  --color-grid: #E6E6DF;
+  --color-accent: #2443C9;
+  --color-accent-hover: #16298A;
+  --color-on-ink-2: #C9CCD1;
+  --color-code-fg: #E6E8EB;
+  --color-ok: #1D6B3B;
+  --color-ok-bg: #E4F2E8;
+  --color-ok-line: #A9D3B7;
+  --color-ok-ink: #14492A;
+  --color-upgrade: #0B5F86;
+  --color-upgrade-bg: #E2F0F8;
+  --color-upgrade-line: #A6CFE6;
+  --color-redeploy: #5B3597;
+  --color-redeploy-bg: #EEE8F8;
+  --color-redeploy-line: #CBBBEA;
+  --color-recycle: #3F4855;
+  --color-recycle-bg: #E8EBEF;
+  --color-recycle-line: #BCC3CD;
+  --color-uncertain: #8A4600;
+  --color-uncertain-bg: #FCE9D6;
+  --color-uncertain-line: #EBBE8E;
+  --color-insufficient: #4A4A4A;
+  --color-insufficient-bg: #EEEEEE;
+  --color-insufficient-line: #A0A0A0;
+  --color-not-evaluated: #5A5F67;
+  --color-danger: #B3261E;
+  --color-danger-bg: #FBE9E7;
+  --color-danger-line: #EBA8A1;
+  --color-danger-ink: #7A1A14;
+  --color-note-bg: #FBF6E6;
+  --color-note-line: #E3CC85;
+  --color-note-ink: #3D2C00;
+  --color-note-icon: #5E4300;
+  --color-bar: #0E1116;
+  --color-bar-line: #0E1116;
+  --color-bar-fg: #FFFFFF;
+  --color-bar-fg2: #C9CCD1;
+  --color-bar-fg3: #8C929B;
+  /* SAMPLE DATA chip: the same in both themes. */
+  --color-sample: #F2D27A;
+  --color-sample-ink: #2E2100;
+
+  --radius-ctl: 2px;
+  --shadow-panel: 0 1px 2px rgba(14, 17, 22, 0.06), 0 10px 28px -14px rgba(14, 17, 22, 0.22);
+  --shadow-panel-hover: 0 2px 4px rgba(14, 17, 22, 0.08), 0 18px 36px -16px rgba(14, 17, 22, 0.35);
+  --shadow-offset: 4px 4px 0 var(--color-ink);
+  --shadow-lift: 3px 3px 0 var(--color-accent);
+  --ease-draw: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --animate-flow-x: rc-flow-x 0.8s linear infinite;
+  --animate-flow-y: rc-flow-y 0.8s linear infinite;
+  --animate-shift: rc-shift 0.6s var(--ease-draw);
+  --animate-pop: rc-pop 0.5s 0.25s both;
+  --animate-scan: rc-scan 2.4s ease-in-out infinite;
+  --animate-pulse-live: rc-pulse 1.6s ease-in-out infinite;
+  --animate-tick: rc-tick 0.3s ease-out both;
+
+  @keyframes rc-flow-x { to { background-position: 24px 0; } }
+  @keyframes rc-flow-y { to { background-position: 0 24px; } }
+  @keyframes rc-shift { from { transform: translateX(52px); } to { transform: none; } }
+  @keyframes rc-pop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+  @keyframes rc-scan { 0% { top: 4%; } 50% { top: 92%; } 100% { top: 4%; } }
+  @keyframes rc-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+  @keyframes rc-tick { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-ink: #E8EAED;
+  --color-ink-2: #A9AEB6;
+  --color-ink-3: #8A9099;
+  --color-line-strong: #4A5059;
+  --color-line-mid: #3A3F47;
+  --color-line: #2C3038;
+  --color-sunken: #1F232A;
+  --color-page: #0B0D10;
+  --color-raised: #1A1D23;
+  --color-surface: #14171C;
+  --color-grid: #151920;
+  --color-accent: #8EA2FF;
+  --color-accent-hover: #B5C2FF;
+  --color-on-ink-2: #4A4F57;
+  --color-code-fg: #14171C;
+  --color-ok: #6FD08F;
+  --color-ok-bg: #10291A;
+  --color-ok-line: #2B5A3C;
+  --color-ok-ink: #A6E3BA;
+  --color-upgrade: #79C4EC;
+  --color-upgrade-bg: #0D2533;
+  --color-upgrade-line: #24506A;
+  --color-redeploy: #C2A6F2;
+  --color-redeploy-bg: #221A33;
+  --color-redeploy-line: #4A3A70;
+  --color-recycle: #B8C1CD;
+  --color-recycle-bg: #1E2329;
+  --color-recycle-line: #434B57;
+  --color-uncertain: #F3B072;
+  --color-uncertain-bg: #2E1D0C;
+  --color-uncertain-line: #6A4520;
+  --color-insufficient: #C2C2C2;
+  --color-insufficient-bg: #222222;
+  --color-insufficient-line: #5A5A5A;
+  --color-not-evaluated: #A9AEB6;
+  --color-danger: #FF8A80;
+  --color-danger-bg: #3A1412;
+  --color-danger-line: #7A2E28;
+  --color-danger-ink: #FFB4AB;
+  --color-note-bg: #2A2210;
+  --color-note-line: #5E4A12;
+  --color-note-ink: #F2D27A;
+  --color-note-icon: #F2D27A;
+  --color-bar: #000000;
+  --color-bar-line: #2C3038;
+  --shadow-panel: 0 0 0 1px rgba(255, 255, 255, 0.02), 0 14px 32px -12px rgba(0, 0, 0, 0.75);
+  --shadow-panel-hover: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 20px 40px -14px rgba(0, 0, 0, 0.85);
+}
+
 @layer base {
   :root {
-    /* White-and-green demo; keep phones in dark mode from inverting form controls. */
     color-scheme: light;
   }
 
   body {
-    @apply bg-white text-gray-900 antialiased;
+    @apply bg-page font-sans text-base/normal text-ink antialiased;
+    /* Blueprint grid behind every page. */
+    background-image:
+      linear-gradient(var(--color-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  button:not(:disabled),
+  [role="button"] {
+    cursor: pointer;
+  }
+}
+
+/* Visitors who asked for less motion get the final state at once. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -43,7 +43,7 @@ describe('add technician page', () => {
       name: 'Technician Two',
       password: 'another long password',
     })
-    expect(await screen.findByText(/tech-2 can now log in/)).toBeTruthy()
+    expect(await screen.findByText(/tech-2 can log in now/)).toBeTruthy()
   })
 
   it('checks the password length before calling the API', async () => {
