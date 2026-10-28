@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* White-and-green demo; keep phones in dark mode from inverting form controls. */
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-white text-gray-900 antialiased;
+  }
+}
