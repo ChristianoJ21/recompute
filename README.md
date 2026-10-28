@@ -19,9 +19,11 @@ py -m uvicorn api.main:create_app --factory --port 8000   # API at http://localh
 ```
 
 - Database: `backend/recompute.db` (SQLite, created on first start). Override with env `RECOMPUTE_DB_URL`.
-- QR codes point to `http://localhost:8501/device?id=<id>`. Override with env `RECOMPUTE_FRONTEND_URL` (use `{device_id}` as the placeholder), e.g. the laptop's LAN address so a phone can open it at the exhibition.
+- QR codes point to `http://localhost:5173/device/<id>`. Override with env `RECOMPUTE_FRONTEND_URL` (use `{device_id}` as the placeholder), e.g. the laptop's LAN address so a phone can open it at the exhibition.
 - After changing an endpoint: update `contracts/api_contract.md`, run `py -m tools.export_examples`, tell Jose.
 
 ## Frontend
+
+React + Vite + TypeScript + Tailwind (Node 20+). It reaches the API through the Vite proxy (`/api` → `http://localhost:8000`).
 
 (Jose: add run instructions here.)

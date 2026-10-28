@@ -1,6 +1,6 @@
 # PRD: ReCompute Demo App
 
-> **Version:** 1.0 · 28 October 2026 · Owner: Panji
+> **Version:** 1.2 · 28 October 2026 · Owner: Panji · v1.1: decision engine (§5.2) aligned with the essay · v1.2: frontend switched from Streamlit to React + Vite + TypeScript + Tailwind
 > **Readers:** Panji, Jose, AI Agent A (backend), AI Agent B (frontend)
 > **Architecture overview:** https://claude.ai/artifact/BNMfdbkQ71VdABKVZMjBjD (share it from the page's Share menu)
 > **Essay first.** No app work before the essay is submitted (Fri 30 Oct). Build during judging (1–8 Nov) so the demo is ready if we reach the Top 5 (announced 9 Nov, Grand Final 14 Nov).
@@ -73,10 +73,10 @@ recompute-app/
 │   ├── api/main.py            # FastAPI app
 │   └── tests/
 ├── frontend/                  # Jose + Agent B ONLY
-│   ├── app.py                 # Streamlit entry
-│   ├── pages/                 # fleet, device, scan
-│   ├── api_client.py          # the only file that calls the backend
-│   └── tests/
+│   ├── package.json           # React + Vite + TypeScript + Tailwind, Vitest
+│   ├── vite.config.ts         # proxy /api -> http://localhost:8000 (dev + preview)
+│   ├── src/pages/             # fleet (/), device (/device/:id)
+│   └── src/api/client.ts      # the only file that calls the backend
 ├── data/
 │   └── sample_devices.json    # Jose + Agent B; every value labelled sample
 └── scripts/
@@ -84,7 +84,7 @@ recompute-app/
     └── simulate_telemetry.py  # appends fake telemetry events (Jose)
 ```
 
-**Stack:** Python 3.11+, FastAPI, SQLAlchemy, SQLite for the demo (same models run on PostgreSQL, which the essay names), Streamlit, `qrcode` library, pytest.
+**Stack:** backend: Python 3.11+, FastAPI, SQLAlchemy, SQLite for the demo (same models run on PostgreSQL, which the essay names), `qrcode` library, pytest. Frontend: Node 20+, React + Vite + TypeScript + Tailwind CSS (compiled at build time, no CDN), React Router, Vitest. The frontend reaches the API through Vite's proxy (`/api/*` → `http://localhost:8000/*`), so no CORS setup is needed; at the venue, `vite build` + `vite preview --host` serves it offline to phones on the laptop's network.
 
 **Why this split works:** the backend and frontend meet only at `contracts/`. Each person and agent writes only in their own folder, so two humans and two AI agents can work in parallel without merge conflicts.
 
@@ -220,7 +220,7 @@ Errors: `{"error": "<what went wrong and how to fix it>"}` with 400 / 404. No PU
 |---|---|---|
 | Day 1 end | Panji → Jose | `contracts/` final + example JSON responses |
 | Day 1–2 | Jose | Builds pages against the example JSON (no backend needed yet) |
-| Day 3 | Panji → Jose | Running API; Jose switches `api_client.py` from examples to live |
+| Day 3 | Panji → Jose | Running API; Jose switches `src/api/client.ts` from examples to live |
 | Day 4 | Both | Integration test with seeded sample fleet |
 
 ---
@@ -233,7 +233,7 @@ Paste the block for your agent at the start of its session, together with this P
 > You are building the ReCompute backend. Read `PRD_ReCompute_App.md` Sections 4–8. Write code only in `recompute-app/backend/` and `recompute-app/contracts/` (contracts only when Panji asks). Implement the engine as pure functions in `engine/decision.py` exactly as Section 5.2 says, test-first with pytest, covering all six outcomes. Events are append-only: never write UPDATE or DELETE for events. Do not invent data or sources. Ask Panji when the spec is unclear instead of guessing.
 
 **Agent B (frontend):**
-> You are building the ReCompute frontend in Streamlit. Read `PRD_ReCompute_App.md` Sections 2–4, 7 and 8. Write code only in `recompute-app/frontend/`, `recompute-app/data/` and `recompute-app/scripts/`. Call the backend only through `frontend/api_client.py`, and build against `contracts/examples/*.json` until the API is live. Show a visible "SAMPLE DATA" label on every page. Colours: white and green. Do not invent real-world figures. Ask Jose when the spec is unclear instead of guessing.
+> You are building the ReCompute frontend with React + Vite + TypeScript + Tailwind CSS. Read `PRD_ReCompute_App.md` Sections 2–4, 7 and 8. Write code only in `recompute-app/frontend/`, `recompute-app/data/` and `recompute-app/scripts/`. Call the backend only through `frontend/src/api/client.ts` via the Vite proxy (`/api/*` → `http://localhost:8000/*`), and build against `contracts/examples/*.json` until the API is live. The device page lives at `/device/:id` (the QR codes open it) and must work on a phone screen. Show a visible "SAMPLE DATA" label on every page. Colours: white and green. Do not invent real-world figures. Ask Jose when the spec is unclear instead of guessing.
 
 **Both agents:** small commits, one feature per commit (`feat:`, `fix:`, `test:`), tests passing before handing back.
 
@@ -276,7 +276,7 @@ If we are not in the Top 5, stop on 9 Nov; the work stays useful for portfolios.
 | Spec drifts from essay Section 4 | Panji owns the spec; essay wins on conflict |
 | Agents edit each other's folders | Folder ownership in Section 4 and agent prompts |
 | Judges mistake sample numbers for results | SAMPLE DATA label on every page; say it aloud in the demo |
-| Wi-Fi fails at the venue | Runs fully offline on a laptop (SQLite + local Streamlit) |
+| Wi-Fi fails at the venue | Runs fully offline on a laptop (SQLite + built frontend via `vite preview --host`; Tailwind compiled at build time, no CDN) |
 
 ## 14. Definition of done
 - F1–F7 work end to end on a seeded sample fleet.

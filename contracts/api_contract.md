@@ -1,6 +1,6 @@
-# ReCompute API contract v1.1
+# ReCompute API contract v1.2
 
-> **Owner:** Panji (backend). **Changes need Jose's OK.** The frontend calls the backend only through `frontend/api_client.py`.
+> **Owner:** Panji (backend). **Changes need Jose's OK.** The frontend calls the backend only through `frontend/src/api/client.ts`, via the Vite proxy (`/api/*` → `http://localhost:8000/*`; no CORS needed).
 > Spec: `PRD_ReCompute_App.md` Sections 5–7. Base URL (local): `http://localhost:8000`. Interactive docs: `/docs`.
 > **Every number is SAMPLE DATA.** Show the label on every page; never present a value as a measurement.
 
@@ -28,7 +28,7 @@
 | POST | `/devices/{id}/events` | 201 | `{id, device_id, created_at, kind, payload, actor}` |
 | POST | `/devices/{id}/evaluate` | 200 | evaluation object (below); also stored as the device's latest evaluation |
 | GET | `/fleet/summary` | 200 | `{counts: {KEEP, UPGRADE, REDEPLOY, RECYCLE, UNCERTAIN, INSUFFICIENT_DATA}, devices, not_evaluated, sample_data}`; counts use each device's latest evaluation; all six keys always present |
-| GET | `/devices/{id}/qr` | 200 | PNG; encodes the frontend device-page URL (default `http://localhost:8501/device?id={id}`, set with env `RECOMPUTE_FRONTEND_URL`) |
+| GET | `/devices/{id}/qr` | 200 | PNG; encodes the frontend device-page URL (default `http://localhost:5173/device/{id}`, set with env `RECOMPUTE_FRONTEND_URL` using the placeholder `{device_id}`) |
 | GET | `/workloads` | 200 | `[{id, name, W}]` (lighter jobs for REDEPLOY) |
 | POST | `/workloads` | 201 | the created workload |
 
@@ -89,3 +89,4 @@ Dates: ISO 8601 UTC with `Z`. Dates without time: `YYYY-MM-DD`.
 
 ## Changelog
 - **v1.1 (28 Oct 2026)**: engine aligned with essay safeguard 2 (whole pathway run at both ends; any flip → UNCERTAIN). Added `scenarios` to the evaluation object and `not_evaluated` to the fleet summary.
+- **v1.2 (28 Oct 2026)**: frontend is React + Vite; QR codes now open `http://localhost:5173/device/{id}` (was the Streamlit URL on port 8501). No endpoint or JSON shape changed.
