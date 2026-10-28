@@ -14,8 +14,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from db.chain import GENESIS_HASH, event_hash, verify
 from db.models import Device, Evaluation, Event, Workload, make_session_factory, utcnow
 from engine.decision import OUTCOMES, evaluate
 
@@ -103,6 +105,12 @@ def find_device(session, device_id):
     return device
 
 
+def head_hash(session, device_id):
+    """Hash of the device's newest event, i.e. what the next event links to."""
+    latest = session.scalar(select(Event.hash).where(Event.device_id == device_id).order_by(Event.id.desc()).limit(1))
+    return latest or GENESIS_HASH
+
+
 def latest_results(session):
     """{device_id: latest evaluation result}, in one query."""
     latest_ids = select(func.max(Evaluation.id)).group_by(Evaluation.device_id)
@@ -152,10 +160,23 @@ def create_device(body: DeviceIn, session=Depends(get_session)):
 @router.post("/devices/{device_id}/events", status_code=201)
 def add_event(device_id: str, body: EventIn, session=Depends(get_session)):
     find_device(session, device_id)
-    event = Event(device_id=device_id, created_at=utcnow(), **body.model_dump())
+    fields = {"device_id": device_id, "created_at": utcnow(), **body.model_dump(),
+              "prev_hash": head_hash(session, device_id)}
+    event = Event(**fields, hash=event_hash(**fields))
     session.add(event)
-    session.commit()
+    try:
+        session.commit()
+    except IntegrityError as error:
+        session.rollback()
+        raise HTTPException(409, f"Another event for '{device_id}' was written at the same moment; "
+                                 "send this event again.") from error
     return event.to_dict()
+
+
+@router.get("/devices/{device_id}/events/verify")
+def verify_events(device_id: str, session=Depends(get_session)):
+    find_device(session, device_id)
+    return verify(device_id, list(session.scalars(select(Event).where(Event.device_id == device_id).order_by(Event.id))))
 
 
 @router.post("/devices/{device_id}/evaluate")

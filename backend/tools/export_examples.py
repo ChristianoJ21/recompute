@@ -26,6 +26,7 @@ def main():
     examples["event_created"] = client.post(
         "/devices/GPU-SRV-001/events",
         json={"kind": "wipe", "payload": {"note": "NIST SP 800-88 Purge (sample)"}, "actor": "tech-1"}).json()
+    examples["events_verify"] = client.get("/devices/GPU-SRV-001/events/verify").json()
     examples["device_create_request"] = DEVICES[0]
     examples["devices_list"] = client.get("/devices").json()
     examples["device_detail"] = client.get("/devices/GPU-SRV-001").json()

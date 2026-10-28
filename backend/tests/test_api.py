@@ -128,6 +128,90 @@ def test_database_refuses_to_rewrite_events(app, fleet, statement):
         session.execute(text(statement))
 
 
+# ---- hash chain (stretch S1) -----------------------------------------------
+
+GENESIS = "0" * 64
+
+
+def without_triggers(app, statement):
+    """Simulate someone with direct database access: drop the append-only guards, then rewrite."""
+    with app.state.session_factory() as session:
+        session.execute(text("DROP TRIGGER events_no_update"))
+        session.execute(text("DROP TRIGGER events_no_delete"))
+        session.execute(text(statement))
+        session.commit()
+
+
+def test_events_are_linked_into_a_chain_per_device(fleet):
+    first = add_event(fleet).json()
+    second = add_event(fleet).json()
+    other = add_event(fleet, device_id="GPU-SRV-002").json()
+
+    assert first["prev_hash"] == GENESIS
+    assert second["prev_hash"] == first["hash"]
+    assert other["prev_hash"] == GENESIS
+    assert len({first["hash"], second["hash"], other["hash"]}) == 3
+    assert all(len(e["hash"]) == 64 and int(e["hash"], 16) >= 0 for e in (first, second, other))
+
+
+def test_intact_chain_verifies(fleet):
+    add_event(fleet, kind="scan")
+    last = add_event(fleet, kind="wipe").json()
+
+    body = fleet.get("/devices/GPU-SRV-001/events/verify").json()
+
+    assert body == {"device_id": "GPU-SRV-001", "valid": True, "events_checked": 2,
+                    "head_hash": last["hash"], "first_bad_event_id": None, "reason": None}
+
+
+def test_device_without_events_verifies_as_empty_chain(fleet):
+    body = fleet.get("/devices/GPU-SRV-001/events/verify").json()
+
+    assert body["valid"] is True and body["events_checked"] == 0 and body["head_hash"] == GENESIS
+
+
+def test_changed_event_is_detected(app, fleet):
+    add_event(fleet)
+    changed = add_event(fleet).json()
+    add_event(fleet)
+    without_triggers(app, f"UPDATE events SET payload = '{{\"note\": \"forged\"}}' WHERE id = {changed['id']}")
+
+    body = fleet.get("/devices/GPU-SRV-001/events/verify").json()
+
+    assert body["valid"] is False
+    assert body["first_bad_event_id"] == changed["id"]
+    assert "changed" in body["reason"]
+
+
+def test_removed_event_is_detected(app, fleet):
+    add_event(fleet)
+    removed = add_event(fleet).json()
+    after = add_event(fleet).json()
+    without_triggers(app, f"DELETE FROM events WHERE id = {removed['id']}")
+
+    body = fleet.get("/devices/GPU-SRV-001/events/verify").json()
+
+    assert body["valid"] is False
+    assert body["first_bad_event_id"] == after["id"]
+    assert "removed" in body["reason"]
+
+
+def test_verify_unknown_device_returns_404(client):
+    assert client.get("/devices/NOPE/events/verify").status_code == 404
+
+
+def test_simultaneous_write_cannot_fork_the_chain(fleet, monkeypatch):
+    import api.main
+    add_event(fleet)
+    monkeypatch.setattr(api.main, "head_hash", lambda session, device_id: GENESIS)  # a stale read
+
+    response = add_event(fleet)
+
+    assert response.status_code == 409
+    assert "again" in response.json()["error"]
+    assert fleet.get("/devices/GPU-SRV-001/events/verify").json()["valid"] is True
+
+
 # ---- evaluation ------------------------------------------------------------
 
 def test_reference_fleet_gets_expected_outcomes_through_the_api(fleet):
@@ -183,6 +267,7 @@ def test_qr_for_unknown_device_returns_404(client):
     ("device_detail", "/devices/GPU-SRV-001"),
     ("fleet_summary", "/fleet/summary"),
     ("workloads_list", "/workloads"),
+    ("events_verify", "/devices/GPU-SRV-001/events/verify"),
 ])
 def test_contract_examples_have_live_shape(fleet, name, path):
     for device_id in EXPECTED:

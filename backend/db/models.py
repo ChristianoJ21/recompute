@@ -1,7 +1,7 @@
 """Passport data model (PRD Section 6). Events are append-only: no UPDATE or DELETE anywhere."""
 from datetime import date, datetime, timezone
 
-from sqlalchemy import JSON, Boolean, Date, DateTime, ForeignKey, Integer, String, create_engine, text
+from sqlalchemy import JSON, Boolean, Date, DateTime, ForeignKey, Integer, String, UniqueConstraint, create_engine, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -55,6 +55,8 @@ class Device(Base):
 
 class Event(Base):
     __tablename__ = "events"
+    # Two events can never claim the same predecessor, so simultaneous writes cannot fork the chain.
+    __table_args__ = (UniqueConstraint("device_id", "prev_hash", name="uq_events_chain_link"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     device_id: Mapped[str] = mapped_column(ForeignKey("devices.id"), index=True)
@@ -62,13 +64,14 @@ class Event(Base):
     kind: Mapped[str] = mapped_column(String(20))
     payload: Mapped[dict] = mapped_column(JSON, default=dict)
     actor: Mapped[str] = mapped_column(String(100))
-    prev_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)  # stretch S1
-    hash: Mapped[str | None] = mapped_column(String(64), nullable=True)       # stretch S1
+    prev_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)  # stretch S1, see db/chain.py
+    hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
     def to_dict(self):
         return {
             "id": self.id, "device_id": self.device_id, "created_at": iso(self.created_at),
             "kind": self.kind, "payload": self.payload, "actor": self.actor,
+            "prev_hash": self.prev_hash, "hash": self.hash,
         }
 
 

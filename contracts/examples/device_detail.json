@@ -45,12 +45,14 @@
     {
       "id": 1,
       "device_id": "GPU-SRV-001",
-      "created_at": "2026-10-28T11:45:05Z",
+      "created_at": "2026-10-28T12:08:41Z",
       "kind": "wipe",
       "payload": {
         "note": "NIST SP 800-88 Purge (sample)"
       },
-      "actor": "tech-1"
+      "actor": "tech-1",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "766369ccb1f8feb6b2115e69759898e062a54fcfad91fdf2b47145873561452d"
     }
   ],
   "latest_evaluation": {
@@ -71,7 +73,7 @@
         "net_kg": 1200.0
       }
     },
-    "evaluated_at": "2026-10-28T11:45:05Z",
+    "evaluated_at": "2026-10-28T12:08:41Z",
     "sample_data": true
   }
 }
