@@ -38,7 +38,8 @@ export function Layout() {
       <footer data-theme="dark" className="bg-night text-[13px] text-night-fg2">
         <div className={`${container} flex flex-wrap justify-between gap-x-8 gap-y-2.5 py-7`}>
           <p className="max-w-[62ch] text-night-fg">
-            Every number in this demo is sample data (toy values). Nothing here is a measurement.
+            Devices, prices and passports in this demo are sample data (toy values), not measurements. Market charts
+            show published figures, each with its source and page.
           </p>
           <p className="font-mono text-xs">ReCompute · student demo · GYEBC 2026</p>
         </div>
