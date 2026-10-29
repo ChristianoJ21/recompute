@@ -41,9 +41,8 @@ describe('market page', () => {
     ]) {
       expect(screen.getByRole('heading', { name: title })).toBeTruthy()
     }
-    // Four charts; the blurred hero photo is decoration (alt=""), credited by a link.
+    // Four charts; Chip and the other illustrations are decoration (aria-hidden), so they are not counted as images.
     expect(screen.getAllByRole('img').filter((el) => el.tagName.toLowerCase() !== 'img')).toHaveLength(4)
-    expect(screen.getByRole('link', { name: 'Tyler Daviaux / Unsplash' })).toBeTruthy()
     expect(screen.getAllByText(/^Source: Baldé et al\., 2024, pp\. [\d, ]+\./)).toHaveLength(2)
     expect(screen.getAllByText(/^Source: Shehabi et al\., 2024, p\. 30\./)).toHaveLength(2)
     expect(screen.queryByText(/MOCK DATA/)).toBeNull()

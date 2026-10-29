@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import type { ForecastPoint } from '../api/types'
+import { Chip } from '../design/Art'
 import { Notice, panelClass } from './ui'
 
 // PRD 15.4: one unit and one source per chart (never two units on one axis), source + page on every point,
@@ -64,13 +65,10 @@ export function ForecastCharts({ points, mock = false }: ForecastChartsProps) {
 
   if (groups.size === 0) {
     return (
-      <section className="flex flex-col items-center gap-2.5 border border-dashed border-line-strong bg-surface px-5 py-[clamp(32px,6vw,64px)] text-center">
-        <svg width="56" height="40" viewBox="0 0 56 40" aria-hidden>
-          <path d="M2 2v36h52" fill="none" strokeWidth="1.5" className="stroke-line-strong" />
-          <path d="M8 30l12-8 10 4 10-12 10 4" fill="none" strokeWidth="1.5" strokeDasharray="3 3" className="stroke-line-mid" />
-        </svg>
-        <h2 className="text-xl font-bold">Waiting for verified figures</h2>
-        <p className="max-w-[46ch] text-[15px] text-ink-2">
+      <section className="flex flex-col items-center gap-3 rounded-panel border-2 border-dashed border-line-strong bg-surface px-5 py-[clamp(32px,6vw,64px)] text-center">
+        <Chip pose="sleep" anim={['zzz']} className="aspect-[204/214] w-24" />
+        <h2 className="text-2xl font-extrabold">Waiting for verified figures</h2>
+        <p className="max-w-[46ch] text-[15px] font-medium text-ink-2">
           Charts appear here once published figures have been checked against their source and page. No placeholder
           numbers are shown.
         </p>
@@ -105,28 +103,29 @@ function ChartPanel({ points }: { points: ForecastPoint[] }) {
   const multi = lines.length > 1
   const hasNotes = points.some((point) => point.note)
   const columns = ['Year', ...(multi ? ['Series'] : []), `Value (${unit})`, 'Type', 'Source', 'Evidence row', ...(hasNotes ? ['Note'] : [])]
-  const cell = 'border-b border-sunken px-4 py-2.5'
+  const cell = 'border-b-2 border-dashed border-line px-4 py-2.5'
   const toggle = (value: 'chart' | 'table', label: string) => (
     <button
       type="button"
       aria-pressed={view === value}
       onClick={() => setView(value)}
-      className={`min-h-10 px-3.5 text-[13px] font-semibold ${view === value ? 'bg-ink text-surface' : 'bg-surface text-ink'}`}
+      className={`min-h-10 rounded-[11px] px-3.5 text-[13px] font-bold transition-[scale,background-color] duration-200 ease-spring active:scale-95 ${view === value ? 'bg-ink text-surface' : 'text-ink'}`}
     >
       {label}
     </button>
   )
 
   return (
-    <section aria-labelledby={headingId} className={panelClass}>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
-        <div className="flex flex-col">
-          <h2 id={headingId} className="text-lg font-bold">
+    <section aria-labelledby={headingId} className={`relative ${panelClass}`}>
+      <span aria-hidden className="rc-tape" />
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-dashed border-line px-4 py-4">
+        <div className="flex flex-col gap-0.5">
+          <h2 id={headingId} className="text-[22px] leading-[1.1] font-extrabold">
             {title}
           </h2>
           <span className="font-mono text-xs text-ink-2">unit: {unit}</span>
         </div>
-        <div role="group" aria-label="View" className="flex border border-line-strong">
+        <div role="group" aria-label="View" className="flex gap-1 rounded-[14px] bg-sunken p-1">
           {toggle('chart', 'Chart')}
           {toggle('table', 'Table')}
         </div>
@@ -143,7 +142,7 @@ function ChartPanel({ points }: { points: ForecastPoint[] }) {
             <thead>
               <tr className="text-left font-mono text-[11px] tracking-[.06em] text-ink-2 uppercase">
                 {columns.map((column) => (
-                  <th key={column} className="border-b border-line px-4 py-2.5 font-semibold">
+                  <th key={column} className="border-b-2 border-dashed border-line px-4 py-2.5 font-semibold">
                     {column}
                   </th>
                 ))}
@@ -229,6 +228,10 @@ function Plot({ title, unit, lines }: PlotProps) {
   const labelled =
     multi && ends.every((a, i) => ends.every((b, j) => i === j || a.year !== b.year || Math.abs(y(a.value) - y(b.value)) >= 13))
   const shown = points.find((point) => pointId(point) === active) ?? null
+  // A hand-written note at the newest published figure (single-line charts only: with several lines the end labels name them).
+  const latest = multi ? null : ([...points].filter((point) => point.kind !== 'forecast').sort((a, b) => a.year - b.year).at(-1) ?? null)
+  const noteRight = latest !== null && x(latest.year) > W * 0.55
+  const noteY = latest === null ? 0 : y(latest.value) < PAD.top + 24 ? y(latest.value) + 30 : y(latest.value) - 16
   const describe = (point: ForecastPoint) =>
     [
       `${multi ? `${point.series}, ` : ''}${point.year}: ${number.format(point.value)} ${unit} (${kindLabel(point).toLowerCase()})`,
@@ -239,7 +242,8 @@ function Plot({ title, unit, lines }: PlotProps) {
       .join(', ')
 
   return (
-    <div className="relative">
+    // data-draw: recompute-motion.js draws the .rc-draw lines in and fades the .rc-fill markers when the chart scrolls into view.
+    <div data-draw="1" className="relative">
       <svg
         role="img"
         aria-label={`${title}: ${multi ? `${lines.length} lines, ` : ''}${points.length} points from ${first} to ${last}; forecasts drawn hollow and dashed. Values are in the table view.`}
@@ -248,13 +252,21 @@ function Plot({ title, unit, lines }: PlotProps) {
       >
         {ticks.map((tick) => (
           <g key={tick}>
-            {tick > 0 && <line x1={PAD.left} x2={W - right} y1={y(tick)} y2={y(tick)} className="stroke-sunken" strokeWidth="1" />}
+            {tick > 0 && <line x1={PAD.left} x2={W - right} y1={y(tick)} y2={y(tick)} className="stroke-line" strokeWidth="1.5" strokeDasharray="4 6" />}
             <text x={PAD.left - 8} y={y(tick)} dy="0.32em" textAnchor="end" fontSize="11" className="fill-ink-2 font-mono">
               {number.format(tick)}
             </text>
           </g>
         ))}
-        <path d={`M${PAD.left} ${PAD.top}V${H - PAD.bottom}H${W - right}`} fill="none" className="stroke-ink" strokeWidth="1" />
+        {/* Hand-drawn axes: two slightly bowed strokes instead of ruler-straight lines. */}
+        <path
+          d={`M${PAD.left} ${PAD.top}Q${PAD.left - 1.8} ${(PAD.top + H - PAD.bottom) / 2} ${PAD.left} ${H - PAD.bottom}Q${(PAD.left + W - right) / 2} ${H - PAD.bottom + 2.2} ${W - right} ${H - PAD.bottom - 0.6}`}
+          fill="none"
+          className="rc-draw stroke-ink"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
         {years.map((year) => (
           <text key={year} x={x(year)} y={H - 8} textAnchor="middle" fontSize="11" className="fill-ink-2 font-mono">
             {year}
@@ -268,27 +280,42 @@ function Plot({ title, unit, lines }: PlotProps) {
               y1={y(line.points[k].value)}
               x2={x(point.year)}
               y2={y(point.value)}
-              className={SLOTS[i % SLOTS.length].stroke}
-              strokeWidth="2"
+              className={`rc-draw ${SLOTS[i % SLOTS.length].stroke}`}
+              strokeWidth="3"
               strokeLinecap="round"
-              strokeDasharray={point.kind === 'forecast' ? '5 4' : undefined}
+              strokeDasharray={point.kind === 'forecast' ? '6 5' : undefined}
             />
           )),
         )}
-        {lines.map((line, i) =>
-          line.points.map((point) => (
-            <g key={pointId(point)}>
-              {/* Surface ring keeps markers readable where lines cross or points coincide. */}
-              <circle cx={x(point.year)} cy={y(point.value)} r="6.5" className="fill-surface" />
-              <circle
-                cx={x(point.year)}
-                cy={y(point.value)}
-                r="4.5"
-                className={`${SLOTS[i % SLOTS.length].stroke} ${point.kind === 'forecast' ? 'fill-surface' : SLOTS[i % SLOTS.length].fill}`}
-                strokeWidth="2"
-              />
-            </g>
-          )),
+        <g className="rc-fill">
+          {lines.map((line, i) =>
+            line.points.map((point) => (
+              <g key={pointId(point)}>
+                {/* Surface ring keeps markers readable where lines cross or points coincide. */}
+                <circle cx={x(point.year)} cy={y(point.value)} r="7" className="fill-surface" />
+                <circle
+                  cx={x(point.year)}
+                  cy={y(point.value)}
+                  r="4.8"
+                  className={`${SLOTS[i % SLOTS.length].stroke} ${point.kind === 'forecast' ? 'fill-surface' : SLOTS[i % SLOTS.length].fill}`}
+                  strokeWidth="2.4"
+                />
+              </g>
+            )),
+          )}
+        </g>
+        {latest && (
+          <text
+            aria-hidden
+            x={x(latest.year) + (noteRight ? -8 : 10)}
+            y={noteY}
+            textAnchor={noteRight ? 'end' : 'start'}
+            fontSize="18"
+            className="fill-annot"
+            style={{ fontFamily: 'var(--font-hand)' }}
+          >
+            latest: {number.format(latest.value)} ({latest.year})
+          </text>
         )}
         {labelled &&
           lines.map((line, i) => (
@@ -316,7 +343,7 @@ function Plot({ title, unit, lines }: PlotProps) {
       {shown && (
         <div
           role="tooltip"
-          className="pointer-events-none absolute z-10 w-max max-w-64 -translate-x-1/2 -translate-y-[calc(100%+14px)] bg-ink px-2.5 py-2 font-mono text-xs leading-[1.45] text-surface"
+          className="pointer-events-none absolute z-10 w-max max-w-64 -translate-x-1/2 -translate-y-[calc(100%+14px)] rounded-xl bg-ink px-3 py-2.5 font-mono text-xs leading-[1.45] text-surface shadow-panel"
           style={{ left: `${(x(shown.year) / W) * 100}%`, top: `${(y(shown.value) / H) * 100}%` }}
         >
           {multi && (
@@ -333,7 +360,7 @@ function Plot({ title, unit, lines }: PlotProps) {
             </>
           )}
           <br />
-          <span className="text-on-ink-2">Source: {cite(shown)}</span>
+          <span className="opacity-75">Source: {cite(shown)}</span>
         </div>
       )}
     </div>
