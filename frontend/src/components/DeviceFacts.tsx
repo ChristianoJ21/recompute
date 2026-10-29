@@ -12,7 +12,13 @@ const INPUTS: { key: keyof DeviceInputs; meaning: string; unit: string }[] = [
   { key: 'E_new', meaning: 'Embodied emissions of manufacturing the replacement', unit: 'kg CO₂e' },
 ]
 
-const heading = 'font-mono text-[11px] tracking-[.08em] text-ink-2 uppercase'
+/** Meaning and unit per rule input, e.g. for the Add device form. */
+export const INPUT_MEANINGS = Object.fromEntries(INPUTS.map(({ key, ...rest }) => [key, rest])) as Record<
+  keyof DeviceInputs,
+  { meaning: string; unit: string }
+>
+
+const heading ='font-mono text-[11px] tracking-[.08em] text-ink-2 uppercase'
 const row = 'border-b border-sunken py-1.5'
 
 function RangeValue({ range, unit }: { range: Range | null; unit: string }) {

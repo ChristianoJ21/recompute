@@ -92,9 +92,14 @@ export function FleetPage() {
                 <p className="text-[clamp(16px,1.35vw,19px)] text-night-fg2">{`${halls(ready.devices)} · ${plural(ready.summary.devices, 'device')}`}</p>
               )}
             </div>
-            <Link to="/technicians/new" className={nightButton}>
-              + Add technician
-            </Link>
+            <div className="flex flex-wrap gap-2.5">
+              <Link to="/devices/new" className={nightButton}>
+                + Add device
+              </Link>
+              <Link to="/technicians/new" className={nightButton}>
+                + Add technician
+              </Link>
+            </div>
           </div>
           {ready && <StatsTiles devices={ready.devices} summary={ready.summary} stats={ready.stats} />}
         </div>

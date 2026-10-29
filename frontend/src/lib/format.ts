@@ -95,7 +95,7 @@ export function netBarGeometry(min: number, max: number): NetBarGeometry {
   return { start: at(low), end: at(high), zero: at(0) }
 }
 
-const ACRONYMS = new Set(['gpu', 'cpu', 'tpu', 'npu', 'ssd', 'hdd', 'nic'])
+const ACRONYMS = new Set(['gpu', 'cpu', 'tpu', 'npu', 'ssd', 'hdd', 'nic', 'psu'])
 const word = (w: string, i: number) => (ACRONYMS.has(w.toLowerCase()) ? w.toUpperCase() : i === 0 ? w[0].toUpperCase() + w.slice(1) : w)
 
 /** "gpu_server" gives "GPU server". */

@@ -21,6 +21,11 @@ const PUBLIC_PAGES: Page[] = [
   { to: '/market', label: 'Market' },
 ]
 const TECHNICIAN_PAGES: Page[] = [{ to: '/fleet', label: 'Fleet' }]
+/** Drawer only: forms reached from the fleet dashboard. */
+const TECHNICIAN_ACTIONS: Page[] = [
+  { to: '/devices/new', label: 'Add device' },
+  { to: '/technicians/new', label: 'Add technician' },
+]
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   `inline-flex min-h-10 items-center rounded-full px-3.5 text-sm font-semibold whitespace-nowrap no-underline transition-colors duration-150 ${
@@ -72,8 +77,10 @@ export function Header({ session, onLogOut }: HeaderProps) {
     <header
       ref={headerRef}
       data-theme="dark"
-      className="sticky top-0 z-40 border-b border-white/8 bg-night/80 text-night-fg backdrop-blur-[14px] backdrop-saturate-[1.4]"
+      className="sticky top-0 z-40 border-b border-white/8 text-night-fg"
     >
+      {/* The glass lives on its own layer: a filter on <header> itself would trap the fixed drawer inside the bar. */}
+      <div aria-hidden className="absolute inset-0 -z-10 bg-night/80 backdrop-blur-[14px] backdrop-saturate-[1.4]" />
       <div className="flex min-h-[68px] items-center gap-[clamp(16px,3vw,40px)] px-[clamp(20px,4vw,72px)]">
         <Link to="/" className="inline-flex min-h-11 shrink-0 items-center gap-2.5 text-white no-underline">
           <LogoMark />
@@ -140,7 +147,7 @@ export function Header({ session, onLogOut }: HeaderProps) {
       {open && (
         <Drawer
           session={session}
-          pages={session ? [...pages, { to: '/technicians/new', label: 'Add technician' }] : pages}
+          pages={session ? [...pages, ...TECHNICIAN_ACTIONS] : pages}
           theme={theme}
           onClose={close}
           onLogOut={onLogOut}

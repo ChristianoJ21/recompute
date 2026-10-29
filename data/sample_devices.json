@@ -1,5 +1,5 @@
 {
-  "_comment": "SAMPLE DATA. Toy values that show the decision logic (same numbers as backend/reference_fleet.py). Never measurements, never essay evidence. Each device is a POST /devices body (contracts/examples/device_create_request.json). Load with: python scripts/seed.py",
+  "_comment": "SAMPLE DATA. Toy values that show the decision logic (GPU-SRV-001..006 use the same numbers as backend/reference_fleet.py; the other devices are extra toy records). Never measurements, never essay evidence. Each device is a POST /devices body (contracts/examples/device_create_request.json). Load with: python scripts/seed.py",
   "sample_data": true,
   "workloads": [
     {
@@ -140,16 +140,167 @@
       },
       "upgrade_options": [],
       "sample_data": true
+    },
+    {
+      "id": "GPU-SRV-007",
+      "model": "AccelServer-v2 (sample)",
+      "device_type": "gpu_server",
+      "install_date": "2024-06-10",
+      "location": "Hall A / inference",
+      "components": [
+        {"type": "gpu", "model": "Accel-v2"},
+        {"type": "memory", "model": "HBM-v2"},
+        {"type": "cpu", "model": "Host-v2"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": {"low": 4, "high": 5},
+        "I_new": {"low": 3, "high": 4},
+        "W": {"low": 100, "high": 100},
+        "T": {"low": 3, "high": 3},
+        "E_new": {"low": 900, "high": 1100}
+      },
+      "upgrade_options": [],
+      "sample_data": true
+    },
+    {
+      "id": "GPU-SRV-008",
+      "model": "AccelServer-v1 (sample)",
+      "device_type": "gpu_server",
+      "install_date": "2022-03-01",
+      "location": "Hall A / batch rendering",
+      "components": [
+        {"type": "gpu", "model": "Accel-v1"},
+        {"type": "memory", "model": "HBM-v1"},
+        {"type": "psu", "model": "PSU-2k-v1"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": {"low": 8, "high": 10},
+        "I_new": {"low": 3, "high": 4},
+        "W": {"low": 100, "high": 100},
+        "T": {"low": 3, "high": 3},
+        "E_new": null
+      },
+      "upgrade_options": [],
+      "sample_data": true
+    },
+    {
+      "id": "STOR-SRV-001",
+      "model": "BulkStore-24 (sample)",
+      "device_type": "storage_server",
+      "install_date": "2021-09-15",
+      "location": "Hall B / cold archive",
+      "components": [
+        {"type": "storage", "model": "Drive-3.5-v1"},
+        {"type": "cpu", "model": "Host-v1"},
+        {"type": "psu", "model": "PSU-800-v1"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": {"low": 4, "high": 5},
+        "I_new": {"low": 3, "high": 4},
+        "W": {"low": 30, "high": 30},
+        "T": {"low": 3, "high": 3},
+        "E_new": {"low": 600, "high": 700}
+      },
+      "upgrade_options": [],
+      "sample_data": true
+    },
+    {
+      "id": "STOR-SRV-002",
+      "model": "BulkStore-24 (sample)",
+      "device_type": "storage_server",
+      "install_date": "2021-09-15",
+      "location": "Hall B / object storage",
+      "components": [
+        {"type": "storage", "model": "Drive-3.5-v1"},
+        {"type": "nic", "model": "Net-25G-v1"},
+        {"type": "psu", "model": "PSU-800-v1"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": {"low": 6, "high": 7},
+        "I_new": {"low": 2, "high": 3},
+        "W": {"low": 120, "high": 120},
+        "T": {"low": 3, "high": 3},
+        "E_new": {"low": 700, "high": 800}
+      },
+      "upgrade_options": [],
+      "sample_data": true
+    },
+    {
+      "id": "NET-SW-001",
+      "model": "EdgeSwitch-48 (sample)",
+      "device_type": "network_switch",
+      "install_date": "2020-11-02",
+      "location": "Hall B / top-of-rack",
+      "components": [
+        {"type": "cpu", "model": "Ctrl-v1"},
+        {"type": "psu", "model": "PSU-350-v1"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": {"low": 3, "high": 4},
+        "I_new": {"low": 1, "high": 1.5},
+        "W": {"low": 150, "high": 150},
+        "T": {"low": 4, "high": 4},
+        "E_new": {"low": 500, "high": 600}
+      },
+      "upgrade_options": [],
+      "sample_data": true
+    },
+    {
+      "id": "NET-SW-002",
+      "model": "EdgeSwitch-48 (sample)",
+      "device_type": "network_switch",
+      "install_date": "2020-11-02",
+      "location": "Hall B / top-of-rack",
+      "components": [
+        {"type": "cpu", "model": "Ctrl-v1"},
+        {"type": "psu", "model": "PSU-350-v1"}
+      ],
+      "reliability_ok": false,
+      "inputs": {
+        "I_old": {"low": 3, "high": 4},
+        "I_new": {"low": 1, "high": 1.5},
+        "W": {"low": 150, "high": 150},
+        "T": {"low": 4, "high": 4},
+        "E_new": {"low": 500, "high": 600}
+      },
+      "upgrade_options": [],
+      "sample_data": true
+    },
+    {
+      "id": "WS-001",
+      "model": "DeskNode-T (sample)",
+      "device_type": "workstation",
+      "install_date": "2022-08-20",
+      "location": "Lab C / design team",
+      "components": [
+        {"type": "gpu", "model": "Accel-w1"},
+        {"type": "cpu", "model": "Desk-v1"},
+        {"type": "ssd", "model": "Flash-1T-v1"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": {"low": 5, "high": 6},
+        "I_new": {"low": 2, "high": 3},
+        "W": {"low": 80, "high": 80},
+        "T": {"low": 4, "high": 4},
+        "E_new": {"low": 500, "high": 600}
+      },
+      "upgrade_options": [
+        {
+          "component": "graphics card",
+          "I_upgraded": {"low": 3, "high": 3.5},
+          "E_component": {"low": 100, "high": 150}
+        }
+      ],
+      "sample_data": true
     }
   ],
-  "expected_outcomes": {
-    "GPU-SRV-001": "REDEPLOY",
-    "GPU-SRV-002": "KEEP",
-    "GPU-SRV-003": "UPGRADE",
-    "GPU-SRV-004": "RECYCLE",
-    "GPU-SRV-005": "INSUFFICIENT_DATA",
-    "GPU-SRV-006": "UNCERTAIN"
-  },
+  "expected_outcomes": {"GPU-SRV-001": "REDEPLOY", "GPU-SRV-002": "KEEP", "GPU-SRV-003": "UPGRADE", "GPU-SRV-004": "RECYCLE", "GPU-SRV-005": "INSUFFICIENT_DATA", "GPU-SRV-006": "UNCERTAIN", "GPU-SRV-007": "KEEP", "GPU-SRV-008": "INSUFFICIENT_DATA", "STOR-SRV-001": "KEEP", "STOR-SRV-002": "REDEPLOY", "NET-SW-001": "REDEPLOY", "NET-SW-002": "RECYCLE", "WS-001": "UPGRADE"},
   "listings": [
     {
       "device_id": "GPU-SRV-001",
@@ -160,6 +311,21 @@
       "device_id": "GPU-SRV-003",
       "price": {"amount": 38000000, "currency": "IDR"},
       "note": "Memory upgrade path documented in the passport (sample)"
+    },
+    {
+      "device_id": "STOR-SRV-002",
+      "price": {"amount": 22000000, "currency": "IDR"},
+      "note": "Released after REDEPLOY review; drives wiped and kept in the chassis (sample)"
+    },
+    {
+      "device_id": "NET-SW-001",
+      "price": {"amount": 6500000, "currency": "IDR"},
+      "note": "Released after REDEPLOY review; configuration erased (sample)"
+    },
+    {
+      "device_id": "WS-001",
+      "price": {"amount": 18000000, "currency": "IDR"},
+      "note": "Graphics card upgrade path documented in the passport (sample)"
     }
   ]
 }

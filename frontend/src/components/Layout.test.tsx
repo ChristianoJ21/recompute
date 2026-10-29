@@ -91,6 +91,18 @@ describe('header menu', () => {
     expect(menuButton().getAttribute('aria-expanded')).toBe('false')
   })
 
+  it('opens the menu over the whole screen, not inside the header bar', async () => {
+    // A filter (e.g. backdrop-blur) on the header makes it the box for its position: fixed children,
+    // which squeezed the drawer into the 68 px bar. The glass blur lives on a layer behind the header content.
+    const user = userEvent.setup()
+    renderAt()
+
+    await user.click(menuButton())
+    const header = screen.getByRole('banner')
+    expect(header.className).not.toMatch(/backdrop-|filter|transform|will-change|contain-/)
+    expect(header.contains(menu())).toBe(true)
+  })
+
   it('offers a visitor the technician login and appearance settings', async () => {
     const user = userEvent.setup()
     renderAt()
@@ -110,6 +122,7 @@ describe('header menu', () => {
     await user.click(menuButton())
     expect(within(menu()).getByRole('link', { name: /Fleet/ })).toBeTruthy()
     expect(within(menu()).getByRole('link', { name: /Add technician/ })).toBeTruthy()
+    expect(within(menu()).getByRole('link', { name: /Add device/ }).getAttribute('href')).toBe('/devices/new')
     expect(within(menu()).getByText(TECH_SESSION.technician.name)).toBeTruthy()
     await user.click(within(menu()).getByRole('button', { name: /Log out/ }))
     expect(client.currentSession()).toBeNull()

@@ -88,6 +88,13 @@ describe('fleet page', () => {
     expect(within(stats).getByText('Not evaluated').closest('li')!.textContent).toContain('1')
   })
 
+  it('links to the add device and add technician forms', async () => {
+    renderFleet()
+
+    expect((await screen.findByRole('link', { name: '+ Add device' })).getAttribute('href')).toBe('/devices/new')
+    expect(screen.getByRole('link', { name: '+ Add technician' }).getAttribute('href')).toBe('/technicians/new')
+  })
+
   it('shows the SAMPLE DATA label', async () => {
     renderFleet()
 

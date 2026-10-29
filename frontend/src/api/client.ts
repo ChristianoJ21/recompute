@@ -5,6 +5,7 @@
 import type {
   ChainCheck,
   Contact,
+  Device,
   DeviceDetail,
   DeviceSummary,
   Evaluation,
@@ -135,7 +136,10 @@ export const getFleetSummary = () => request<FleetSummary>('/fleet/summary')
 
 export const getDevice = (id: string) => request<DeviceDetail>(devicePath(id))
 
-export const evaluateDevice = (id: string) => request<Evaluation>(`${devicePath(id)}/evaluate`, { method: 'POST' })
+/** A new passport record; the API never overwrites an existing id (400). */
+export const createDevice = (device: Device) => request<Device>('/devices', { method: 'POST', body: JSON.stringify(device) })
+
+export const evaluateDevice =(id: string) => request<Evaluation>(`${devicePath(id)}/evaluate`, { method: 'POST' })
 
 export const addEvent = (id: string, event: NewEvent) =>
   request<PassportEvent>(`${devicePath(id)}/events`, { method: 'POST', body: JSON.stringify(event) })
