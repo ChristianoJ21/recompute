@@ -4,6 +4,7 @@ import { describeError, getContact, getDevice, getListings } from '../api/client
 import type { Contact, Listing, Outcome, PassportEvent } from '../api/types'
 import { SaveButton } from '../components/CustomerActions'
 import { HardwareArt } from '../components/HardwareArt'
+import { HeroPhoto } from '../components/HeroPhoto'
 import { IntegrityBadge } from '../components/IntegrityBadge'
 import { SolidBadge } from '../components/SolidBadge'
 import { Sparkline } from '../components/Sparkline'
@@ -22,6 +23,7 @@ import {
 import { formatComponents, formatDate, formatDateTime, formatDeviceType, formatPrice, locationSite, telemetryReadings } from '../lib/format'
 import { useFavourites } from '../lib/favourites'
 import { enquiryLink } from '../lib/listing'
+import { PHOTOS } from '../lib/photos'
 import { OUTCOME_STYLE, outcomeColours } from '../lib/outcomes'
 import { telemetrySeries } from '../lib/telemetry'
 
@@ -67,7 +69,11 @@ export function HardwarePage() {
 
   return (
     <>
-      <PageHero eyebrow={<HeroChip live>{heroChip(state)}</HeroChip>} title="Available hardware">
+      <PageHero
+        eyebrow={<HeroChip live>{heroChip(state)}</HeroChip>}
+        title="Available hardware"
+        aside={<HeroPhoto photo={PHOTOS.hardware} ratio="aspect-[16/10]" className="w-[min(100%,460px)]" />}
+      >
         <HeroText>
           Released devices are listed below with their passport and data-wipe record. The QR label on each device opens it.
           Buyers e-mail the data centre; there is no shop or checkout.

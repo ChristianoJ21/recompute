@@ -4,7 +4,9 @@ import { getListings, verifyEvents } from '../api/client'
 import type { Listing } from '../api/types'
 import { HomeIntro } from '../components/HomeIntro'
 import { HowItWorks } from '../components/HowItWorks'
+import { HeroPhoto } from '../components/HeroPhoto'
 import { LivePassportCard, useLiveDevice } from '../components/LivePassportCard'
+import { PHOTOS } from '../lib/photos'
 import { SolidBadge } from '../components/SolidBadge'
 import { HeroChip, NightBackdrop, SectionTitle, container, nightButton, nightGhostButton, primaryButton } from '../components/ui'
 import { formatDateTime, formatPrice } from '../lib/format'
@@ -135,11 +137,15 @@ function Hero({ listings, featured, live }: HeroProps) {
             )}
           </ul>
         </div>
-        {featured && (
-          <div className="animate-rise [animation-delay:200ms]">
-            <LivePassportCard listing={featured} detail={live} />
-          </div>
-        )}
+        {/* The live card overlaps the lower part of the photo: the photo is illustrative, the card is real passport data. */}
+        <div className="relative flex animate-rise flex-col [animation-delay:200ms]">
+          <HeroPhoto photo={PHOTOS.home} className="ml-[16%]" />
+          {featured && (
+            <div className="relative -mt-[34%] mr-[10%]">
+              <LivePassportCard listing={featured} detail={live} />
+            </div>
+          )}
+        </div>
       </div>
     </section>
   )
