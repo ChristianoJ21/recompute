@@ -106,7 +106,7 @@ function StaffPanel() {
   return (
     <section
       aria-hidden
-      data-theme="dark"
+      data-band
       className="relative flex min-h-[420px] flex-col justify-center gap-7 overflow-hidden bg-night px-[clamp(20px,4vw,72px)] py-[clamp(40px,6vw,96px)] text-night-fg"
     >
       <NightBackdrop />

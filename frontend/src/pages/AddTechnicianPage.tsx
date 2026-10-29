@@ -54,7 +54,7 @@ export function AddTechnicianPage() {
 
   return (
     <>
-      <section data-theme="dark" className="relative overflow-hidden bg-night text-night-fg">
+      <section data-band className="relative overflow-hidden bg-night text-night-fg">
         <NightBackdrop />
         <div className={`${container} relative flex flex-col items-center gap-5 pt-[clamp(24px,3vw,40px)] pb-[clamp(100px,10vw,150px)] text-center`}>
           <Link to="/fleet" className={`${nightGhostButton} min-h-9 px-3.5 font-mono text-[13px] font-normal`}>

@@ -110,7 +110,7 @@ function DevicePassport({ id }: { id: string }) {
 
 function DarkBand({ glow, children, footer }: { glow?: string; children: ReactNode; footer?: ReactNode }) {
   return (
-    <section aria-label="Device" className="relative overflow-hidden bg-night text-night-fg">
+    <section data-band aria-label="Device" className="relative overflow-hidden bg-night text-night-fg">
       <NightBackdrop glow={glow} />
       <div className={`${container} relative flex flex-col gap-[clamp(24px,3vw,40px)] pt-[clamp(24px,3vw,40px)] pb-[clamp(36px,4.5vw,64px)]`}>
         {children}
@@ -122,7 +122,7 @@ function DarkBand({ glow, children, footer }: { glow?: string; children: ReactNo
 
 function Breadcrumb({ id, canEdit }: { id: string; canEdit: boolean }) {
   return (
-    <nav data-theme="dark" aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2.5 font-mono text-[13px] text-night-fg3">
+    <nav data-band aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2.5 font-mono text-[13px] text-night-fg3">
       <Link
         to={canEdit ? '/fleet' : '/hardware'}
         className="inline-flex min-h-9 items-center rounded-full border border-white/15 px-3.5 whitespace-nowrap text-night-fg no-underline hover:bg-white/5 hover:text-white"
@@ -149,7 +149,7 @@ function Passport({ detail, canEdit, evaluating, evaluateError, onEvaluate, onEv
   const { device, events, latest_evaluation } = detail
   const check = usePassportCheck(device.id, events)
   const listing = currentListing(events)
-  const glow = latest_evaluation?.outcome === 'UNCERTAIN' ? 'rgba(138,70,0,.45)' : 'rgba(19,114,58,.55)'
+  const glow = latest_evaluation?.outcome === 'UNCERTAIN' ? 'rgba(138,70,0,.14)' : 'rgba(19,114,58,.14)'
   return (
     <>
       <DarkBand glow={glow} footer={<Mrz detail={detail} />}>
@@ -158,7 +158,7 @@ function Passport({ detail, canEdit, evaluating, evaluateError, onEvaluate, onEv
           <Identity detail={detail} check={check} />
           <div className="flex min-w-0 flex-col gap-6 min-[1100px]:items-end">
             {/* The hero is always dark, so the drawing uses the dark outcome colours and captions. */}
-            <div data-theme="dark" className="w-full max-w-[560px]">
+            <div data-band className="w-full max-w-[560px]">
               <HardwareArt
                 deviceType={device.device_type}
                 components={device.components}
@@ -208,7 +208,7 @@ function Identity({ detail, check }: { detail: DeviceDetail; check: PassportChec
     { key: 'INSTALLED', value: formatDate(device.install_date) },
   ]
   return (
-    <div data-theme="dark" className="flex min-w-0 flex-col gap-4">
+    <div data-band className="flex min-w-0 flex-col gap-4">
       <span className="font-mono text-xs font-semibold tracking-[.12em] text-night-accent-2">DEVICE PASSPORT</span>
       <h1 className="font-mono text-[clamp(36px,5.6vw,88px)] leading-[.95] font-bold tracking-[-.04em] break-all text-white">{device.id}</h1>
       <p className="flex flex-col text-[clamp(16px,1.4vw,19px)] text-night-fg2">
@@ -234,7 +234,7 @@ function Identity({ detail, check }: { detail: DeviceDetail; check: PassportChec
 function NotListed({ target, canEdit }: { target: string | null; canEdit: boolean }) {
   return (
     <div
-      data-theme="dark"
+      data-band
       className="flex w-full max-w-[460px] flex-col gap-2.5 rounded-[22px] border border-white/12 bg-white/4 px-[22px] py-5 min-[1100px]:justify-self-end"
     >
       <span className="font-mono text-xs font-bold tracking-[.1em] text-night-fg3">NOT LISTED FOR SALE</span>

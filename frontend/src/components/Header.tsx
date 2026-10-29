@@ -82,7 +82,7 @@ export function Header({ session, onLogOut }: HeaderProps) {
   return (
     <header
       ref={headerRef}
-      data-theme="dark"
+      data-band
       className="sticky top-0 z-40 border-b border-white/8 text-night-fg"
     >
       {/* The glass lives on its own layer: a filter on <header> itself would trap the fixed drawer inside the bar. */}

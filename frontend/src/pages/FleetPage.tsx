@@ -81,7 +81,7 @@ export function FleetPage() {
   const ready = state.status === 'ready' && state.devices.length > 0 ? state : null
   return (
     <>
-      <section data-theme="dark" aria-labelledby="fleet-h" className="relative overflow-hidden bg-night text-night-fg">
+      <section data-band aria-labelledby="fleet-h" className="relative overflow-hidden bg-night text-night-fg">
         <NightBackdrop />
         <div className={`${container} relative flex flex-col gap-[clamp(28px,3.5vw,48px)] pt-[clamp(36px,4.5vw,72px)] pb-[clamp(36px,4.5vw,64px)]`}>
           <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-5">

@@ -75,22 +75,23 @@
   /* v3 (docs/design_handoff/v3): inputs and notices 14px, panels 22px, buttons, chips and badges are pills. */
   --radius-ctl: 14px;
   --radius-panel: 22px;
-  /* The hero bands, header, footer and menu drawer stay deep forest green in both themes. */
-  --color-night: #0C2618;
-  --color-night-2: #12321F;
-  --color-night-line: #24503A;
-  --color-night-fg: #E7F2EA;
-  --color-night-fg2: #A9C4B2;
-  --color-night-fg3: #8FB09B;
-  --color-night-accent: #7BE0A4;
-  --color-night-accent-2: #B4F0CB;
-  --color-night-ok: #6FD08F;
+  /* Bands (hero, header, menu; marked data-band): white + green in the light theme (Panji, 30 Oct: no dark bands,
+     no neon). Dark mode and dark scopes (footer, intro, live passport card) get the forest values below. */
+  --color-night: #F1F7F2;
+  --color-night-2: #FFFFFF;
+  --color-night-line: #D3E2D7;
+  --color-night-fg: #0D1A12;
+  --color-night-fg2: #44544A;
+  --color-night-fg3: #5B6B61;
+  --color-night-accent: #13723A;
+  --color-night-accent-2: #0B5229;
+  --color-night-ok: #1D6B3B;
   --shadow-panel: 0 1px 2px rgba(14, 17, 22, 0.06), 0 10px 28px -14px rgba(14, 17, 22, 0.22);
   --shadow-panel-hover: 0 2px 4px rgba(14, 17, 22, 0.08), 0 18px 36px -16px rgba(14, 17, 22, 0.35);
   --shadow-offset: 4px 4px 0 var(--color-ink);
   --shadow-lift: 0 12px 28px -10px var(--color-accent);
   --shadow-float: 0 2px 4px rgba(14, 17, 22, 0.04), 0 30px 60px -30px rgba(14, 17, 22, 0.35);
-  --shadow-hero-card: 0 40px 80px -30px rgba(0, 0, 0, 0.8), 0 0 80px -20px rgba(123, 224, 164, 0.35);
+  --shadow-hero-card: 0 40px 80px -30px rgba(0, 0, 0, 0.8), 0 0 80px -20px rgba(19, 114, 58, 0.18);
   --ease-draw: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   --animate-flow-x: rc-flow-x 0.8s linear infinite;
@@ -129,6 +130,16 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
+  --color-white: #FFFFFF;
+  --color-night: #0C2618;
+  --color-night-2: #12321F;
+  --color-night-line: #24503A;
+  --color-night-fg: #E7F2EA;
+  --color-night-fg2: #A9C4B2;
+  --color-night-fg3: #8FB09B;
+  --color-night-accent: #9CCFAE;
+  --color-night-accent-2: #C3E6CF;
+  --color-night-ok: #8CCB9F;
   --color-ink: #E6F0E9;
   --color-ink-2: #A6B9AC;
   --color-ink-3: #8A9F91;
@@ -143,15 +154,15 @@
   --color-series-1: #199E70;
   --color-series-2: #D95926;
   --color-series-3: #5F78EC;
-  --color-accent: #6EDC9A;
-  --color-accent-hover: #A6EEC2;
+  --color-accent: #86C99E;
+  --color-accent-hover: #B5E2C4;
   --color-on-ink-2: #44544A;
   --color-code-fg: #0D1912;
-  --color-ok: #6FD08F;
+  --color-ok: #8CCB9F;
   --color-ok-bg: #10291A;
   --color-ok-line: #2B5A3C;
-  --color-ok-ink: #A6E3BA;
-  --color-keep: #B5DC6E;
+  --color-ok-ink: #B3DEC0;
+  --color-keep: #A9C77A;
   --color-keep-bg: #1C2A0E;
   --color-keep-line: #4A6223;
   --color-upgrade: #79C4EC;
@@ -182,6 +193,11 @@
   --color-bar-line: #26382C;
   --shadow-panel: 0 0 0 1px rgba(255, 255, 255, 0.02), 0 14px 32px -12px rgba(0, 0, 0, 0.75);
   --shadow-panel-hover: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 20px 40px -14px rgba(0, 0, 0, 0.85);
+}
+
+/* Inside a band, text-white and white/x overlays follow the band text: dark green on the light band, near-white in dark mode. */
+[data-band] {
+  --color-white: var(--color-night-fg);
 }
 
 @layer base {
@@ -216,8 +232,8 @@
 /* Faint accent grid that drifts behind the dark hero bands, fading out towards the edges. */
 @utility bg-night-grid {
   background-image:
-    linear-gradient(rgba(123, 224, 164, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(123, 224, 164, 0.08) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--color-night-accent) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-night-accent) 10%, transparent) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, #000 30%, transparent 80%);
 }

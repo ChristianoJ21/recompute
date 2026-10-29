@@ -73,7 +73,8 @@ describe('add device page', () => {
       }),
     )
     await vi.waitFor(() => expect(client.getDevice).toHaveBeenCalledWith('NET-SW-009'))
-  })
+    // Types a whole form: about 2 s alone, slower while the full suite runs in parallel.
+  }, 15_000)
 
   it('checks the form before calling the API', async () => {
     signIn()

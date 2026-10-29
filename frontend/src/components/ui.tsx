@@ -6,13 +6,13 @@ import { CheckIcon, CrossIcon, NoteIcon } from './icons'
 const buttonBase =
   'inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full border px-6 text-[15px] font-bold no-underline transition-[translate,box-shadow,border-color,background-color] duration-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:border-transparent disabled:bg-sunken disabled:text-ink-3 disabled:shadow-none'
 
-export const primaryButton = `${buttonBase} border-ink bg-ink text-surface hover:-translate-y-0.5 hover:shadow-lift active:translate-y-0 active:shadow-none`
+export const primaryButton = `${buttonBase} border-accent bg-accent text-surface hover:-translate-y-0.5 hover:border-accent-hover hover:bg-accent-hover hover:shadow-lift active:translate-y-0 active:shadow-none`
 
 export const secondaryButton = `${buttonBase} border-line-strong bg-transparent font-semibold text-ink hover:border-ink hover:bg-raised`
 
-/** The mint pill on the forest-green hero bands ("Browse hardware", "+ Add technician"). */
+/** The solid green pill on the bands ("Browse hardware", "+ Add technician"). */
 export const nightButton =
-  'inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-full bg-night-accent px-6 text-[15px] font-bold text-night no-underline shadow-[0_10px_30px_-8px_rgba(123,224,164,.5)] transition-[translate,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-8px_rgba(123,224,164,.8)]'
+  'inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-full bg-night-accent px-6 text-[15px] font-bold text-night no-underline shadow-[0_10px_30px_-8px_rgba(19,114,58,.25)] transition-[translate,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-8px_rgba(19,114,58,.35)]'
 
 /** Outlined pill on the dark bands ("How it works", "← Fleet"). */
 export const nightGhostButton =
@@ -125,7 +125,7 @@ export function HeroChip({ live = false, children }: { live?: boolean; children:
 }
 
 /** Drifting grid and a soft glow behind a dark band (decoration only). */
-export function NightBackdrop({ glow = 'rgba(19,114,58,.6)' }: { glow?: string }) {
+export function NightBackdrop({ glow = 'rgba(19,114,58,.14)' }: { glow?: string }) {
   return (
     <>
       <div aria-hidden className="pointer-events-none absolute inset-0 animate-drift bg-night-grid" />
@@ -148,10 +148,10 @@ interface PageHeroProps {
   children?: ReactNode
 }
 
-/** The dark band that opens every v3 page: eyebrow, large H1, intro, optional aside. */
+/** The band that opens every v3 page (white + green; forest in dark mode): eyebrow, large H1, intro, optional aside. */
 export function PageHero({ eyebrow, title, aside, children }: PageHeroProps) {
   return (
-    <section data-theme="dark" className="relative overflow-hidden bg-night text-night-fg">
+    <section data-band className="relative overflow-hidden bg-night text-night-fg">
       <NightBackdrop />
       <div className={`${container} relative flex flex-wrap items-end justify-between gap-x-10 gap-y-7 py-[clamp(40px,5vw,80px)]`}>
         <div className="flex max-w-[860px] min-w-0 flex-col gap-4">

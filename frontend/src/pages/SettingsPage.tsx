@@ -33,13 +33,13 @@ export function SettingsPage() {
 
   return (
     <>
-      <section data-theme="dark" className="relative overflow-hidden bg-night text-night-fg">
+      <section data-band className="relative overflow-hidden bg-night text-night-fg">
         <NightBackdrop />
         <div className={`${container} relative flex flex-wrap items-center gap-[clamp(18px,2.4vw,32px)] py-[clamp(36px,4.5vw,72px)]`}>
           {session && (
             <span
               aria-hidden
-              className="flex size-[clamp(72px,7vw,104px)] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#7BE0A4,#C6EA8A)] font-mono text-[clamp(22px,2.2vw,32px)] font-extrabold text-night shadow-[0_0_0_6px_rgba(123,224,164,.15)]"
+              className="flex size-[clamp(72px,7vw,104px)] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#9CCFAE,#C2CF9A)] font-mono text-[clamp(22px,2.2vw,32px)] font-extrabold text-night shadow-[0_0_0_6px_rgba(19,114,58,.15)]"
             >
               {initials(session.technician.name)}
             </span>
@@ -234,8 +234,8 @@ function CredentialsPanel() {
 
 // Fixed preview colours: each card shows its own theme whatever the page is in.
 const PREVIEW = {
-  light: { page: '#FFFFFF', bar: '#0C2618', panel: '#FFFFFF', line: '#D6E2D9', ink: '#0D1A12', accent: '#13723A' },
-  dark: { page: '#07110B', bar: '#04120A', panel: '#0D1912', line: '#26382C', ink: '#E6F0E9', accent: '#6EDC9A' },
+  light: { page: '#FFFFFF', bar: '#F1F7F2', panel: '#FFFFFF', line: '#D6E2D9', ink: '#0D1A12', accent: '#13723A' },
+  dark: { page: '#07110B', bar: '#04120A', panel: '#0D1912', line: '#26382C', ink: '#E6F0E9', accent: '#86C99E' },
 }
 
 const THEME_TEXT: Record<Theme, { sub: string; previews: (keyof typeof PREVIEW)[] }> = {

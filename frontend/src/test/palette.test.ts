@@ -36,6 +36,14 @@ const hue = (hex: string) => {
 }
 /** A green: hue between yellow-green and teal-green. */
 const isGreen = (hex: string) => hue(hex) >= 75 && hue(hex) <= 165
+/** HSL saturation and lightness, 0..1. */
+const sl = (hex: string) => {
+  const [r, g, b] = rgb(hex).map((v) => v / 255)
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const l = (max + min) / 2
+  return { s: max === min ? 0 : (max - min) / (1 - Math.abs(2 * l - 1)), l }
+}
 /** A near-neutral with a green cast: the green channel leads. */
 const greenTinted = (hex: string) => {
   const [r, g, b] = rgb(hex)
@@ -58,12 +66,38 @@ describe('white + green palette (A10 phase 1)', () => {
     expect(isGreen(LIGHT['accent-hover']), LIGHT['accent-hover']).toBe(true)
   })
 
-  it('turns the dark hero bands, header, footer and menu a deep forest green', () => {
-    for (const name of ['night', 'night-2', 'bar']) {
-      expect(isGreen(LIGHT[name]), `${name} ${LIGHT[name]}`).toBe(true)
-      expect(luminance(LIGHT[name]), name).toBeLessThan(0.04)
+  it('makes the hero bands, header and menu white + green in the light theme (Panji, 30 Oct: no dark bands)', () => {
+    for (const name of ['night', 'night-2']) {
+      expect(greenTinted(LIGHT[name]) || LIGHT[name] === '#FFFFFF', `${name} ${LIGHT[name]}`).toBe(true)
+      expect(luminance(LIGHT[name]), name).toBeGreaterThan(0.85)
     }
     expect(isGreen(LIGHT['night-accent']), LIGHT['night-accent']).toBe(true)
+  })
+
+  it('keeps the bands deep forest green in dark mode, and the footer, intro and live card dark in both themes', () => {
+    for (const name of ['night', 'night-2', 'bar']) {
+      expect(isGreen(DARK[name]), `${name} ${DARK[name]}`).toBe(true)
+      expect(luminance(DARK[name]), name).toBeLessThan(0.04)
+    }
+    expect(isGreen(LIGHT.bar), LIGHT.bar).toBe(true)
+  })
+
+  it('scopes the bands with data-band, so text-white follows the band text colour', () => {
+    expect(css).toMatch(/\[data-band\]\s*\{[^}]*--color-white:\s*var\(--color-night-fg\)/)
+    expect(css).toMatch(/\[data-theme="dark"\] \{[^}]*--color-white:\s*#FFFFFF/)
+    const sources = import.meta.glob(['../**/*.tsx', '!../**/*.test.tsx'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>
+    const darkScoped = Object.keys(sources).filter((file) => sources[file].includes('data-theme="dark"')).sort()
+    expect(darkScoped).toEqual(['../components/HomeIntro.tsx', '../components/Layout.tsx', '../components/LivePassportCard.tsx'])
+  })
+
+  it('uses no neon: every light foreground green is muted (saturation <= 0.45)', () => {
+    const greens = ['accent', 'accent-hover', 'keep', 'ok', 'ok-ink', 'night-accent', 'night-accent-2', 'night-ok']
+    for (const [theme, t] of THEMES) {
+      for (const name of greens) {
+        const { s, l } = sl(t[name])
+        if (l > 0.5) expect(s, `${theme} ${name} ${t[name]}`).toBeLessThanOrEqual(0.45)
+      }
+    }
   })
 
   it('keeps dark mode green-tinted with a soft green accent', () => {
@@ -88,12 +122,14 @@ describe('white + green palette (A10 phase 1)', () => {
         expect(contrast(t[tone], t[`${tone}-bg`]), `${theme}: ${tone} on its badge`).toBeGreaterThanOrEqual(4.5)
       }
     }
-    for (const fg of ['night-fg', 'night-fg2', 'night-fg3', 'night-accent', 'night-ok']) {
-      for (const bg of ['night', 'night-2']) expect(contrast(LIGHT[fg], LIGHT[bg]), `${fg} on ${bg}`).toBeGreaterThanOrEqual(4.5)
+    for (const [theme, t] of THEMES) {
+      for (const fg of ['night-fg', 'night-fg2', 'night-fg3', 'night-accent', 'night-ok']) {
+        for (const bg of ['night', 'night-2']) expect(contrast(t[fg], t[bg]), `${theme}: ${fg} on ${bg}`).toBeGreaterThanOrEqual(4.5)
+      }
     }
   })
 
-  it('paints the browser bar in the forest green of the header', () => {
+  it('paints the browser bar in the colour of the header', () => {
     expect(html).toContain(`<meta name="theme-color" content="${LIGHT.night}" />`)
   })
 
@@ -107,11 +143,13 @@ describe('white + green palette (A10 phase 1)', () => {
     const stylesheet = css.replace(/--color-series-\d:[^;]*;/g, '')
     const old = /#2443C9|#16298A|#8EA2FF|#B5C2FF|#0B0D10|142,\s*162,\s*255|36,\s*67,\s*201/i
     // Purple and light-blue glows and gradients were decoration; as outcome colours they stay tokens in index.css.
-    const decoration = /#C2A6F2|#79C4EC|91,\s*53,\s*151/i
+    const decoration = /#C2A6F2|#79C4EC|91,\s*53,\s*151|#7BE0A4|#C6EA8A|#6FD3C0|123,\s*224,\s*164/i
     expect(Object.keys(sources).length).toBeGreaterThan(20)
     for (const [file, text] of Object.entries({ ...sources, 'index.html': html, 'index.css': stylesheet })) {
       expect(text.match(old)?.[0], file).toBeUndefined()
     }
     for (const [file, text] of Object.entries(sources)) expect(text.match(decoration)?.[0], file).toBeUndefined()
+    // Mint and lime were the neon (Panji, 30 Oct); the outcome tokens in index.css stay.
+    expect(css.match(/#7BE0A4|#C6EA8A|#6FD3C0|123,\s*224,\s*164/i)?.[0], 'index.css').toBeUndefined()
   })
 })
