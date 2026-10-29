@@ -1,6 +1,6 @@
 import { useId, useState } from 'react'
 import type { ForecastPoint } from '../api/types'
-import { panelClass } from './ui'
+import { Notice, panelClass } from './ui'
 
 // PRD 15.4: one chart per series (never two units on one axis), source + page on every point,
 // forecasts marked as forecasts, and only points traced to an evidence-sheet row.
@@ -15,9 +15,15 @@ const isTraceable = (point: ForecastPoint) =>
 const cite = (point: ForecastPoint) => `${point.source}, p. ${point.page}`
 const kindLabel = (point: ForecastPoint) => (point.kind === 'forecast' ? 'Forecast' : 'Actual')
 
-export function ForecastCharts({ points }: { points: ForecastPoint[] }) {
+interface ForecastChartsProps {
+  points: ForecastPoint[]
+  /** Dev-server layout data (data/market_forecast.mock.json): no evidence rows, shown under a MOCK DATA banner. */
+  mock?: boolean
+}
+
+export function ForecastCharts({ points, mock = false }: ForecastChartsProps) {
   const groups = new Map<string, ForecastPoint[]>()
-  for (const point of points.filter(isTraceable)) {
+  for (const point of mock ? points : points.filter(isTraceable)) {
     const key = `${point.series}\u0000${point.unit}`
     groups.set(key, [...(groups.get(key) ?? []), point])
   }
@@ -40,6 +46,12 @@ export function ForecastCharts({ points }: { points: ForecastPoint[] }) {
 
   return (
     <div className="flex flex-col gap-6">
+      {mock && (
+        <Notice tone="warning">
+          <strong>MOCK DATA, dev server only.</strong> Made-up numbers to try the layout. They are not published
+          figures and never appear in the built app; Hanif's verified rows in data/market_forecast.json replace them.
+        </Notice>
+      )}
       {[...groups].map(([key, series]) => (
         <SeriesPanel key={key} points={[...series].sort((a, b) => a.year - b.year)} />
       ))}

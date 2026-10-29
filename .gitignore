@@ -3,3 +3,9 @@ __pycache__/
 *.db
 .venv/
 .env
+
+# Demo technician logins written by backend/tools/make_demo_db.py
+*.local.txt
+
+# Claude Design exports (unpacked into docs/design_handoff/)
+*.zip
