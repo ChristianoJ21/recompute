@@ -50,7 +50,6 @@ describe('available hardware page (public, no login)', () => {
     expect(within(card).getByText('GPU server · 4× NVIDIA A100 (sample)')).toBeTruthy()
     expect(within(card).getByText('Jakarta, Indonesia')).toBeTruthy()
     expect(within(card).getByText(/sample location/i)).toBeTruthy()
-    expect(within(card).getByRole('link', { name: 'imgix / Unsplash' })).toBeTruthy()
     expect(within(card).getByText(/IDR\s45,000,000/)).toBeTruthy()
     expect(within(card).getByText(/sample asking price/i)).toBeTruthy()
     expect(within(card).getByText('REDEPLOY')).toBeTruthy()
@@ -72,13 +71,15 @@ describe('available hardware page (public, no login)', () => {
     expect(within(card).queryByText(/sample location/i)).toBeNull()
   })
 
-  it('shows a decorative line drawing of the device on each card', async () => {
+  it('shows a decorative clay illustration of the device on each card: its chassis and one of its parts', async () => {
     renderHardware()
 
     const [card] = await cards()
-    const art = card.querySelector('[data-art="gpu_server"]')
-    expect(art?.getAttribute('aria-hidden')).toBe('true')
-    expect(art?.querySelectorAll('[data-part]')).toHaveLength(2)
+    const stage = card.querySelector('[data-device-art="rack"]')
+    const chassis = stage?.querySelector('[data-art="rack"]')
+    expect(chassis?.getAttribute('data-variant')).toBe('gpu')
+    expect(chassis?.getAttribute('aria-hidden')).toBe('true')
+    expect(stage?.querySelector('[data-art="gpu"]')?.getAttribute('aria-hidden')).toBe('true')
   })
 
   it('says a passport changed when the server found its chain broken', async () => {

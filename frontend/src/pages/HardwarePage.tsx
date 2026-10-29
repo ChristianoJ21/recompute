@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { describeError, getContact, getDevice, getListings } from '../api/client'
 import type { Contact, Listing, Outcome, PassportEvent } from '../api/types'
 import { SaveButton } from '../components/CustomerActions'
-import { HardwareArt } from '../components/HardwareArt'
-import { CardPhoto } from '../components/HeroPhoto'
+import { DeviceStage } from '../components/DeviceStage'
 import { IntegrityBadge } from '../components/IntegrityBadge'
 import { SolidBadge } from '../components/SolidBadge'
 import { Sparkline } from '../components/Sparkline'
 import {
   EmptyState,
   ErrorNotice,
+  HandNote,
   HeroChip,
   HeroText,
   Loading,
@@ -20,10 +20,10 @@ import {
   primaryButton,
   secondaryButton,
 } from '../components/ui'
+import { Chip } from '../design/Art'
 import { formatComponents, formatDate, formatDateTime, formatDeviceType, formatPrice, locationSite, telemetryReadings } from '../lib/format'
 import { useFavourites } from '../lib/favourites'
 import { enquiryLink } from '../lib/listing'
-import { PHOTOS, photoFor } from '../lib/photos'
 import { OUTCOME_STYLE, outcomeColours } from '../lib/outcomes'
 import { telemetrySeries } from '../lib/telemetry'
 
@@ -72,14 +72,19 @@ export function HardwarePage() {
       <PageHero
         eyebrow={<HeroChip live>{heroChip(state)}</HeroChip>}
         title="Available hardware"
-        photo={PHOTOS.hardware}
+        mascot={
+          <div data-reveal="1" className="flex items-end gap-1.5">
+            <HandNote className="max-w-[9em] -rotate-3 pb-10 text-right">pick one and read its passport</HandNote>
+            <Chip pose="carry" anim={['bob', 'blink']} parallax={0.05} className="aspect-[204/214] w-[140px]" />
+          </div>
+        }
       >
         <HeroText>
           Released devices are listed below with their passport and data-wipe record. The QR label on each device opens it.
           Buyers e-mail the data centre; there is no shop or checkout.
         </HeroText>
       </PageHero>
-      <section aria-labelledby="listed" className="bg-surface py-[clamp(32px,4vw,56px)]">
+      <section aria-labelledby="listed" className="py-[clamp(16px,2vw,32px)]">
         <div className={`${container} flex flex-col gap-[clamp(24px,3vw,40px)]`}>
           <h2 id="listed" className="sr-only">
             Listed hardware
@@ -93,14 +98,18 @@ export function HardwarePage() {
             (listings.length === 0 ? (
               <EmptyState title="No hardware is listed right now">Released devices appear here with their passport.</EmptyState>
             ) : (
-              <ul aria-label="Listed hardware" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,520px),1fr))] gap-[clamp(16px,2vw,28px)]">
+              <ul
+                aria-label="Listed hardware"
+                data-stagger="1"
+                className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-[clamp(18px,2.4vw,28px)]"
+              >
                 {shown.map((listing, i) => (
                   <ListingCard
                     key={listing.device_id}
                     listing={listing}
                     events={history[listing.device_id] ?? []}
                     email={state.contact.email}
-                    delay={i * 120}
+                    tilt={TILTS[i % TILTS.length]}
                     saved={favourites.saved?.includes(listing.device_id) ?? null}
                     onToggleSave={favourites.toggle}
                   />
@@ -153,7 +162,8 @@ interface ToolbarProps {
   onSort: (sort: Sort) => void
 }
 
-const chip = 'inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors duration-200'
+const chip =
+  'inline-flex min-h-11 items-center gap-2 rounded-[14px] border-2 px-4 text-sm font-bold transition-[scale,background-color] duration-200 ease-spring active:scale-95'
 
 function Toolbar({ listings, shown, filter, onFilter, sort, onSort }: ToolbarProps) {
   const outcomes = [...new Set(listings.map((listing) => listing.latest_outcome))].filter((o): o is Outcome => o !== null)
@@ -167,7 +177,7 @@ function Toolbar({ listings, shown, filter, onFilter, sort, onSort }: ToolbarPro
   ]
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-4">
-      <span className="font-mono text-[13px] text-ink-2">
+      <span className="rc-eyebrow text-ink-2">
         Showing {shown} of {listings.length}
       </span>
       <div className="flex flex-wrap items-center gap-2.5">
@@ -180,15 +190,15 @@ function Toolbar({ listings, shown, filter, onFilter, sort, onSort }: ToolbarPro
                 type="button"
                 aria-pressed={on}
                 onClick={() => onFilter(option.key)}
-                className={`${chip} ${on ? 'border-ink bg-ink text-surface' : 'border-line-strong bg-transparent text-ink hover:border-ink'}`}
+                className={`${chip} ${on ? 'border-ink bg-ink text-surface' : 'border-line-strong bg-surface text-ink hover:border-ink'}`}
               >
                 {option.label}
-                <span className={`min-w-[22px] rounded-full px-[7px] py-px font-mono text-xs ${on ? 'bg-white/20' : 'bg-sunken'}`}>{option.count}</span>
+                <span className={`min-w-[22px] rounded-full px-[7px] py-px text-center font-mono text-xs ${on ? 'bg-surface/25' : 'bg-sunken'}`}>{option.count}</span>
               </button>
             )
           })}
         </div>
-        <button type="button" onClick={() => onSort(sort === 'desc' ? 'asc' : 'desc')} className={`${chip} border-line-strong text-ink hover:border-ink`}>
+        <button type="button" onClick={() => onSort(sort === 'desc' ? 'asc' : 'desc')} className={`${chip} border-line-strong bg-surface text-ink hover:border-ink`}>
           Price {sort === 'desc' ? 'high → low' : 'low → high'}
         </button>
       </div>
@@ -198,18 +208,20 @@ function Toolbar({ listings, shown, filter, onFilter, sort, onSort }: ToolbarPro
 
 const titleCase = (label: string) => label[0] + label.slice(1).toLowerCase()
 
+const TILTS = [-0.8, 0.6, -0.5, 0.9]
+
 interface ListingCardProps {
   listing: Listing
   events: PassportEvent[]
   email: string
-  /** Stagger of the rise-in animation, in ms. */
-  delay: number
+  /** How crooked the card sits, in degrees. */
+  tilt: number
   /** Whether a logged-in customer saved it; null for visitors and technicians (no Save button). */
   saved: boolean | null
   onToggleSave: (deviceId: string) => void
 }
 
-function ListingCard({ listing, events, email, delay, saved, onToggleSave }: ListingCardProps) {
+function ListingCard({ listing, events, email, tilt, saved, onToggleSave }: ListingCardProps) {
   const colours = outcomeColours(listing.latest_outcome)
   const util = telemetrySeries(events, 'utilization_pct')
   const telemetry = listing.latest_telemetry
@@ -228,103 +240,104 @@ function ListingCard({ listing, events, email, delay, saved, onToggleSave }: Lis
       : ['telemetry', 'none yet'],
   ]
   return (
-    <li
-      className="flex animate-rise flex-col overflow-hidden rounded-[22px] border border-line bg-surface shadow-panel transition-shadow duration-200 hover:shadow-panel-hover"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <div className="flex flex-col gap-3.5 border-b px-6 py-[22px]" style={{ background: colours.bg, borderColor: colours.line }}>
-        <div className="flex flex-wrap items-center gap-2.5">
-          <span className="font-mono text-sm font-bold">{listing.device_id}</span>
-          <SolidBadge outcome={listing.latest_outcome} />
-          <span className="ml-auto">
+    <li className="flex">
+      <article
+        data-wiggle-host="1"
+        style={{ '--tilt': `${tilt}deg` } as CSSProperties}
+        className="relative flex w-full rotate-[var(--tilt)] flex-col gap-4 rounded-[24px] bg-surface p-3.5 pb-5 shadow-panel transition-[translate,rotate,box-shadow] duration-300 ease-spring hover:-translate-y-1.5 hover:rotate-0 hover:shadow-panel-hover"
+      >
+        <DeviceStage deviceType={listing.device_type} components={listing.components} height={168}>
+          <span className="absolute top-2.5 left-2.5">
+            <SolidBadge outcome={listing.latest_outcome} />
+          </span>
+          <span className="absolute top-2.5 right-2.5">
             <IntegrityBadge integrity={{ status: listing.passport_intact ? 'intact' : 'changed' }} />
           </span>
+        </DeviceStage>
+        <div className="flex flex-col gap-1 px-1.5">
+          <span className="font-mono text-base leading-none font-extrabold">{listing.device_id}</span>
+          <h3 className="text-[22px] leading-[1.15] font-extrabold tracking-[-.01em]">{listing.model}</h3>
+          {site && (
+            <span className="flex flex-wrap items-baseline gap-x-2 pt-1">
+              <span className={monoLabel}>Sample location</span>
+              <span className="text-sm font-bold">{site}</span>
+            </span>
+          )}
         </div>
-        <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-4 border-y-2 border-dashed border-line px-1.5 py-3.5">
           <div className="flex min-w-0 flex-col gap-1">
-            <h3 className="text-xl font-bold tracking-[-.01em]">{listing.model}</h3>
-            {site && (
-              <span className="flex flex-wrap items-baseline gap-x-2 pb-1">
-                <span className={monoLabel}>Sample location</span>
-                <span className="text-sm font-semibold">{site}</span>
-              </span>
-            )}
             <span className={monoLabel}>Sample asking price</span>
-            <span className="text-[clamp(30px,3vw,42px)] leading-[1.05] font-[750] tracking-[-.03em] tabular-nums">{formatPrice(listing.price)}</span>
+            <span className="font-display text-[clamp(30px,3vw,38px)] leading-[1.05] font-extrabold tracking-[-.01em] tabular-nums">{formatPrice(listing.price)}</span>
           </div>
-          <div className="flex min-w-[150px] flex-[0_1_200px] flex-col gap-1">
+          <div className="flex min-w-[130px] flex-[0_1_180px] flex-col gap-1">
             <span className="flex justify-between font-mono text-[11px] text-ink-2">
               <span>util</span>
               <strong className="text-ink">{typeof latestUtil === 'number' ? `${latestUtil} %` : '—'}</strong>
             </span>
-            <Sparkline values={util} colour={colours.fg} height={40} />
+            <Sparkline values={util} colour={colours.dot} height={40} />
           </div>
         </div>
-      </div>
-      <CardPhoto photo={photoFor(listing.device_type)} />
-      <HardwareArt
-        deviceType={listing.device_type}
-        components={listing.components}
-        colour={colours.fg}
-        className="border-b border-line bg-blueprint px-6 py-5"
-      />
-      <dl className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,max(150px,calc((100%-2px)/3))),1fr))] gap-px bg-line">
-        {specs.map(([key, value]) => (
-          <div key={key} className="flex min-w-0 flex-col gap-[3px] bg-surface px-5 py-3.5">
-            <dt className="font-mono text-[11px] tracking-[.06em] text-ink-2">{key}</dt>
-            <dd className="text-sm font-semibold break-words">{value}</dd>
-          </div>
-        ))}
-      </dl>
-      {listing.note && <p className="border-t border-line px-6 py-3.5 text-sm text-ink-2">{listing.note}</p>}
-      <div className="mt-auto flex flex-wrap gap-2.5 px-6 pt-1 pb-6">
-        <Link to={`/device/${encodeURIComponent(listing.device_id)}`} className={`${primaryButton} min-h-[52px] flex-[1_1_200px]`}>
-          Open the passport →
-        </Link>
-        {/* Opens the visitor's own e-mail app: no account, and the app stores nothing. */}
-        <a href={enquiryLink(email, listing.device_id)} className={`${secondaryButton} min-h-[52px] flex-[1_1_200px]`}>
-          Ask about this device
-        </a>
-        {saved !== null && <SaveButton deviceId={listing.device_id} saved={saved} onToggle={onToggleSave} className="flex-[1_1_120px]" />}
-      </div>
+        <dl className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,150px),1fr))] gap-x-4 gap-y-3 px-1.5">
+          {specs.map(([key, value]) => (
+            <div key={key} className="flex min-w-0 flex-col gap-0.5">
+              <dt className="font-mono text-[11px] tracking-[.06em] text-ink-2">{key}</dt>
+              <dd className="text-sm font-bold break-words">{value}</dd>
+            </div>
+          ))}
+        </dl>
+        {listing.note && <p className="rc-hand px-1.5 text-lg leading-[1.2]">{listing.note}</p>}
+        <div className="mt-auto flex flex-wrap gap-3 px-1.5 pt-1">
+          <Link to={`/device/${encodeURIComponent(listing.device_id)}`} className={`${primaryButton} flex-[1_1_200px]`}>
+            Open the passport →
+          </Link>
+          {/* Opens the visitor's own e-mail app: no account, and the app stores nothing. */}
+          <a href={enquiryLink(email, listing.device_id)} className={`${secondaryButton} flex-[1_1_200px]`}>
+            Ask about this device
+          </a>
+          {saved !== null && <SaveButton deviceId={listing.device_id} saved={saved} onToggle={onToggleSave} className="flex-[1_1_120px]" />}
+        </div>
+      </article>
     </li>
   )
 }
 
-const contactRow = 'border-b border-line py-4'
+const contactRow = 'border-b-2 border-dashed border-line py-4'
 
 function ContactBand({ contact }: { contact: Contact }) {
   return (
-    <section aria-labelledby="contact" className="relative overflow-hidden border-t border-line bg-page py-[clamp(56px,7vw,104px)]">
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-blueprint [mask-image:radial-gradient(ellipse_at_80%_50%,#000,transparent_70%)]" />
-      <div className={`${container} relative grid grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] items-center gap-x-[clamp(40px,6vw,120px)] gap-y-10`}>
+    <section aria-labelledby="contact" className="mt-[clamp(24px,4vw,48px)] rounded-t-[clamp(28px,4vw,56px)] bg-band">
+      <div className={`${container} grid grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] items-center gap-x-[clamp(40px,6vw,96px)] gap-y-10 py-[clamp(56px,7vw,96px)]`}>
         <div className="flex flex-col gap-4">
-          <span className="font-mono text-[13px] font-bold tracking-[.08em] text-accent">02 · CONTACT THE DATA CENTRE</span>
-          <h2 id="contact" className="text-[clamp(30px,4vw,60px)] leading-none font-[750] tracking-[-.035em]">
+          <span className="rc-eyebrow text-redeploy">02 · CONTACT THE DATA CENTRE</span>
+          <h2 id="contact" className="text-[clamp(34px,4.4vw,56px)] leading-[.95] font-extrabold tracking-[-.02em]">
             Interested in a device?
           </h2>
-          <p className="max-w-[46ch] text-[clamp(16px,1.3vw,19px)] text-ink-2">
+          <p className="max-w-[46ch] text-[clamp(16px,1.3vw,19px)] leading-[1.55] font-medium text-ink">
             E-mail the data centre with its device ID. There is no order form; your own e-mail app opens.
           </p>
-          <a href={`mailto:${contact.email}`} className={`${primaryButton} mt-1.5 min-h-14 self-start text-base`}>
+          <a href={`mailto:${contact.email}`} className={`${primaryButton} mt-1.5 min-h-14 self-start px-[26px]`}>
             {contact.email}
             <span aria-hidden>→</span>
           </a>
         </div>
-        <dl className="grid grid-cols-[max-content_minmax(0,1fr)] overflow-hidden rounded-[18px] border border-line bg-surface shadow-panel">
-          <dt className={`${contactRow} px-5 font-mono text-xs text-ink-2`}>organisation</dt>
-          <dd className={`${contactRow} pr-5 font-semibold`}>{contact.organisation}</dd>
-          {contact.phone && (
-            <>
-              <dt className={`${contactRow} px-5 font-mono text-xs text-ink-2`}>phone</dt>
-              <dd className={`${contactRow} pr-5 font-semibold`}>{contact.phone}</dd>
-            </>
-          )}
-          <dt className={`${contactRow} px-5 font-mono text-xs text-ink-2`}>hours</dt>
-          <dd className={`${contactRow} pr-5 font-semibold`}>{contact.hours}</dd>
-          <dt className="px-5 py-4 font-mono text-xs text-ink-2">note</dt>
-          <dd className="py-4 pr-5 font-semibold">{contact.note}</dd>
-        </dl>
+        <div className="relative">
+          <Chip pose="wave" anim={['wave', 'blink', 'antenna']} eyes className="absolute -top-[84px] right-4 aspect-[204/214] w-[100px]" />
+          <dl className="relative grid grid-cols-[max-content_minmax(0,1fr)] rounded-[24px] bg-surface shadow-panel">
+            <span aria-hidden className="rc-tape" />
+            <dt className={`${contactRow} px-5 pt-5 font-mono text-xs text-ink-2`}>organisation</dt>
+            <dd className={`${contactRow} pt-5 pr-5 font-bold`}>{contact.organisation}</dd>
+            {contact.phone && (
+              <>
+                <dt className={`${contactRow} px-5 font-mono text-xs text-ink-2`}>phone</dt>
+                <dd className={`${contactRow} pr-5 font-bold`}>{contact.phone}</dd>
+              </>
+            )}
+            <dt className={`${contactRow} px-5 font-mono text-xs text-ink-2`}>hours</dt>
+            <dd className={`${contactRow} pr-5 font-bold`}>{contact.hours}</dd>
+            <dt className="px-5 py-4 font-mono text-xs text-ink-2">note</dt>
+            <dd className="py-4 pr-5 font-bold">{contact.note}</dd>
+          </dl>
+        </div>
       </div>
     </section>
   )

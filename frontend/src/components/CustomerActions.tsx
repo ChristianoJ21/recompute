@@ -5,9 +5,9 @@ import { describeError, sendEnquiry } from '../api/client'
 import { ErrorNotice, Notice, fieldClass, primaryButton } from './ui'
 
 const saveBase =
-  'inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full border px-5 text-[15px] font-semibold transition-colors duration-200'
-const saveOff = 'border-line-strong bg-transparent text-ink hover:border-ink hover:bg-raised'
-const saveOn = 'border-accent bg-accent/10 text-accent'
+  'inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[18px] border-2 px-5 text-[15px] font-bold transition-[scale,background-color] duration-200 ease-spring active:scale-95'
+const saveOff = 'border-line-strong bg-transparent text-ink hover:border-ink hover:bg-sunken'
+const saveOn = 'border-ink bg-upgrade-bg text-ink'
 
 interface SaveButtonProps {
   deviceId: string
