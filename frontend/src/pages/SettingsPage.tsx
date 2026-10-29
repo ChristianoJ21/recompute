@@ -59,7 +59,7 @@ export function SettingsPage() {
         <div className={`${container} flex flex-wrap items-start gap-[clamp(20px,3vw,48px)]`}>
           <nav
             aria-label="Settings sections"
-            className="flex max-w-full flex-[1_1_220px] flex-col gap-1.5 rounded-[20px] border border-line bg-surface p-2 shadow-panel md:sticky md:top-[93px]"
+            className="flex max-w-full flex-[1_1_220px] flex-row flex-wrap gap-1.5 rounded-[20px] border border-line bg-surface p-2 shadow-panel md:sticky md:top-[93px] md:flex-col"
           >
             {sections.map(([n, label, href]) => (
               <a

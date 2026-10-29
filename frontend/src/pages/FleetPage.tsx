@@ -284,7 +284,11 @@ function StatsTiles({ devices, summary, stats }: { devices: DeviceSummary[]; sum
     },
   ]
   return (
-    <ul aria-label="Fleet stats" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-3">
+    // Two tiles per row on phones (the odd last one spans both), one row of five on desktop.
+    <ul
+      aria-label="Fleet stats"
+      className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,150px),1fr))] gap-3 max-sm:[&>li:last-child:nth-child(odd)]:col-span-2"
+    >
       {tiles.map((tile) => (
         // Status is shown with an icon and words, never colour alone.
         <li
