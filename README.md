@@ -48,7 +48,7 @@ Load the sample fleet from the repo root (backend running):
 
 ```
 $env:RECOMPUTE_USERNAME = "tech-1"; $env:RECOMPUTE_PASSWORD = "<password>"   # PowerShell; bash: export ...
-py scripts/seed.py                                          # workloads, 13 devices, evaluates each (every outcome appears), lists 5 for sale
+py scripts/seed.py                                          # workloads, 14 devices, evaluates each (every outcome appears), lists 6 for sale
 py scripts/simulate_telemetry.py                            # one SIMULATED telemetry event per device
 py scripts/simulate_telemetry.py --rounds 0 --interval 10   # keep adding readings until Ctrl+C
 ```

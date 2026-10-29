@@ -19,7 +19,7 @@ import {
   primaryButton,
   secondaryButton,
 } from '../components/ui'
-import { formatComponents, formatDate, formatDateTime, formatDeviceType, formatPrice, telemetryReadings } from '../lib/format'
+import { formatComponents, formatDate, formatDateTime, formatDeviceType, formatPrice, locationSite, telemetryReadings } from '../lib/format'
 import { useFavourites } from '../lib/favourites'
 import { enquiryLink } from '../lib/listing'
 import { OUTCOME_STYLE, outcomeColours } from '../lib/outcomes'
@@ -209,6 +209,8 @@ function ListingCard({ listing, events, email, delay, saved, onToggleSave }: Lis
   const telemetry = listing.latest_telemetry
   const readings = telemetry ? telemetryReadings(telemetry.payload).filter((reading) => reading.label !== 'util') : []
   const latestUtil = telemetry?.payload.utilization_pct
+  // Older backends (contract < v2.5) send no location, e.g. while Vercel and Render redeploy at different times.
+  const site = listing.location ? (locationSite(listing.location) ?? listing.location) : null
   const specs: [string, string][] = [
     ['type', formatDeviceType(listing.device_type)],
     ['installed', formatDate(listing.install_date)],
@@ -235,6 +237,12 @@ function ListingCard({ listing, events, email, delay, saved, onToggleSave }: Lis
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="flex min-w-0 flex-col gap-1">
             <h3 className="text-xl font-bold tracking-[-.01em]">{listing.model}</h3>
+            {site && (
+              <span className="flex flex-wrap items-baseline gap-x-2 pb-1">
+                <span className={monoLabel}>Sample location</span>
+                <span className="text-sm font-semibold">{site}</span>
+              </span>
+            )}
             <span className={monoLabel}>Sample asking price</span>
             <span className="text-[clamp(30px,3vw,42px)] leading-[1.05] font-[750] tracking-[-.03em] tabular-nums">{formatPrice(listing.price)}</span>
           </div>

@@ -1,4 +1,4 @@
-# ReCompute API contract v2.4
+# ReCompute API contract v2.5
 
 > **Owner:** Panji (backend). **Panji decides changes and tells Jose before they land.** The frontend calls the backend only through `frontend/src/api/client.ts`, via `/api/*` (Vite proxy on the laptop, Vercel rewrite when hosted; both forward to the backend, so no CORS is needed).
 > Spec: `PRD_ReCompute_App.md` Sections 5–7 and 15. Base URL (local): `http://localhost:8000`. Interactive docs: `/docs`.
@@ -117,7 +117,7 @@ sample_data     bool, default true
 
 **Listing** (`GET /listings`, see `examples/listings.json`)
 ```
-device_id, model, device_type, install_date, components, reliability_ok   from the device record
+device_id, model, device_type, location, install_date, components, reliability_ok   from the device record
 latest_outcome     outcome of the latest evaluation, or null
 passport_intact    `valid` from /events/verify
 wiped_at           time of the newest `wipe` event
@@ -127,7 +127,7 @@ note               note from the `list` event, or null
 latest_telemetry   the newest `telemetry` event (full event object), or null
 sample_data        bool
 ```
-The price is shown, but there is **no buy button, cart, payment or order**: buyers use the contact box. `location` is left out on purpose (not needed by a buyer).
+The price is shown, but there is **no buy button, cart, payment or order**: buyers use the contact box. `location` (v2.5) is the same text the public passport already shows; the sample fleet writes it `City, Country · hall / use`, and the `/hardware` card shows the city part.
 
 **Contact** (`GET /contact`): one **fictional** sample data centre, see `examples/contact.json` (`phone` may be null). Never a real person's details. Read-only: there is no message form (the app collects no visitor data).
 
@@ -173,3 +173,4 @@ Dates: ISO 8601 UTC with `Z`. Dates without time: `YYYY-MM-DD`.
 - **v2.2 (28 Oct 2026)**: new `POST /auth/technicians` (🔒): technicians add technicians. Additive only; still no public sign-up.
 - **v2.3 (29 Oct 2026)**: new `PATCH /auth/me` (own full name) and `POST /auth/password` (own password, needs the current one) for the frontend `/settings` page, both 🔒. Additive only. New examples: `profile_request`, `profile_updated`, `password_change_request`, `password_changed`.
 - **v2.4 (29 Oct 2026)**: **customer accounts** (Panji, 29 Oct): public `POST /customers/signup` and `/customers/login`, 👤 `GET /customers/me`, saved devices (`GET`/`PUT`/`DELETE /customers/me/favourites…`, listed devices only) and enquiries (`POST`/`GET /customers/me/enquiries`); technicians (the admins) read `GET /enquiries` and `GET /customers`. Tokens gain a `role` claim; a token of the wrong role gets **403** (new error). Customer data never enters a passport. Rate limits: 5 sign-ups per address and 10 enquiries per customer in 15 min (429). Additive for existing callers. New examples: `customer_signup_request`, `customer_session`, `customer_me`, `favourite_saved`, `favourites_list`, `enquiry_request`, `enquiry_created`, `enquiries_list`, `customers_list`.
+- **v2.5 (30 Oct 2026)**: Listing gains `location` (A10 phase 1: sample city on the `/hardware` cards). Additive only; it was already public on `GET /devices/{id}`. Examples regenerated (reference fleet now named with real parts, e.g. "GPU server · 4× NVIDIA A100 (sample)", in "Jakarta, Indonesia · Hall A / …"; still toy numbers).

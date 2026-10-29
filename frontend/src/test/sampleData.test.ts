@@ -3,6 +3,7 @@ import createRequest from '../../../contracts/examples/device_create_request.jso
 import forecast from '../../../data/market_forecast.json'
 import fleet from '../../../data/sample_devices.json'
 import { OUTCOMES, type ForecastPoint, type Range } from '../api/types'
+import { locationSite } from '../lib/format'
 
 const ID_PATTERN = /^[A-Za-z0-9._-]{1,64}$/
 
@@ -43,6 +44,12 @@ describe('data/sample_devices.json', () => {
       }
     }
     for (const workload of fleet.workloads) expectRange(workload.W, workload.id)
+  })
+
+  it('puts every device in a sample Indonesian city (A10: "City, Indonesia · hall / use")', () => {
+    for (const device of fleet.devices) {
+      expect(locationSite(device.location), device.id).toMatch(/^(Jakarta|Cikarang|Batam|Surabaya), Indonesia$/)
+    }
   })
 
   it('expects all six outcomes, one per device', () => {

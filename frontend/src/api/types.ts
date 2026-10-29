@@ -144,6 +144,8 @@ export interface Listing {
   device_id: string
   model: string
   device_type: string
+  /** "City, Country · hall / use" in the sample fleet (contract v2.5); the card shows the city. */
+  location: string
   install_date: string
   components: { type: string; model: string }[]
   reliability_ok: boolean

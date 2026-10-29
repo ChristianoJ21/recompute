@@ -11,13 +11,13 @@
   "devices": [
     {
       "id": "GPU-SRV-001",
-      "model": "AccelServer-v1 (sample)",
+      "model": "GPU server · 4× NVIDIA A100 (sample)",
       "device_type": "gpu_server",
       "install_date": "2022-03-01",
-      "location": "Hall A / large-model training",
+      "location": "Jakarta, Indonesia · Hall A / large-model training",
       "components": [
-        {"type": "gpu", "model": "Accel-v1"},
-        {"type": "memory", "model": "HBM-v1"}
+        {"type": "gpu", "model": "NVIDIA A100"},
+        {"type": "memory", "model": "DDR4-3200 RDIMM"}
       ],
       "reliability_ok": true,
       "inputs": {
@@ -32,13 +32,13 @@
     },
     {
       "id": "GPU-SRV-002",
-      "model": "AccelServer-v1 (sample)",
+      "model": "GPU server · 4× NVIDIA A100 (sample)",
       "device_type": "gpu_server",
       "install_date": "2022-03-01",
-      "location": "Hall A / light inference",
+      "location": "Jakarta, Indonesia · Hall A / light inference",
       "components": [
-        {"type": "gpu", "model": "Accel-v1"},
-        {"type": "memory", "model": "HBM-v1"}
+        {"type": "gpu", "model": "NVIDIA A100"},
+        {"type": "memory", "model": "DDR4-3200 RDIMM"}
       ],
       "reliability_ok": true,
       "inputs": {
@@ -53,13 +53,13 @@
     },
     {
       "id": "GPU-SRV-003",
-      "model": "AccelServer-v1 (sample)",
+      "model": "GPU server · 4× NVIDIA A100 (sample)",
       "device_type": "gpu_server",
       "install_date": "2022-03-01",
-      "location": "Hall A / large-model training",
+      "location": "Jakarta, Indonesia · Hall A / large-model training",
       "components": [
-        {"type": "gpu", "model": "Accel-v1"},
-        {"type": "memory", "model": "HBM-v1"}
+        {"type": "gpu", "model": "NVIDIA A100"},
+        {"type": "memory", "model": "DDR4-3200 RDIMM"}
       ],
       "reliability_ok": true,
       "inputs": {
@@ -80,13 +80,13 @@
     },
     {
       "id": "GPU-SRV-004",
-      "model": "AccelServer-v1 (sample)",
+      "model": "GPU server · 4× NVIDIA A100 (sample)",
       "device_type": "gpu_server",
       "install_date": "2022-03-01",
-      "location": "Hall A / large-model training",
+      "location": "Jakarta, Indonesia · Hall A / large-model training",
       "components": [
-        {"type": "gpu", "model": "Accel-v1"},
-        {"type": "memory", "model": "HBM-v1"}
+        {"type": "gpu", "model": "NVIDIA A100"},
+        {"type": "memory", "model": "DDR4-3200 RDIMM"}
       ],
       "reliability_ok": false,
       "inputs": {
@@ -101,13 +101,13 @@
     },
     {
       "id": "GPU-SRV-005",
-      "model": "AccelServer-v1 (sample)",
+      "model": "GPU server · 4× NVIDIA A100 (sample)",
       "device_type": "gpu_server",
       "install_date": "2022-03-01",
-      "location": "Hall A / large-model training",
+      "location": "Jakarta, Indonesia · Hall A / large-model training",
       "components": [
-        {"type": "gpu", "model": "Accel-v1"},
-        {"type": "memory", "model": "HBM-v1"}
+        {"type": "gpu", "model": "NVIDIA A100"},
+        {"type": "memory", "model": "DDR4-3200 RDIMM"}
       ],
       "reliability_ok": true,
       "inputs": {
@@ -122,13 +122,13 @@
     },
     {
       "id": "GPU-SRV-006",
-      "model": "AccelServer-v1 (sample)",
+      "model": "GPU server · 4× NVIDIA A100 (sample)",
       "device_type": "gpu_server",
       "install_date": "2022-03-01",
-      "location": "Hall A / mid-size training",
+      "location": "Jakarta, Indonesia · Hall A / mid-size training",
       "components": [
-        {"type": "gpu", "model": "Accel-v1"},
-        {"type": "memory", "model": "HBM-v1"}
+        {"type": "gpu", "model": "NVIDIA A100"},
+        {"type": "memory", "model": "DDR4-3200 RDIMM"}
       ],
       "reliability_ok": true,
       "inputs": {
@@ -143,14 +143,14 @@
     },
     {
       "id": "GPU-SRV-007",
-      "model": "AccelServer-v2 (sample)",
+      "model": "GPU server · 8× NVIDIA H100 (sample)",
       "device_type": "gpu_server",
       "install_date": "2024-06-10",
-      "location": "Hall A / inference",
+      "location": "Cikarang, Indonesia · Hall A / inference",
       "components": [
-        {"type": "gpu", "model": "Accel-v2"},
-        {"type": "memory", "model": "HBM-v2"},
-        {"type": "cpu", "model": "Host-v2"}
+        {"type": "gpu", "model": "NVIDIA H100"},
+        {"type": "memory", "model": "DDR5-4800 RDIMM"},
+        {"type": "cpu", "model": "Intel Xeon Platinum 8480+"}
       ],
       "reliability_ok": true,
       "inputs": {
@@ -165,14 +165,14 @@
     },
     {
       "id": "GPU-SRV-008",
-      "model": "AccelServer-v1 (sample)",
+      "model": "GPU server · 4× NVIDIA A100 (sample)",
       "device_type": "gpu_server",
       "install_date": "2022-03-01",
-      "location": "Hall A / batch rendering",
+      "location": "Cikarang, Indonesia · Hall A / batch rendering",
       "components": [
-        {"type": "gpu", "model": "Accel-v1"},
-        {"type": "memory", "model": "HBM-v1"},
-        {"type": "psu", "model": "PSU-2k-v1"}
+        {"type": "gpu", "model": "NVIDIA A100"},
+        {"type": "memory", "model": "DDR4-3200 RDIMM"},
+        {"type": "psu", "model": "2000 W"}
       ],
       "reliability_ok": true,
       "inputs": {
@@ -187,14 +187,14 @@
     },
     {
       "id": "STOR-SRV-001",
-      "model": "BulkStore-24 (sample)",
+      "model": "24-bay storage server · Intel Xeon Silver (sample)",
       "device_type": "storage_server",
       "install_date": "2021-09-15",
-      "location": "Hall B / cold archive",
+      "location": "Batam, Indonesia · Hall B / cold archive",
       "components": [
-        {"type": "storage", "model": "Drive-3.5-v1"},
-        {"type": "cpu", "model": "Host-v1"},
-        {"type": "psu", "model": "PSU-800-v1"}
+        {"type": "storage", "model": "3.5-inch SATA hard drive"},
+        {"type": "cpu", "model": "Intel Xeon Silver 4314"},
+        {"type": "psu", "model": "800 W"}
       ],
       "reliability_ok": true,
       "inputs": {
@@ -209,14 +209,14 @@
     },
     {
       "id": "STOR-SRV-002",
-      "model": "BulkStore-24 (sample)",
+      "model": "24-bay storage server · Intel Xeon Silver (sample)",
       "device_type": "storage_server",
       "install_date": "2021-09-15",
-      "location": "Hall B / object storage",
+      "location": "Batam, Indonesia · Hall B / object storage",
       "components": [
-        {"type": "storage", "model": "Drive-3.5-v1"},
-        {"type": "nic", "model": "Net-25G-v1"},
-        {"type": "psu", "model": "PSU-800-v1"}
+        {"type": "storage", "model": "3.5-inch SATA hard drive"},
+        {"type": "nic", "model": "NVIDIA ConnectX-6 Lx 25GbE"},
+        {"type": "psu", "model": "800 W"}
       ],
       "reliability_ok": true,
       "inputs": {
@@ -231,13 +231,13 @@
     },
     {
       "id": "NET-SW-001",
-      "model": "EdgeSwitch-48 (sample)",
+      "model": "Top-of-rack switch · 48× 25GbE (sample)",
       "device_type": "network_switch",
       "install_date": "2020-11-02",
-      "location": "Hall B / top-of-rack",
+      "location": "Surabaya, Indonesia · Hall B / top-of-rack",
       "components": [
-        {"type": "cpu", "model": "Ctrl-v1"},
-        {"type": "psu", "model": "PSU-350-v1"}
+        {"type": "cpu", "model": "Intel Atom C3000 series"},
+        {"type": "psu", "model": "350 W"}
       ],
       "reliability_ok": true,
       "inputs": {
@@ -252,13 +252,13 @@
     },
     {
       "id": "NET-SW-002",
-      "model": "EdgeSwitch-48 (sample)",
+      "model": "Top-of-rack switch · 48× 25GbE (sample)",
       "device_type": "network_switch",
       "install_date": "2020-11-02",
-      "location": "Hall B / top-of-rack",
+      "location": "Surabaya, Indonesia · Hall B / top-of-rack",
       "components": [
-        {"type": "cpu", "model": "Ctrl-v1"},
-        {"type": "psu", "model": "PSU-350-v1"}
+        {"type": "cpu", "model": "Intel Atom C3000 series"},
+        {"type": "psu", "model": "350 W"}
       ],
       "reliability_ok": false,
       "inputs": {
@@ -273,14 +273,14 @@
     },
     {
       "id": "WS-001",
-      "model": "DeskNode-T (sample)",
+      "model": "Workstation · AMD Ryzen 9 7950X + NVIDIA GeForce RTX 3090 (sample)",
       "device_type": "workstation",
-      "install_date": "2022-08-20",
-      "location": "Lab C / design team",
+      "install_date": "2022-11-14",
+      "location": "Jakarta, Indonesia · Lab C / design team",
       "components": [
-        {"type": "gpu", "model": "Accel-w1"},
-        {"type": "cpu", "model": "Desk-v1"},
-        {"type": "ssd", "model": "Flash-1T-v1"}
+        {"type": "gpu", "model": "NVIDIA GeForce RTX 3090"},
+        {"type": "cpu", "model": "AMD Ryzen 9 7950X"},
+        {"type": "ssd", "model": "1 TB NVMe"}
       ],
       "reliability_ok": true,
       "inputs": {
@@ -298,9 +298,31 @@
         }
       ],
       "sample_data": true
+    },
+    {
+      "id": "WS-002",
+      "model": "Workstation · Intel Core i9-14900K + NVIDIA GeForce RTX 4090 (sample)",
+      "device_type": "workstation",
+      "install_date": "2024-02-12",
+      "location": "Cikarang, Indonesia · Lab C / render team",
+      "components": [
+        {"type": "gpu", "model": "NVIDIA GeForce RTX 4090"},
+        {"type": "cpu", "model": "Intel Core i9-14900K"},
+        {"type": "ssd", "model": "2 TB NVMe"}
+      ],
+      "reliability_ok": true,
+      "inputs": {
+        "I_old": {"low": 4, "high": 5},
+        "I_new": {"low": 1.5, "high": 2},
+        "W": {"low": 120, "high": 120},
+        "T": {"low": 4, "high": 4},
+        "E_new": {"low": 500, "high": 600}
+      },
+      "upgrade_options": [],
+      "sample_data": true
     }
   ],
-  "expected_outcomes": {"GPU-SRV-001": "REDEPLOY", "GPU-SRV-002": "KEEP", "GPU-SRV-003": "UPGRADE", "GPU-SRV-004": "RECYCLE", "GPU-SRV-005": "INSUFFICIENT_DATA", "GPU-SRV-006": "UNCERTAIN", "GPU-SRV-007": "KEEP", "GPU-SRV-008": "INSUFFICIENT_DATA", "STOR-SRV-001": "KEEP", "STOR-SRV-002": "REDEPLOY", "NET-SW-001": "REDEPLOY", "NET-SW-002": "RECYCLE", "WS-001": "UPGRADE"},
+  "expected_outcomes": {"GPU-SRV-001": "REDEPLOY", "GPU-SRV-002": "KEEP", "GPU-SRV-003": "UPGRADE", "GPU-SRV-004": "RECYCLE", "GPU-SRV-005": "INSUFFICIENT_DATA", "GPU-SRV-006": "UNCERTAIN", "GPU-SRV-007": "KEEP", "GPU-SRV-008": "INSUFFICIENT_DATA", "STOR-SRV-001": "KEEP", "STOR-SRV-002": "REDEPLOY", "NET-SW-001": "REDEPLOY", "NET-SW-002": "RECYCLE", "WS-001": "UPGRADE", "WS-002": "REDEPLOY"},
   "listings": [
     {
       "device_id": "GPU-SRV-001",
@@ -326,6 +348,11 @@
       "device_id": "WS-001",
       "price": {"amount": 18000000, "currency": "IDR"},
       "note": "Graphics card upgrade path documented in the passport (sample)"
+    },
+    {
+      "device_id": "WS-002",
+      "price": {"amount": 24000000, "currency": "IDR"},
+      "note": "Released after REDEPLOY review; SSD wiped and kept in the case (sample)"
     }
   ]
 }

@@ -48,6 +48,15 @@ def test_listing_is_a_passport_event_in_the_chain(fleet):
     assert fleet.get("/devices/GPU-SRV-001/events/verify").json()["valid"] is True
 
 
+def test_listing_shows_where_the_device_is(fleet):
+    wipe(fleet)
+    list_device(fleet)
+
+    (row,) = fleet.get("/listings").json()
+
+    assert row["location"] == DEVICES[0]["location"]
+
+
 def test_device_cannot_be_listed_twice(fleet):
     wipe(fleet)
     list_device(fleet)

@@ -8,6 +8,7 @@ import {
   formatKg,
   formatPrice,
   formatRange,
+  locationSite,
   netBarGeometry,
   telemetryReadings,
 } from './format'
@@ -65,6 +66,17 @@ describe('device type and parts', () => {
     expect(formatComponents([{ type: 'psu', model: 'PSU-800-v1' }, { type: 'nic', model: 'Net-25G-v1' }, { type: 'storage', model: 'Drive-v1' }])).toBe(
       'PSU PSU-800-v1 · NIC Net-25G-v1 · Storage Drive-v1',
     )
+  })
+})
+
+describe('locationSite', () => {
+  it('takes the city from a location written "City, Country · hall / use"', () => {
+    expect(locationSite('Jakarta, Indonesia · Hall A / large-model training')).toBe('Jakarta, Indonesia')
+  })
+
+  it('gives null when the location names no site', () => {
+    expect(locationSite('Hall B / object storage')).toBeNull()
+    expect(locationSite(' · Hall B')).toBeNull()
   })
 })
 

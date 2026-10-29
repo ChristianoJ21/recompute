@@ -38,9 +38,9 @@ export function useLiveDevice(id: string | null): DeviceDetail | null {
 }
 
 const TILES = [
-  { key: 'utilization_pct', label: 'UTIL', unit: ' %', colour: '#8EA2FF' },
-  { key: 'power_w', label: 'POWER', unit: ' W', colour: '#C2A6F2' },
-  { key: 'inlet_temp_c', label: 'INLET', unit: ' °C', colour: '#79C4EC' },
+  { key: 'utilization_pct', label: 'UTIL', unit: ' %', colour: '#7BE0A4' },
+  { key: 'power_w', label: 'POWER', unit: ' W', colour: '#C6EA8A' },
+  { key: 'inlet_temp_c', label: 'INLET', unit: ' °C', colour: '#6FD3C0' },
 ] as const
 
 const mono = 'font-mono text-[11px] tracking-[.08em] text-night-fg3'
@@ -70,10 +70,10 @@ export function LivePassportCard({ listing, detail }: LivePassportCardProps) {
     <div onMouseMove={onMove} onMouseLeave={() => setTilt([0, 0])} className="[perspective:1200px]">
       <section
         aria-label={`Live passport of ${listing.device_id}`}
-        className="relative overflow-hidden rounded-[20px] border border-night-line bg-[linear-gradient(160deg,#181C24,#101318)] shadow-hero-card transition-transform duration-200 ease-out"
+        className="relative overflow-hidden rounded-[20px] border border-night-line bg-[linear-gradient(160deg,#16382A,#0B2116)] shadow-hero-card transition-transform duration-200 ease-out"
         style={{ transform: `rotateX(${(-tilt[1] * 6).toFixed(2)}deg) rotateY(${(tilt[0] * 8).toFixed(2)}deg)` }}
       >
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 z-[2] h-20 animate-sweep bg-[linear-gradient(transparent,rgba(142,162,255,.10)_85%,rgba(142,162,255,.5))]" />
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 z-[2] h-20 animate-sweep bg-[linear-gradient(transparent,rgba(123,224,164,.10)_85%,rgba(123,224,164,.5))]" />
         <div className="flex flex-wrap items-center gap-2.5 border-b border-night-line px-5 py-4">
           <span className="font-mono text-[15px] font-bold text-white">{listing.device_id}</span>
           <OutcomeBadge outcome={listing.latest_outcome} />
@@ -113,13 +113,13 @@ export function LivePassportCard({ listing, detail }: LivePassportCardProps) {
                 <li
                   key={event.id}
                   className={`grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[10px] border px-3 py-[9px] font-mono text-xs ${
-                    i === 0 ? 'animate-in border-night-accent/35 bg-night-accent/10' : 'border-[#22262E] bg-white/[.025]'
+                    i === 0 ? 'animate-in border-night-accent/35 bg-night-accent/10' : 'border-night-line bg-white/[.025]'
                   }`}
                 >
                   <span className="font-bold text-night-accent">#{event.id}</span>
                   <span className="truncate text-night-fg">
                     <span>{eventLabel(event.kind)}</span>
-                    <span className="text-[#6A6F77]">{`  ${hash}`}</span>
+                    <span className="text-night-fg3">{`  ${hash}`}</span>
                   </span>
                   <span className="whitespace-nowrap">
                     {link === 'verified' && (

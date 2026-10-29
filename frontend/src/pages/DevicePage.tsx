@@ -149,7 +149,7 @@ function Passport({ detail, canEdit, evaluating, evaluateError, onEvaluate, onEv
   const { device, events, latest_evaluation } = detail
   const check = usePassportCheck(device.id, events)
   const listing = currentListing(events)
-  const glow = latest_evaluation?.outcome === 'UNCERTAIN' ? 'rgba(138,70,0,.45)' : 'rgba(91,53,151,.5)'
+  const glow = latest_evaluation?.outcome === 'UNCERTAIN' ? 'rgba(138,70,0,.45)' : 'rgba(19,114,58,.55)'
   return (
     <>
       <DarkBand glow={glow} footer={<Mrz detail={detail} />}>
@@ -211,8 +211,9 @@ function Identity({ detail, check }: { detail: DeviceDetail; check: PassportChec
     <div data-theme="dark" className="flex min-w-0 flex-col gap-4">
       <span className="font-mono text-xs font-semibold tracking-[.12em] text-night-accent-2">DEVICE PASSPORT</span>
       <h1 className="font-mono text-[clamp(36px,5.6vw,88px)] leading-[.95] font-bold tracking-[-.04em] break-all text-white">{device.id}</h1>
-      <p className="text-[clamp(16px,1.4vw,19px)] text-night-fg2">
-        {device.model} · {device.location}
+      <p className="flex flex-col text-[clamp(16px,1.4vw,19px)] text-night-fg2">
+        <span>{device.model}</span>
+        <span>{device.location}</span>
       </p>
       <div className="flex flex-wrap gap-2.5 pt-1">
         <OutcomeBadge outcome={latest_evaluation?.outcome ?? null} size="lg" />
@@ -237,7 +238,7 @@ function NotListed({ target, canEdit }: { target: string | null; canEdit: boolea
       className="flex w-full max-w-[460px] flex-col gap-2.5 rounded-[22px] border border-white/12 bg-white/4 px-[22px] py-5 min-[1100px]:justify-self-end"
     >
       <span className="font-mono text-xs font-bold tracking-[.1em] text-night-fg3">NOT LISTED FOR SALE</span>
-      <p className="text-[15px] text-[#C9CCD1]">{target ?? 'This device is not released. Its passport is public.'}</p>
+      <p className="text-[15px] text-night-fg2">{target ?? 'This device is not released. Its passport is public.'}</p>
       {canEdit && (
         <a href="#log" className={`${nightButton} min-h-[46px] self-start px-5`}>
           Log an action ↓
@@ -259,7 +260,7 @@ function Mrz({ detail }: { detail: DeviceDetail }) {
     `HEAD<${shortHash(head)}`,
   ].join('<<')
   return (
-    <div aria-hidden className="relative overflow-hidden border-t border-white/8 bg-white/[.02] py-3 font-mono text-xs tracking-[.18em] whitespace-nowrap text-[#6A6F77]">
+    <div aria-hidden className="relative overflow-hidden border-t border-white/8 bg-white/[.02] py-3 font-mono text-xs tracking-[.18em] whitespace-nowrap text-night-fg3">
       <div className="inline-flex animate-marquee gap-12">
         {[0, 1, 2, 3, 4, 5].map((n) => (
           <span key={n}>{mrz}</span>

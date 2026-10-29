@@ -17,7 +17,7 @@ import {
   nightButton,
   panelClass,
 } from '../components/ui'
-import { formatDateTime } from '../lib/format'
+import { formatDateTime, locationSite } from '../lib/format'
 import { OUTCOME_STYLE, outcomeColours } from '../lib/outcomes'
 
 /** Technician stats (PRD 15.2) beyond the outcome counts. */
@@ -50,8 +50,9 @@ async function loadFleet() {
   return { devices, summary, stats }
 }
 
-/** "Hall A" from locations like "Hall A / Row 1". */
-const halls = (devices: DeviceSummary[]) => [...new Set(devices.map((d) => d.location.split(' / ')[0]))].join(', ')
+/** "Jakarta, Batam" from locations like "Jakarta, Indonesia · Hall A / training"; "Hall A" when one names no city. */
+const sites = (devices: DeviceSummary[]) =>
+  [...new Set(devices.map((d) => locationSite(d.location)?.split(', ')[0] ?? d.location.split(' / ')[0]))].join(', ')
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
 export function FleetPage() {
@@ -85,12 +86,12 @@ export function FleetPage() {
         <div className={`${container} relative flex flex-col gap-[clamp(28px,3.5vw,48px)] pt-[clamp(36px,4.5vw,72px)] pb-[clamp(36px,4.5vw,64px)]`}>
           <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-5">
             <div className="flex flex-col gap-3.5">
-              <HeroChip live>FLEET{ready ? ` · ${halls(ready.devices).toUpperCase()}` : ''}</HeroChip>
+              <HeroChip live>FLEET{ready ? ` · ${sites(ready.devices).toUpperCase()}` : ''}</HeroChip>
               <h1 id="fleet-h" className="text-[clamp(40px,5.4vw,84px)] leading-none font-[750] tracking-[-.045em] text-white">
                 Fleet dashboard
               </h1>
               {ready && (
-                <p className="text-[clamp(16px,1.35vw,19px)] text-night-fg2">{`${halls(ready.devices)} · ${plural(ready.summary.devices, 'device')}`}</p>
+                <p className="text-[clamp(16px,1.35vw,19px)] text-night-fg2">{`${sites(ready.devices)} · ${plural(ready.summary.devices, 'device')}`}</p>
               )}
             </div>
             <div className="flex flex-wrap gap-2.5">
@@ -267,7 +268,7 @@ interface Tile {
 function StatsTiles({ devices, summary, stats }: { devices: DeviceSummary[]; summary: FleetSummary; stats: Stats }) {
   const allIntact = stats.checked > 0 && stats.intact === stats.checked
   const tiles: Tile[] = [
-    { label: 'Devices', value: String(summary.devices), sub: `in ${halls(devices)}` },
+    { label: 'Devices', value: String(summary.devices), sub: `in ${sites(devices)}` },
     {
       label: 'Not evaluated',
       value: String(summary.not_evaluated),

@@ -10,9 +10,9 @@ export const primaryButton = `${buttonBase} border-ink bg-ink text-surface hover
 
 export const secondaryButton = `${buttonBase} border-line-strong bg-transparent font-semibold text-ink hover:border-ink hover:bg-raised`
 
-/** The light-blue pill on the dark hero bands ("Browse hardware", "+ Add technician"). */
+/** The mint pill on the forest-green hero bands ("Browse hardware", "+ Add technician"). */
 export const nightButton =
-  'inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-full bg-night-accent px-6 text-[15px] font-bold text-night no-underline shadow-[0_10px_30px_-8px_rgba(142,162,255,.6)] transition-[translate,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-8px_rgba(142,162,255,.9)]'
+  'inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-full bg-night-accent px-6 text-[15px] font-bold text-night no-underline shadow-[0_10px_30px_-8px_rgba(123,224,164,.5)] transition-[translate,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-8px_rgba(123,224,164,.8)]'
 
 /** Outlined pill on the dark bands ("How it works", "← Fleet"). */
 export const nightGhostButton =
@@ -125,7 +125,7 @@ export function HeroChip({ live = false, children }: { live?: boolean; children:
 }
 
 /** Drifting grid and a soft glow behind a dark band (decoration only). */
-export function NightBackdrop({ glow = 'rgba(36,67,201,.55)' }: { glow?: string }) {
+export function NightBackdrop({ glow = 'rgba(19,114,58,.6)' }: { glow?: string }) {
   return (
     <>
       <div aria-hidden className="pointer-events-none absolute inset-0 animate-drift bg-night-grid" />

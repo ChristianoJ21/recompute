@@ -110,8 +110,8 @@ function Lockup() {
 }
 
 const FIELD = [
-  'top-[-20%] left-[-10%] h-[80%] w-[60%] bg-[radial-gradient(closest-side,rgba(36,67,201,.8),transparent)]',
-  'top-[5%] right-[-12%] h-[85%] w-[55%] bg-[radial-gradient(closest-side,rgba(91,53,151,.7),transparent)]',
+  'top-[-20%] left-[-10%] h-[80%] w-[60%] bg-[radial-gradient(closest-side,rgba(19,114,58,.8),transparent)]',
+  'top-[5%] right-[-12%] h-[85%] w-[55%] bg-[radial-gradient(closest-side,rgba(74,111,12,.7),transparent)]',
   'bottom-[-30%] left-[18%] h-[75%] w-[60%] bg-[radial-gradient(closest-side,rgba(111,208,143,.38),transparent)]',
   'right-[12%] bottom-[-12%] h-[55%] w-[38%] bg-[radial-gradient(closest-side,rgba(121,196,236,.5),transparent)]',
 ]
