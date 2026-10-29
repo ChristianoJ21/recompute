@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { describeError, getFleetSummary, getListings, listDevices, verifyEvents } from '../api/client'
 import { OUTCOMES, type DeviceSummary, type FleetSummary, type Outcome } from '../api/types'
+import { CustomerActivity } from '../components/CustomerActivity'
 import { OutcomeBadge } from '../components/OutcomeBadge'
 import { SolidBadge } from '../components/SolidBadge'
 import {
@@ -109,6 +110,7 @@ export function FleetPage() {
           {state.status === 'loading' && <Loading label="Loading the fleet…" />}
           {state.status === 'error' && <ErrorNotice message={state.message} onRetry={retry} />}
           {state.status === 'ready' && <Fleet devices={state.devices} summary={state.summary} />}
+          {state.status === 'ready' && <CustomerActivity />}
         </div>
       </div>
     </>

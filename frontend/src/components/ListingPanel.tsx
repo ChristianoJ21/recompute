@@ -2,12 +2,17 @@ import { useEffect, useId, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { describeError, getContact, listDevice, unlistDevice } from '../api/client'
 import type { Contact, PassportEvent } from '../api/types'
+import { useFavourites } from '../lib/favourites'
 import { asPrice, formatDate, formatPrice } from '../lib/format'
 import { enquiryLink, hasWipe } from '../lib/listing'
+import { useCustomer, useSession } from '../lib/session'
+import { EnquiryForm, SaveButton } from './CustomerActions'
 import { EnvelopeIcon } from './icons'
 import { ErrorNotice, Notice, Panel, PillTag, fieldClass, linkClass, monoLabel, primaryButton, secondaryButton } from './ui'
 
 const CURRENCIES = ['IDR', 'USD', 'EUR']
+const askToggle =
+  'inline-flex min-h-[52px] cursor-pointer list-none items-center justify-center rounded-full border border-line-strong px-5 text-[15px] font-semibold text-ink transition-colors duration-200 hover:border-ink hover:bg-raised [&::-webkit-details-marker]:hidden'
 
 /** Price, note and date of the device's current `list` event. */
 function ListedPrice({ listing, large = false }: { listing: PassportEvent; large?: boolean }) {
@@ -49,6 +54,9 @@ function useContact(): Contact | null {
 export function ForSaleBox({ deviceId, listing }: { deviceId: string; listing: PassportEvent }) {
   const headingId = useId()
   const contact = useContact()
+  const customer = useCustomer()
+  const technician = useSession()
+  const favourites = useFavourites()
   return (
     <section
       aria-labelledby={headingId}
@@ -63,7 +71,21 @@ export function ForSaleBox({ deviceId, listing }: { deviceId: string; listing: P
       </div>
       <div className="flex flex-1 flex-col gap-3.5 px-[22px] pt-5 pb-[22px]">
         <ListedPrice listing={listing} large />
-        {contact ? (
+        {customer ? (
+          <>
+            {favourites.error && <ErrorNotice message={favourites.error} />}
+            <div className="flex flex-wrap items-start gap-2.5">
+              <SaveButton deviceId={deviceId} saved={favourites.saved?.includes(deviceId) ?? false} onToggle={favourites.toggle} />
+              {/* Folded so the hero stays compact; open, it takes the full width. */}
+              <details className="min-w-0 open:basis-full">
+                <summary className={askToggle}>Ask a question</summary>
+                <div className="pt-3.5">
+                  <EnquiryForm deviceId={deviceId} email={customer.customer.email} />
+                </div>
+              </details>
+            </div>
+          </>
+        ) : contact ? (
           <>
             <a href={enquiryLink(contact.email, deviceId)} className={`${primaryButton} min-h-[52px]`}>
               <EnvelopeIcon />
@@ -75,6 +97,14 @@ export function ForSaleBox({ deviceId, listing }: { deviceId: string; listing: P
               </a>{' '}
               · {contact.organisation}
             </p>
+            {!technician && (
+              <p className="text-[13px] text-ink-2">
+                <Link to="/account/login" className={linkClass}>
+                  Log in
+                </Link>{' '}
+                to save this device or ask about it here.
+              </p>
+            )}
           </>
         ) : (
           <p className="text-sm">

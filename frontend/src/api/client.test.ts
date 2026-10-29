@@ -3,24 +3,35 @@ import devicesList from '../../../contracts/examples/devices_list.json'
 import error404 from '../../../contracts/examples/error_404.json'
 import listCreated from '../../../contracts/examples/list_created.json'
 import listRequest from '../../../contracts/examples/list_request.json'
+import enquiryCreated from '../../../contracts/examples/enquiry_created.json'
+import favouriteSaved from '../../../contracts/examples/favourite_saved.json'
 import listings from '../../../contracts/examples/listings.json'
-import { TECH_SESSION, signIn } from '../test/session'
+import { CUSTOMER_SESSION, TECH_SESSION, signIn, signInCustomer } from '../test/session'
 import {
   ApiError,
   SESSION_KEY,
   addEvent,
   addTechnician,
   changePassword,
+  currentCustomer,
   currentSession,
+  customerLogin,
   evaluateDevice,
   getContact,
+  getCustomers,
   getDevice,
+  getEnquiries,
+  getFavourites,
   getListings,
   listDevice,
   listDevices,
   login,
   logout,
   qrCodeUrl,
+  removeFavourite,
+  saveFavourite,
+  sendEnquiry,
+  signUp,
   subscribeSession,
   unlistDevice,
   updateProfile,
@@ -263,5 +274,76 @@ describe('own account (contract v2.3)', () => {
     expect(init?.method).toBe('POST')
     expect(JSON.parse(init?.body as string)).toEqual({ current_password: 'old password 1', new_password: 'new password 22' })
     expect(currentSession()).not.toBeNull()
+  })
+})
+
+describe('customer accounts (contract v2.4)', () => {
+  it('signs up, keeps only the customer login and sends its token', async () => {
+    signIn() // a technician was logged in on this tab
+    fetchMock.mockResolvedValueOnce(jsonResponse(CUSTOMER_SESSION, 201)).mockResolvedValueOnce(jsonResponse([]))
+
+    await signUp({ email: 'ana@example.com', name: 'Ana (sample)', password: 'a long enough password' })
+    await getFavourites()
+
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/customers/signup')
+    expect(currentCustomer()?.customer.email).toBe('ana@example.com')
+    expect(currentSession()).toBeNull()
+    expect(fetchMock.mock.calls[1][0]).toBe('/api/customers/me/favourites')
+    expect(authHeader(1)).toBe('Bearer customer-token')
+  })
+
+  it('a technician login ends a customer login, and the other way round', async () => {
+    signInCustomer()
+    fetchMock.mockResolvedValueOnce(jsonResponse(TECH_SESSION)).mockResolvedValueOnce(jsonResponse(CUSTOMER_SESSION))
+
+    await login('tech-1', 'correct horse battery')
+    expect(currentCustomer()).toBeNull()
+    await customerLogin('ana@example.com', 'a long enough password')
+
+    expect(currentSession()).toBeNull()
+    expect(currentCustomer()?.customer.name).toBe('Ana (sample)')
+    expect(fetchMock.mock.calls[1][0]).toBe('/api/customers/login')
+    expect(JSON.parse(fetchMock.mock.calls[1][1]?.body as string)).toEqual({ email: 'ana@example.com', password: 'a long enough password' })
+  })
+
+  it('log out forgets every login, and a 401 forgets the customer login', async () => {
+    signInCustomer()
+    logout()
+    expect(currentCustomer()).toBeNull()
+
+    signInCustomer()
+    fetchMock.mockResolvedValue(jsonResponse({ error: 'Login token expired; log in again.' }, 401))
+    await expect(getFavourites()).rejects.toMatchObject({ status: 401 })
+    expect(currentCustomer()).toBeNull()
+  })
+
+  it('saves and removes a device and sends a question', async () => {
+    signInCustomer()
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(favouriteSaved))
+      .mockResolvedValueOnce(jsonResponse({ device_id: 'GPU-SRV-001', removed: true }))
+      .mockResolvedValueOnce(jsonResponse(enquiryCreated, 201))
+
+    await saveFavourite('GPU-SRV-001')
+    await removeFavourite('GPU-SRV-001')
+    await sendEnquiry({ device_id: 'GPU-SRV-001', message: 'Is the power supply included?' })
+
+    expect(fetchMock.mock.calls.map(([url, init]) => `${init?.method} ${url}`)).toEqual([
+      'PUT /api/customers/me/favourites/GPU-SRV-001',
+      'DELETE /api/customers/me/favourites/GPU-SRV-001',
+      'POST /api/customers/me/enquiries',
+    ])
+    expect(JSON.parse(fetchMock.mock.calls[2][1]?.body as string)).toEqual({ device_id: 'GPU-SRV-001', message: 'Is the power supply included?' })
+  })
+
+  it('technicians read the enquiries and the customers with their own token', async () => {
+    signIn()
+    fetchMock.mockImplementation(async () => jsonResponse([])) // a fresh body for each call
+
+    await getEnquiries()
+    await getCustomers()
+
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['/api/enquiries', '/api/customers'])
+    expect(authHeader(0)).toBe('Bearer test-token')
   })
 })

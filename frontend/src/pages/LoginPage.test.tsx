@@ -89,6 +89,6 @@ describe('technician login', () => {
 
     expect(client.currentSession()).toBeNull()
     expect(await screen.findByRole('heading', { level: 1, name: /Second-life AI servers/ })).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Technician login' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /^Log in/ }).getAttribute('href')).toBe('/account/login')
   })
 })

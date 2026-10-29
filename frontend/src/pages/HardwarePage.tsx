@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { describeError, getContact, getDevice, getListings } from '../api/client'
 import type { Contact, Listing, Outcome, PassportEvent } from '../api/types'
+import { SaveButton } from '../components/CustomerActions'
 import { HardwareArt } from '../components/HardwareArt'
 import { IntegrityBadge } from '../components/IntegrityBadge'
 import { SolidBadge } from '../components/SolidBadge'
@@ -19,6 +20,7 @@ import {
   secondaryButton,
 } from '../components/ui'
 import { formatComponents, formatDate, formatDateTime, formatDeviceType, formatPrice, telemetryReadings } from '../lib/format'
+import { useFavourites } from '../lib/favourites'
 import { enquiryLink } from '../lib/listing'
 import { OUTCOME_STYLE, outcomeColours } from '../lib/outcomes'
 import { telemetrySeries } from '../lib/telemetry'
@@ -32,6 +34,7 @@ type Sort = 'desc' | 'asc'
 
 /** Public "Available hardware" (PRD 15.1): released devices with their passport; buyers e-mail, no buy button. */
 export function HardwarePage() {
+  const favourites = useFavourites()
   const [state, setState] = useState<State>({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
   const [filter, setFilter] = useState<Outcome | 'all'>('all')
@@ -92,6 +95,8 @@ export function HardwarePage() {
                     events={history[listing.device_id] ?? []}
                     email={state.contact.email}
                     delay={i * 120}
+                    saved={favourites.saved?.includes(listing.device_id) ?? null}
+                    onToggleSave={favourites.toggle}
                   />
                 ))}
               </ul>
@@ -193,9 +198,12 @@ interface ListingCardProps {
   email: string
   /** Stagger of the rise-in animation, in ms. */
   delay: number
+  /** Whether a logged-in customer saved it; null for visitors and technicians (no Save button). */
+  saved: boolean | null
+  onToggleSave: (deviceId: string) => void
 }
 
-function ListingCard({ listing, events, email, delay }: ListingCardProps) {
+function ListingCard({ listing, events, email, delay, saved, onToggleSave }: ListingCardProps) {
   const colours = outcomeColours(listing.latest_outcome)
   const util = telemetrySeries(events, 'utilization_pct')
   const telemetry = listing.latest_telemetry
@@ -262,6 +270,7 @@ function ListingCard({ listing, events, email, delay }: ListingCardProps) {
         <a href={enquiryLink(email, listing.device_id)} className={`${secondaryButton} min-h-[52px] flex-[1_1_200px]`}>
           Ask about this device
         </a>
+        {saved !== null && <SaveButton deviceId={listing.device_id} saved={saved} onToggle={onToggleSave} className="flex-[1_1_120px]" />}
       </div>
     </li>
   )

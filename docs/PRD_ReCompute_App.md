@@ -1,6 +1,6 @@
 # PRD: ReCompute Demo App
 
-> **Version:** 2.4 · 29 October 2026 · Owner: Panji · v1.1: decision engine (§5.2) aligned with the essay · v1.2: frontend switched from Streamlit to React + Vite + TypeScript + Tailwind · **v2.0: phase 2 (§15): public showcase, technician login, market-forecast charts, hosting** · **v2.1: listings show a sample price (§15); still no buy button or payment** · **v2.2: a logged-in technician can add technicians (§15.5); no public sign-up, no buyer accounts** · **v2.3: frontend redesign (light/dark theme, ☰ menu) and a `/settings` page where a technician changes their own name and password (§15.8)** · **v2.4: backend hosting moved from Railway Hobby (trial ended) to Render's free plan; the sample database is rebuilt on every start (§15.6)**
+> **Version:** 2.5 · 29 October 2026 · Owner: Panji · v1.1: decision engine (§5.2) aligned with the essay · v1.2: frontend switched from Streamlit to React + Vite + TypeScript + Tailwind · **v2.0: phase 2 (§15): public showcase, technician login, market-forecast charts, hosting** · **v2.1: listings show a sample price (§15); still no buy button or payment** · **v2.2: a logged-in technician can add technicians (§15.5); no public sign-up, no buyer accounts** · **v2.3: frontend redesign (light/dark theme, ☰ menu) and a `/settings` page where a technician changes their own name and password (§15.8)** · **v2.4: backend hosting moved from Railway Hobby (trial ended) to Render's free plan; the sample database is rebuilt on every start (§15.6)** · **v2.5: customer accounts (§15.9): buyers sign up, save listed devices and ask questions in the app; technicians are the admins; still no buy button or payment**
 > **Readers:** Panji, Jose, AI Agent A (backend), AI Agent B (frontend)
 > **Architecture overview:** https://claude.ai/artifact/BNMfdbkQ71VdABKVZMjBjD (share it from the page's Share menu)
 > **Essay first.** No app work before the essay is submitted (Fri 30 Oct). Build during judging (1–8 Nov) so the demo is ready if we reach the Top 5 (announced 9 Nov, Grand Final 14 Nov).
@@ -337,7 +337,7 @@ The device/passport page stays **public to read** (a buyer must be able to check
 
 ### 15.5 Login and security
 - Passwords are stored only as salted scrypt hashes. Tokens are signed (HMAC-SHA256) with `RECOMPUTE_SECRET_KEY`, last 12 hours, and are sent as `Authorization: Bearer <token>`. The frontend keeps the token in `sessionStorage` (cleared on logout or when the tab closes), never in `localStorage`.
-- **No public sign-up and no buyer accounts** (the app collects no visitor data; buyers use the contact box). The first technician is made with `py -m tools.create_technician`; after that a logged-in technician can add colleagues (`POST /auth/technicians`).
+- **No public sign-up for technicians.** The first technician is made with `py -m tools.create_technician`; after that a logged-in technician can add colleagues (`POST /auth/technicians`). **Buyers (v2.5): optional customer accounts** with public sign-up (§15.9); a visitor without an account still uses the contact box and the e-mail link, and the app collects nothing from them.
 - Wrong username and wrong password give the same message. After 5 failed logins for one username in 15 minutes the API answers 429 for the rest of that window.
 - A technician changes their own name (`PATCH /auth/me`) and password (`POST /auth/password`, needs the current one; wrong guesses count towards the same 429 lock). Tokens issued before a password change stay valid until they expire (12 h at most).
 - Without `RECOMPUTE_SECRET_KEY` the backend makes a random key at start, so tokens end on restart (fine on the laptop; **always set it on the host**; Render generates it).
@@ -354,6 +354,7 @@ The device/passport page stays **public to read** (a buyer must be able to check
 | Public site mistaken for a real shop | Prices are SAMPLE asking prices; no buy button, payment, cart or orders; fictional contact; SAMPLE DATA label; showcase text says "demo" |
 | A forecast number is wrong | Only verified evidence rows; source + page on every point; Hanif checks the JSON before release |
 | Leaked or weak technician password | No public sign-up; first account by CLI, others added by a logged-in technician; min. 10 characters; 429 after repeated failures; demo accounts deleted after 14 Nov |
+| Customer accounts on a public demo (v2.5) | Only e-mail, name and a salted password hash are stored, never in a passport; a customer token is refused (403) by every technician endpoint; rate limits on sign-up, login and questions; the hosted demo forgets accounts on every restart and the sign-up page says not to reuse a password |
 | Hosting down at the venue | Offline laptop mode (above) |
 
 ### 15.8 Redesign and settings (v2.3, 29 Oct)
@@ -362,3 +363,13 @@ The device/passport page stays **public to read** (a buyer must be able to check
 - **New route `/settings`:** Appearance for everyone; Profile (full name) and Credentials (change password) for a logged-in technician, using contract v2.3.
 - The passport's verification animation follows the real `GET /devices/{id}/events/verify` answer: it never shows "intact" before the API says so.
 - Times are shown in WIB (UTC+7).
+
+### 15.9 Customer accounts (v2.5, 29 Oct; contract v2.4)
+Panji's decision (29 Oct): buyers may create an account. This replaces "no buyer accounts" in §15.5; the trusted resale channel and "no buy button" stay.
+- **Roles.** Technicians are the **admins**: every passport write (events, evaluate, list/unlist, devices, workloads, technicians) still needs a technician token. Customers **only read** passports, **save listed devices** and **send questions**. A customer token carries `role: customer` and gets **403** on every technician endpoint; a technician token gets 403 on customer endpoints.
+- **Sign-up and login.** `/signup` (name, e-mail, password of at least 10 characters) logs the new customer in at once; `/account/login` for returning customers; `/login` stays the staff login. One login per browser tab: a technician login ends a customer login and the other way round; Log out forgets both. Tokens last 12 h, as for technicians.
+- **Saved devices.** A Save toggle on each `/hardware` card and in the passport's For sale box; only devices listed for sale can be saved; `/account` lists them with price and outcome and can remove them.
+- **Questions.** "Ask a question" in the passport's For sale box (customers); visitors keep the e-mail link. Technicians read every question, with the customer's name and e-mail, in the Fleet dashboard section "Questions and customer accounts" and reply by e-mail. Technicians also see every customer account with its saved and question counts (never a password hash).
+- **Privacy and integrity.** Stored: e-mail, name, salted scrypt password hash, saved device ids and questions, in their own tables; **nothing a customer does enters a passport or its hash chain**. Rate limits: 5 sign-ups per address, 5 failed logins per e-mail and 10 questions per customer within 15 min (429). The hosted demo forgets all accounts on every restart; the sign-up page says so and asks not to reuse a password.
+- **Still out of scope:** buying, cart, payment, orders, buyer-to-buyer messages, password reset by e-mail.
+

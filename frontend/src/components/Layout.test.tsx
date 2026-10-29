@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from '../App'
 import * as client from '../api/client'
-import { TECH_SESSION, signIn } from '../test/session'
+import { CUSTOMER_SESSION, TECH_SESSION, signIn, signInCustomer } from '../test/session'
 
 vi.mock('../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api/client')>()),
@@ -112,6 +112,9 @@ describe('header menu', () => {
     expect(within(menu()).getByRole('link', { name: /Settings/ }).getAttribute('href')).toBe('/settings')
     expect(within(menu()).queryByRole('link', { name: /Fleet/ })).toBeNull()
     expect(within(menu()).getByText('Light')).toBeTruthy()
+    expect(within(menu()).getByRole('link', { name: /Customer login/ }).getAttribute('href')).toBe('/account/login')
+    expect(within(menu()).getByRole('link', { name: /Create an account/ }).getAttribute('href')).toBe('/signup')
+    expect(screen.getByRole('link', { name: /^Log in/ }).getAttribute('href')).toBe('/account/login')
   })
 
   it('offers a technician the fleet pages, settings and log out', async () => {
@@ -124,8 +127,23 @@ describe('header menu', () => {
     expect(within(menu()).getByRole('link', { name: /Add technician/ })).toBeTruthy()
     expect(within(menu()).getByRole('link', { name: /Add device/ }).getAttribute('href')).toBe('/devices/new')
     expect(within(menu()).getByText(TECH_SESSION.technician.name)).toBeTruthy()
+    expect(within(menu()).getByText(/tech-1 · Technician \(admin\)/)).toBeTruthy()
     await user.click(within(menu()).getByRole('button', { name: /Log out/ }))
     expect(client.currentSession()).toBeNull()
+  })
+
+  it('offers a logged-in customer their account and log out, and no technician pages', async () => {
+    const user = userEvent.setup()
+    signInCustomer()
+    renderAt()
+
+    expect(screen.getByRole('link', { name: /Ana/ }).getAttribute('href')).toBe('/account')
+    await user.click(menuButton())
+    expect(within(menu()).getByRole('link', { name: /My account/ }).getAttribute('href')).toBe('/account')
+    expect(within(menu()).queryByRole('link', { name: /Fleet/ })).toBeNull()
+    expect(within(menu()).getByText(`${CUSTOMER_SESSION.customer.email} · Customer`)).toBeTruthy()
+    await user.click(within(menu()).getByRole('button', { name: /Log out/ }))
+    expect(client.currentCustomer()).toBeNull()
   })
 
   it('shows the SAMPLE DATA label and the sample-data footer on every page', () => {
