@@ -20,6 +20,9 @@ const EVENT_STYLE: Record<PassportEvent['kind'], { label: string; node: string; 
   unlist: { label: 'Removed from sale', node: 'border-accent bg-surface', text: 'text-ink' },
 }
 
+/** Plain-language name of an event kind ("Data wipe", "Telemetry reading"). */
+export const eventLabel = (kind: PassportEvent['kind']): string => EVENT_STYLE[kind].label
+
 interface PassportHistoryProps {
   events: PassportEvent[]
   check: PassportCheck
@@ -42,7 +45,7 @@ export function PassportHistory({ events, check }: PassportHistoryProps) {
   )
 
   return (
-    <Panel title="Passport history" aside={aside}>
+    <Panel title="Passport history" eyebrow="02 · HISTORY" aside={aside}>
       {events.length === 0 ? (
         <p className="text-sm text-ink-2">No events yet.</p>
       ) : (

@@ -77,7 +77,7 @@ describe('device page', () => {
     expect(screen.getByText('Pro-replace end')).toBeTruthy()
     expect(screen.getByText('net +100 kg CO₂e')).toBeTruthy()
     expect(screen.getByText('net +1,200 kg CO₂e')).toBeTruthy()
-    expect(screen.getByText('WL-LAB')).toBeTruthy()
+    expect(within(screen.getByRole('region', { name: 'Why this recommendation' })).getByText('WL-LAB')).toBeTruthy()
   })
 
   it('runs the engine when Evaluate is pressed and shows the new result', async () => {
@@ -242,8 +242,8 @@ describe('logged-out visitor', () => {
     expect(screen.queryByRole('button', { name: 'Evaluate' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Add to passport' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Log an action' })).toBeNull()
-    expect(screen.queryByRole('button', { name: /List for sale|Unlist/ })).toBeNull()
-    expect(screen.getByRole('link', { name: '← Available hardware' }).getAttribute('href')).toBe('/')
+    expect(screen.queryByRole('button', { name: /List for sale|Remove from sale/ })).toBeNull()
+    expect(screen.getByRole('link', { name: '← Available hardware' }).getAttribute('href')).toBe('/hardware')
   })
 
   it('sees the sample price when the device is listed', async () => {
@@ -252,7 +252,7 @@ describe('logged-out visitor', () => {
 
     const panel = await screen.findByRole('region', { name: 'For sale' })
     expect(within(panel).getByText(/IDR\s45,000,000/)).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Unlist' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Remove from sale' })).toBeNull()
   })
 })
 
@@ -283,7 +283,7 @@ describe('sale listing', () => {
     await user.click(screen.getByRole('button', { name: 'List for sale' }))
 
     expect(client.listDevice).toHaveBeenCalledWith('GPU-SRV-001', { price: PRICE })
-    expect(await screen.findByRole('button', { name: 'Unlist' })).toBeTruthy()
+    expect(await screen.findByRole('button', { name: 'Remove from sale' })).toBeTruthy()
     expect(client.getDevice).toHaveBeenCalledTimes(2)
   })
 
@@ -315,7 +315,7 @@ describe('sale listing', () => {
 
     const panel = await screen.findByRole('region', { name: 'Sale listing' })
     expect(within(panel).getByText(/IDR\s45,000,000/)).toBeTruthy()
-    await user.click(screen.getByRole('button', { name: 'Unlist' }))
+    await user.click(screen.getByRole('button', { name: 'Remove from sale' }))
 
     expect(client.unlistDevice).toHaveBeenCalledWith('GPU-SRV-001')
     expect(await screen.findByRole('button', { name: 'List for sale' })).toBeTruthy()

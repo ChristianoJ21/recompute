@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="rc-theme.js"></script>
+  <style>
+    body{margin:0;background:#0B0D10}*{box-sizing:border-box}a{color:#2443C9}a:hover{color:#16298A}
+    @keyframes rcDrift{from{background-position:0 0,0 0}to{background-position:48px 48px,48px 48px}}
+    @keyframes rcGlow{0%,100%{opacity:.55;transform:translate(0,0) scale(1)}50%{opacity:.85;transform:translate(-4%,3%) scale(1.08)}}
+    @keyframes rcRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    @keyframes rcShake{0%,100%{transform:none}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+    @keyframes rcSpin{to{transform:rotate(360deg)}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  </style>
+</helmet>
+<div data-rc-root="" style="container-type:inline-size;min-height:100vh;background:var(--rc-page,#F4F4F1);color:var(--rc-ink,#0E1116);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5;overflow-x:clip;display:flex;flex-direction:column">
+  <dc-import name="RC Header v3" active="login" hint-size="100%,69px" style="position:sticky;top:0;z-index:40"></dc-import>
+  <div style="flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));margin-top:-69px">
+    <section aria-hidden="true" style="position:relative;overflow:hidden;background:#0B0D10;color:#E8EAED;padding:calc(69px + clamp(40px,6cqi,96px)) clamp(20px,4cqi,72px) clamp(40px,6cqi,96px);display:flex;flex-direction:column;justify-content:center;gap:28px;min-height:420px">
+      <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(142,162,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(142,162,255,.07) 1px,transparent 1px);background-size:48px 48px;animation:rcDrift 6s linear infinite;mask-image:radial-gradient(ellipse 90% 80% at 40% 50%,#000 30%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 90% 80% at 40% 50%,#000 30%,transparent 80%)"></div>
+      <div style="position:absolute;width:80%;height:80%;left:-20%;bottom:-30%;background:radial-gradient(closest-side,rgba(36,67,201,.55),transparent);filter:blur(20px);animation:rcGlow 9s ease-in-out infinite"></div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:14px;max-width:520px">
+        <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:600;letter-spacing:.12em;color:#B5C2FF">STAFF ONLY</span>
+        <p style="margin:0;font-size:clamp(30px,3.6cqi,56px);line-height:1.02;font-weight:750;letter-spacing:-.04em;color:#FFFFFF">Every action you log becomes part of the device's passport.</p>
+      </div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:8px;max-width:460px">
+        <sc-for list="{{ chain }}" as="c" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 14px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid #22262E;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;animation:rcRise .6s cubic-bezier(.2,.8,.2,1) both {{ c.d }}">
+            <span style="color:#8EA2FF;font-weight:700">#{{ c.n }}</span><span style="color:#E8EAED;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.ev }}</span><span style="color:#6FD08F">✔ → #{{ c.p }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+    <main style="display:flex;align-items:center;justify-content:center;padding:calc(69px + clamp(32px,5cqi,72px)) clamp(20px,4cqi,72px) clamp(40px,5cqi,72px);background-color:var(--rc-page,#F4F4F1);background-image:linear-gradient(var(--rc-grid,#E6E6DF) 1px,transparent 1px),linear-gradient(90deg,var(--rc-grid,#E6E6DF) 1px,transparent 1px);background-size:32px 32px">
+      <div style="width:100%;max-width:460px;display:flex;flex-direction:column;gap:22px;animation:rcRise .7s cubic-bezier(.2,.8,.2,1) both">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h1 style="margin:0;font-size:clamp(32px,3.2cqi,44px);font-weight:750;letter-spacing:-.035em;line-height:1.05">Technician login</h1>
+          <p style="margin:0;font-size:16px;color:var(--rc-ink-2,#4A4F57);text-wrap:pretty">Reading passports needs no login. There is no sign-up: an admin or a colleague creates your account.</p>
+        </div>
+        <form onSubmit="{{ submit }}" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);border-radius:22px;box-shadow:0 2px 4px rgba(14,17,22,.04),0 30px 60px -30px rgba(14,17,22,.35);padding:clamp(20px,2.4cqi,32px);display:flex;flex-direction:column;gap:18px;animation:{{ shake }}">
+          <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}">
+            <div role="alert" style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--rc-danger-bg,#FBE9E7);border:1px solid var(--rc-danger-line,#EBA8A1);color:var(--rc-danger-ink,#7A1A14);font-size:14px"><span aria-hidden="true" style="flex:none;width:18px;height:18px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;background:var(--rc-danger,#B3261E);color:#FFFFFF;font-size:11px;font-weight:800">✕</span><span><strong>Wrong username or password.</strong> Check both and try again.</span></div>
+          </sc-if>
+          <label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Username<input value="{{ user }}" onChange="{{ onUser }}" autocomplete="username" style="font:400 16px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;min-height:52px;padding:0 16px;border:1px solid {{ bd }};border-radius:14px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);transition:border-color .2s,box-shadow .2s" style-focus="outline:none;border-color:var(--rc-accent,#2443C9);box-shadow:0 0 0 4px rgba(36,67,201,.15)"></input></label>
+          <label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Password
+            <span style="position:relative;display:flex">
+              <input type="{{ pwType }}" value="{{ pass }}" onChange="{{ onPass }}" autocomplete="current-password" style="flex:1;min-width:0;font:400 16px system-ui,-apple-system,'Segoe UI',sans-serif;min-height:52px;padding:0 88px 0 16px;border:1px solid {{ bd }};border-radius:14px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);transition:border-color .2s,box-shadow .2s" style-focus="outline:none;border-color:var(--rc-accent,#2443C9);box-shadow:0 0 0 4px rgba(36,67,201,.15)"></input>
+              <button type="button" onClick="{{ toggleShow }}" aria-pressed="{{ showStr }}" style="position:absolute;right:6px;top:6px;bottom:6px;padding:0 14px;border-radius:10px;border:0;background:var(--rc-sunken,#EBEBE6);color:var(--rc-ink,#0E1116);font:600 13px system-ui,-apple-system,'Segoe UI',sans-serif;cursor:pointer">{{ showLabel }}</button>
+            </span>
+          </label>
+          <button type="submit" style="display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;border-radius:999px;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);border:0;font:700 16px system-ui,-apple-system,'Segoe UI',sans-serif;cursor:pointer;transition:transform .2s,box-shadow .2s" style-hover="transform:translateY(-2px);box-shadow:0 14px 30px -12px var(--rc-accent,#2443C9)">
+            <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width:16px;height:16px;border-radius:99px;border:2px solid currentColor;border-right-color:transparent;animation:rcSpin .7s linear infinite"></span></sc-if>{{ btnLabel }}</button>
+        </form>
+        <a href="Screen Hardware v3.dc.html" style="align-self:flex-start;display:inline-flex;align-items:center;min-height:44px;font-size:15px;font-weight:600;color:var(--rc-accent,#2443C9);text-underline-offset:3px">← Back to available hardware</a>
+      </div>
+    </main>
+  </div>
+  <footer style="background:#0B0D10;color:#A9AEB6;font-size:13px;padding:28px clamp(20px,4cqi,72px);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 32px">
+    <p style="margin:0;max-width:62ch;color:#E8EAED">Every number in this demo is sample data (toy values). Nothing here is a measurement.</p>
+    <p style="margin:0;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px">ReCompute · student demo · GYEBC 2026</p>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;error&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { user: 't.one', pass: 'samplepass', show: false, busy: false, err: null, n: 0 };
+  componentWillUnmount() { clearTimeout(this._t); }
+  submit(e) {
+    e.preventDefault();
+    const fail = this.props.error || !this.state.user.trim() || this.state.pass.length < 4;
+    this.setState({ busy: true });
+    this._t = setTimeout(() => {
+      if (fail) { this.setState(s => ({ busy: false, err: true, n: s.n + 1 })); return; }
+      try { localStorage.setItem('rc-session', 'tech'); } catch (x) {}
+      location.href = 'Screen Fleet v3.dc.html';
+    }, 700);
+  }
+  renderVals() {
+    const s = this.state, error = s.err ?? !!this.props.error;
+    return {
+      chain: [['14', 'Telemetry read'], ['13', 'Listed for sale'], ['12', 'Data wipe'], ['11', 'Move'], ['10', 'Note']].map(([n, ev], i) => ({ n, ev, p: n - 1, d: (0.15 + i * 0.12).toFixed(2) + 's' })),
+      error, bd: error ? 'var(--rc-danger,#B3261E)' : 'var(--rc-line-strong,#A9A9A0)',
+      shake: s.n ? `rcShake .4s ${s.n % 2 ? '' : 'ease '}both` : 'none',
+      user: s.user, pass: s.pass, onUser: e => this.setState({ user: e.target.value }), onPass: e => this.setState({ pass: e.target.value }),
+      pwType: s.show ? 'text' : 'password', showLabel: s.show ? 'Hide' : 'Show', showStr: String(s.show), toggleShow: () => this.setState({ show: !s.show }),
+      busy: s.busy, btnLabel: s.busy ? 'Checking…' : 'Log in', submit: e => this.submit(e),
+    };
+  }
+}
+</script>
+</body>
+</html>

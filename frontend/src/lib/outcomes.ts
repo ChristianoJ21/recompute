@@ -46,3 +46,25 @@ export const NOT_EVALUATED_STYLE: OutcomeStyle = {
   meaning: 'The decision rule has not run on this device yet',
   badge: 'border-dashed border-line-strong bg-transparent text-not-evaluated',
 }
+
+const TONE: Record<Outcome, string> = {
+  KEEP: 'ok',
+  UPGRADE: 'upgrade',
+  REDEPLOY: 'redeploy',
+  RECYCLE: 'recycle',
+  UNCERTAIN: 'uncertain',
+  INSUFFICIENT_DATA: 'insufficient',
+}
+
+export interface OutcomeColours {
+  fg: string
+  bg: string
+  line: string
+}
+
+/** CSS colours (theme tokens) of an outcome, for tinted cards, bars and dots; null = not evaluated. */
+export function outcomeColours(outcome: Outcome | null): OutcomeColours {
+  if (!outcome) return { fg: 'var(--color-not-evaluated)', bg: 'var(--color-sunken)', line: 'var(--color-line-strong)' }
+  const tone = TONE[outcome]
+  return { fg: `var(--color-${tone})`, bg: `var(--color-${tone}-bg)`, line: `var(--color-${tone}-line)` }
+}

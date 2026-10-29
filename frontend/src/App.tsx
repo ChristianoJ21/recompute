@@ -9,13 +9,15 @@ import { LoginPage } from './pages/LoginPage'
 import { MarketPage } from './pages/MarketPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { SettingsPage } from './pages/SettingsPage'
-import { ShowcasePage } from './pages/ShowcasePage'
+import { HardwarePage } from './pages/HardwarePage'
+import { HomePage } from './pages/HomePage'
 
 export function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<ShowcasePage />} />
+        <Route index element={<HomePage />} />
+        <Route path="hardware" element={<HardwarePage />} />
         <Route path="market" element={<MarketPage />} />
         <Route path="login" element={<LoginPage />} />
         {/* Public: everyone picks the appearance; technicians also get profile and password. */}

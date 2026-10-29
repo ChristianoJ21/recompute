@@ -1,7 +1,18 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { addTechnician, describeError } from '../api/client'
-import { ErrorNotice, Notice, TextField, panelClass, primaryButton } from '../components/ui'
+import {
+  ErrorNotice,
+  NightBackdrop,
+  Notice,
+  PasswordField,
+  TextField,
+  container,
+  initials,
+  nightGhostButton,
+  primaryButton,
+  secondaryButton,
+} from '../components/ui'
 
 const MIN_PASSWORD = 10 // same rule as the backend (api/auth.py)
 
@@ -42,48 +53,76 @@ export function AddTechnicianPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[520px] flex-col gap-5 px-4 pt-[clamp(28px,5vw,56px)] pb-16">
-      <Link to="/fleet" className="inline-flex min-h-8 items-center self-start font-mono text-xs text-accent no-underline hover:underline">
-        ← Fleet
-      </Link>
-      <div className="flex flex-col gap-1.5">
-        <h1 className="text-[30px] leading-[1.1] font-bold tracking-[-.03em]">Add a technician</h1>
-        <p className="text-[15px] text-ink-2">Creates a login for a colleague. Share the password with them in person.</p>
-      </div>
-      <form onSubmit={submit} noValidate className={`flex flex-col gap-4 p-5 ${panelClass}`}>
-        {added && (
-          <Notice tone="success">
-            <strong>Technician added.</strong> {added} can log in now.
-          </Notice>
-        )}
-        {error && <ErrorNotice message={error} />}
-        <TextField
-          label="Username"
-          mono
-          autoComplete="off"
-          autoCapitalize="none"
-          maxLength={64}
-          hint="Letters, digits, dot, dash or underscore."
-          error={problems.username}
-          value={values.username}
-          onChange={set('username')}
-        />
-        <TextField label="Full name" maxLength={200} error={problems.name} value={values.name} onChange={set('name')} />
-        <TextField
-          label="Password"
-          type="password"
-          autoComplete="new-password"
-          hint={`At least ${MIN_PASSWORD} characters.`}
-          error={problems.password}
-          value={values.password}
-          onChange={set('password')}
-        />
-        <div>
-          <button type="submit" className={`${primaryButton} min-h-12 px-5 text-[15px]`} disabled={saving}>
-            {saving ? 'Adding…' : 'Add technician'}
-          </button>
+    <>
+      <section data-theme="dark" className="relative overflow-hidden bg-night text-night-fg">
+        <NightBackdrop />
+        <div className={`${container} relative flex flex-col items-center gap-5 pt-[clamp(24px,3vw,40px)] pb-[clamp(100px,10vw,150px)] text-center`}>
+          <Link to="/fleet" className={`${nightGhostButton} min-h-9 px-3.5 font-mono text-[13px] font-normal`}>
+            ← Fleet
+          </Link>
+          <h1 className="text-[clamp(36px,4.6vw,72px)] leading-none font-[750] tracking-[-.045em] text-white">Add a technician</h1>
+          <p className="max-w-[52ch] text-[clamp(15px,1.3vw,18px)] text-night-fg2">
+            Creates a login for a colleague. Share the password with them in person.
+          </p>
         </div>
-      </form>
-    </div>
+      </section>
+      <div className="flex justify-center bg-blueprint px-[clamp(20px,4vw,72px)] pb-[clamp(48px,6vw,96px)]">
+        <form
+          onSubmit={submit}
+          noValidate
+          className="relative -mt-[clamp(72px,8vw,110px)] flex w-full max-w-[620px] animate-rise flex-col gap-5 rounded-[24px] border border-line bg-surface p-[clamp(22px,3vw,36px)] shadow-float"
+        >
+          {added && (
+            <Notice tone="success">
+              <strong>Technician added.</strong> {added} can log in now.
+            </Notice>
+          )}
+          {error && <ErrorNotice message={error} />}
+          <div aria-hidden className="flex items-center gap-3.5 border-b border-sunken pb-[18px]">
+            <span
+              className={`flex size-[52px] shrink-0 items-center justify-center rounded-full font-mono text-base font-extrabold transition-colors duration-300 ${
+                values.name.trim() ? 'bg-accent text-surface' : 'bg-sunken text-ink-3'
+              }`}
+            >
+              {values.name.trim() ? initials(values.name) : '?'}
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="text-[17px] font-bold">{values.name.trim() || 'New technician'}</span>
+              <span className="font-mono text-[13px] text-ink-2">{values.username.trim() || 'username'} · Technician</span>
+            </span>
+          </div>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-[18px]">
+            <TextField
+              label="Username"
+              mono
+              autoComplete="off"
+              autoCapitalize="none"
+              maxLength={64}
+              hint="Letters, digits, dot, dash or underscore."
+              error={problems.username}
+              value={values.username}
+              onChange={set('username')}
+            />
+            <TextField label="Full name" maxLength={200} error={problems.name} value={values.name} onChange={set('name')} />
+          </div>
+          <PasswordField
+            label="Password"
+            autoComplete="new-password"
+            minLength={MIN_PASSWORD}
+            error={problems.password}
+            value={values.password}
+            onChange={set('password')}
+          />
+          <div className="flex flex-wrap gap-3 pt-1">
+            <button type="submit" className={`${primaryButton} min-h-[54px] px-7 text-base`} disabled={saving}>
+              {saving ? 'Adding…' : 'Add technician'}
+            </button>
+            <Link to="/fleet" className={`${secondaryButton} min-h-[54px]`}>
+              Cancel
+            </Link>
+          </div>
+        </form>
+      </div>
+    </>
   )
 }

@@ -47,11 +47,11 @@ export function TechnicianForm({ deviceId, onAdded }: { deviceId: string; onAdde
   }
 
   return (
-    <Panel title="Log an action" id="log-action" aside={<PanelTag>TECHNICIAN</PanelTag>}>
+    <Panel title="Log an action" id="log" aside={<PanelTag>TECHNICIAN</PanelTag>}>
       <form onSubmit={submit} className="flex flex-col gap-3.5">
         <fieldset className="flex flex-col">
           <legend className="mb-2 text-sm font-semibold">Action</legend>
-          <div className="grid grid-cols-3 gap-px border border-line-strong bg-line-strong">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(96px,1fr))] gap-2">
             {ACTIONS.map((action) => (
               <label key={action.kind} className="relative">
                 <input
@@ -62,7 +62,7 @@ export function TechnicianForm({ deviceId, onAdded }: { deviceId: string; onAdde
                   onChange={() => setKind(action.kind)}
                   className="peer sr-only"
                 />
-                <span className="flex min-h-11 cursor-pointer items-center justify-center bg-surface text-sm font-semibold text-ink peer-checked:bg-ink peer-checked:text-surface peer-focus-visible:outline-3 peer-focus-visible:-outline-offset-3 peer-focus-visible:outline-accent">
+                <span className="flex min-h-[46px] cursor-pointer items-center justify-center rounded-full border border-line-strong bg-surface text-sm font-semibold text-ink transition-colors duration-200 hover:border-ink peer-checked:border-ink peer-checked:bg-ink peer-checked:text-surface peer-focus-visible:outline-3 peer-focus-visible:-outline-offset-3 peer-focus-visible:outline-accent">
                   {action.label}
                 </span>
               </label>

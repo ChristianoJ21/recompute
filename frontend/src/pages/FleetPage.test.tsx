@@ -47,6 +47,26 @@ describe('fleet page', () => {
     expect(within(list).getByText('INSUFFICIENT DATA')).toBeTruthy()
   })
 
+  it('filters the device list by search text and by outcome', async () => {
+    const user = userEvent.setup()
+    renderFleet()
+
+    const list = await screen.findByRole('list', { name: 'Devices' })
+    await user.type(screen.getByRole('searchbox', { name: 'Search devices' }), 'light inference')
+    expect(within(list).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual(['/device/GPU-SRV-002'])
+
+    await user.clear(screen.getByRole('searchbox', { name: 'Search devices' }))
+    const counts = screen.getByRole('list', { name: 'Devices per outcome' })
+    const upgrade = within(counts).getByRole('button', { name: /UPGRADE/ })
+    await user.click(upgrade)
+    expect(upgrade.getAttribute('aria-pressed')).toBe('true')
+    expect(within(list).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual(['/device/GPU-SRV-003'])
+
+    await user.type(screen.getByRole('searchbox', { name: 'Search devices' }), 'nothing like this')
+    await user.click(screen.getByRole('button', { name: 'Clear filters' }))
+    expect(within(list).getAllByRole('link')).toHaveLength(devicesList.length)
+  })
+
   it('shows the count for each of the six outcomes at the top', async () => {
     renderFleet()
 

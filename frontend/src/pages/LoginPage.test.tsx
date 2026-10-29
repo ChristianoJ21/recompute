@@ -52,7 +52,19 @@ describe('technician login', () => {
 
     expect(client.login).toHaveBeenCalledWith('tech-1', 'correct horse battery')
     expect(await screen.findByRole('heading', { name: 'Fleet dashboard' })).toBeTruthy()
-    expect(screen.getByText(TECH_SESSION.technician.name)).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Technician One/ }).getAttribute('href')).toBe('/settings')
+  })
+
+  it('shows and hides the password on request', async () => {
+    const user = userEvent.setup()
+    renderAt('/login')
+
+    const password = screen.getByLabelText('Password')
+    expect(password.getAttribute('type')).toBe('password')
+    await user.click(screen.getByRole('button', { name: 'Show password' }))
+    expect(password.getAttribute('type')).toBe('text')
+    await user.click(screen.getByRole('button', { name: 'Hide password' }))
+    expect(password.getAttribute('type')).toBe('password')
   })
 
   it('shows the API message for a wrong password', async () => {
@@ -72,7 +84,8 @@ describe('technician login', () => {
     signIn()
     renderAt('/fleet')
 
-    await user.click(await screen.findByRole('button', { name: 'Log out' }))
+    await user.click(screen.getByRole('button', { name: 'Menu' }))
+    await user.click(await screen.findByRole('button', { name: /Log out/ }))
 
     expect(client.currentSession()).toBeNull()
     expect(await screen.findByRole('heading', { level: 1, name: /Second-life AI servers/ })).toBeTruthy()

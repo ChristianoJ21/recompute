@@ -22,7 +22,7 @@ export function IntegrityBadge({ integrity, size = 'md', live = false }: Integri
   return (
     <span
       role={role}
-      className={`inline-flex shrink-0 items-center gap-[7px] rounded-ctl border font-mono leading-[1.1] font-semibold whitespace-nowrap ${sizing} ${tone}`}
+      className={`inline-flex shrink-0 items-center gap-[7px] rounded-full border font-mono leading-[1.1] font-semibold whitespace-nowrap ${sizing} ${tone}`}
     >
       {icon}
       <span>{label}</span>
@@ -41,7 +41,7 @@ function describe(integrity: Integrity) {
         tone: 'border-danger-line bg-danger-bg text-danger',
       }
     case 'checking':
-      return { icon: <SpinnerIcon />, label: 'Checking…', tone: 'border-line bg-surface text-ink-2' }
+      return { icon: <SpinnerIcon />, label: 'Checking passport…', tone: 'border-line bg-surface text-ink-2' }
     case 'unavailable':
       return { icon: <UnavailableIcon />, label: 'Integrity check unavailable', tone: 'border-line-mid bg-sunken text-ink-2' }
   }

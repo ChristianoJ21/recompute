@@ -1,10 +1,12 @@
 import { Link } from 'react-router'
-import { container, linkClass, panelClass } from '../components/ui'
+import { band, container, linkClass, panelClass } from '../components/ui'
 
 export function NotFoundPage() {
   return (
-    <div className={`${container} py-[clamp(32px,6vw,72px)]`}>
-      <NotFoundPanel />
+    <div className={band}>
+      <div className={container}>
+        <NotFoundPanel />
+      </div>
     </div>
   )
 }
@@ -12,11 +14,11 @@ export function NotFoundPage() {
 /** Also shown for an unknown device ID, e.g. a mistyped or damaged QR label. */
 export function NotFoundPanel() {
   return (
-    <div className={`flex flex-col gap-2 p-8 ${panelClass}`}>
+    <div className={`flex flex-col gap-2.5 p-[clamp(24px,4vw,48px)] ${panelClass}`}>
         <span className="font-mono text-[13px] font-bold text-accent">404</span>
-        <h1 className="text-2xl font-bold tracking-[-.02em]">No page or device at this address</h1>
+        <h1 className="text-[clamp(28px,3vw,40px)] leading-[1.05] font-[750] tracking-[-.03em]">No page or device at this address</h1>
         <p className="text-[15px] text-ink-2">If you scanned a QR label, check the device ID printed under the code.</p>
-        <Link to="/" className={`${linkClass} inline-flex min-h-11 items-center self-start text-sm`}>
+        <Link to="/hardware" className={`${linkClass} inline-flex min-h-11 items-center self-start text-[15px]`}>
           ← Available hardware
         </Link>
     </div>

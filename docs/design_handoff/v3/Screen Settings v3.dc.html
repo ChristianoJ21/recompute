@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="rc-theme.js"></script>
+  <style>
+    body{margin:0;background:#0B0D10}*{box-sizing:border-box}a{color:#2443C9}a:hover{color:#16298A}
+    @keyframes rcDrift{from{background-position:0 0,0 0}to{background-position:48px 48px,48px 48px}}
+    @keyframes rcGlow{0%,100%{opacity:.55;transform:translate(0,0) scale(1)}50%{opacity:.85;transform:translate(-4%,3%) scale(1.08)}}
+    @keyframes rcIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  </style>
+</helmet>
+<div data-rc-root="" style="container-type:inline-size;min-height:100vh;background:var(--rc-page,#F4F4F1);color:var(--rc-ink,#0E1116);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5;overflow-x:clip">
+  <dc-import name="RC Header v3" active="settings" tech="{{ tech }}" hint-size="100%,69px" style="position:sticky;top:0;z-index:40"></dc-import>
+
+  <section aria-labelledby="page-h" style="position:relative;overflow:hidden;background:#0B0D10;color:#E8EAED;margin-top:-69px;padding-top:69px">
+    <div aria-hidden="true" style="position:absolute;inset:0;background-image:linear-gradient(rgba(142,162,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(142,162,255,.07) 1px,transparent 1px);background-size:48px 48px;animation:rcDrift 6s linear infinite;mask-image:radial-gradient(ellipse 80% 90% at 30% 30%,#000 30%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 80% 90% at 30% 30%,#000 30%,transparent 80%)"></div>
+    <div aria-hidden="true" style="position:absolute;width:55%;height:140%;right:-12%;top:-50%;background:radial-gradient(closest-side,rgba(91,53,151,.5),transparent);filter:blur(20px);animation:rcGlow 10s ease-in-out infinite"></div>
+    <div style="position:relative;padding:clamp(36px,4.5cqi,72px) clamp(20px,4cqi,72px) clamp(36px,4.5cqi,64px);display:flex;align-items:center;gap:clamp(18px,2.4cqi,32px);flex-wrap:wrap">
+      <sc-if value="{{ tech }}" hint-placeholder-val="{{ true }}">
+        <span aria-hidden="true" style="width:clamp(72px,7cqi,104px);height:clamp(72px,7cqi,104px);border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#8EA2FF,#C2A6F2);color:#0B0D10;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:clamp(22px,2.2cqi,32px);font-weight:800;box-shadow:0 0 0 6px rgba(142,162,255,.15)">T1</span>
+      </sc-if>
+      <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+        <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:600;letter-spacing:.12em;color:#B5C2FF">SETTINGS</span>
+        <h1 id="page-h" style="margin:0;font-size:clamp(36px,4.6cqi,72px);line-height:1;font-weight:750;letter-spacing:-.045em;color:#FFFFFF">Settings</h1>
+        <p style="margin:0;max-width:62ch;font-size:clamp(15px,1.3cqi,18px);color:#A9AEB6">{{ intro }}</p>
+      </div>
+    </div>
+  </section>
+
+  <main style="background-color:var(--rc-page,#F4F4F1);background-image:linear-gradient(var(--rc-grid,#E6E6DF) 1px,transparent 1px),linear-gradient(90deg,var(--rc-grid,#E6E6DF) 1px,transparent 1px);background-size:32px 32px;padding:clamp(28px,4cqi,64px) clamp(20px,4cqi,72px) clamp(48px,6cqi,96px);display:flex;flex-wrap:wrap;gap:clamp(20px,3cqi,48px);align-items:flex-start">
+    <nav aria-label="Settings sections" style="flex:1 1 220px;max-width:100%;position:sticky;top:93px;display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:20px;background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+      <sc-for list="{{ sections }}" as="s" hint-placeholder-count="3">
+        <a href="{{ s.href }}" onClick="{{ s.pick }}" style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-radius:14px;background:{{ s.bg }};color:{{ s.fg }};text-decoration:none;font-size:15px;font-weight:600;transition:background .2s,color .2s" style-hover="background:var(--rc-raised,#FAFAF8);color:var(--rc-ink,#0E1116)"><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:{{ s.nc }}">{{ s.n }}</span>{{ s.label }}</a>
+      </sc-for>
+    </nav>
+    <div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:clamp(20px,2.4cqi,28px)">
+      <sc-if value="{{ tech }}" hint-placeholder-val="{{ true }}">
+        <section id="profile" aria-labelledby="h-profile" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);border-radius:22px;box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22));overflow:hidden;scroll-margin-top:96px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:18px 24px;border-bottom:1px solid var(--rc-line,#D6D6CF)"><h2 id="h-profile" style="margin:0;font-size:20px;font-weight:700">Profile</h2><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-accent,#2443C9);font-weight:700">01</span></div>
+          <div style="padding:24px;display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;align-items:center;gap:14px">
+              <span aria-hidden="true" style="width:56px;height:56px;flex:none;border-radius:999px;display:flex;align-items:center;justify-content:center;background:var(--rc-accent,#2443C9);color:var(--rc-surface,#FFFFFF);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:18px;font-weight:700">T1</span>
+              <div style="display:flex;flex-direction:column;min-width:0"><span style="font-size:17px;font-weight:700">{{ name }}</span><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:13px;color:var(--rc-ink-2,#4A4F57)">t.one · added by an admin</span></div>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Full name<input value="{{ name }}" onChange="{{ onName }}" style="font:400 16px system-ui,-apple-system,'Segoe UI',sans-serif;min-height:50px;padding:0 16px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:14px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)" style-focus="outline:none;border-color:var(--rc-accent,#2443C9);box-shadow:0 0 0 4px rgba(36,67,201,.15)"></input></label>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px">
+              <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:14px;font-weight:600">Username</span><span style="display:flex;align-items:center;min-height:50px;padding:0 16px;border-radius:14px;background:var(--rc-sunken,#EBEBE6);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:15px">t.one</span><span style="font-size:13px;color:var(--rc-ink-2,#4A4F57)">Only an admin can change it.</span></div>
+              <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:14px;font-weight:600">Role</span><span style="display:flex;align-items:center;min-height:50px;padding:0 16px;border-radius:14px;background:var(--rc-sunken,#EBEBE6);font-size:15px">Technician</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+              <button type="button" onClick="{{ saveProfile }}" style="min-height:50px;padding:0 24px;border-radius:999px;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);border:0;font:700 15px system-ui,-apple-system,'Segoe UI',sans-serif;cursor:pointer;transition:transform .2s,box-shadow .2s" style-hover="transform:translateY(-2px);box-shadow:0 12px 28px -10px var(--rc-accent,#2443C9)">Save profile</button>
+              <sc-if value="{{ savedP }}" hint-placeholder-val="{{ false }}"><span role="status" style="font-size:14px;font-weight:600;color:var(--rc-ok,#1D6B3B);animation:rcIn .3s both">✔ Profile saved</span></sc-if>
+            </div>
+          </div>
+        </section>
+        <section id="credentials" aria-labelledby="h-cred" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);border-radius:22px;box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22));overflow:hidden;scroll-margin-top:96px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:18px 24px;border-bottom:1px solid var(--rc-line,#D6D6CF)"><h2 id="h-cred" style="margin:0;font-size:20px;font-weight:700">Credentials</h2><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-accent,#2443C9);font-weight:700">02</span></div>
+          <div style="padding:24px;display:flex;flex-direction:column;gap:18px">
+            <p style="margin:0;font-size:14px;color:var(--rc-ink-2,#4A4F57)">Password last changed 12 Oct 2026 (sample).</p>
+            <label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Current password<input type="password" autocomplete="current-password" style="font:400 16px system-ui,-apple-system,'Segoe UI',sans-serif;min-height:50px;padding:0 16px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:14px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)" style-focus="outline:none;border-color:var(--rc-accent,#2443C9);box-shadow:0 0 0 4px rgba(36,67,201,.15)"></input></label>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px">
+              <label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">New password<input type="password" value="{{ np }}" onChange="{{ onNp }}" autocomplete="new-password" style="font:400 16px system-ui,-apple-system,'Segoe UI',sans-serif;min-height:50px;padding:0 16px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:14px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)" style-focus="outline:none;border-color:var(--rc-accent,#2443C9);box-shadow:0 0 0 4px rgba(36,67,201,.15)"></input>
+                <span style="display:flex;flex-direction:column;gap:6px;font-weight:400"><span style="height:6px;border-radius:99px;background:var(--rc-sunken,#EBEBE6);overflow:hidden"><span style="display:block;height:100%;width:{{ str.w }};background:{{ str.c }};border-radius:99px;transition:width .3s,background .3s"></span></span><span style="font-size:13px;color:{{ str.tc }}">{{ str.t }}</span></span>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Confirm new password<input type="password" value="{{ cp }}" onChange="{{ onCp }}" autocomplete="new-password" style="font:400 16px system-ui,-apple-system,'Segoe UI',sans-serif;min-height:50px;padding:0 16px;border:1px solid {{ cpBd }};border-radius:14px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)" style-focus="outline:none;border-color:var(--rc-accent,#2443C9);box-shadow:0 0 0 4px rgba(36,67,201,.15)"></input>
+                <sc-if value="{{ mismatch }}" hint-placeholder-val="{{ false }}"><span style="font-weight:400;font-size:13px;color:var(--rc-danger,#B3261E)">Passwords don’t match yet.</span></sc-if>
+              </label>
+            </div>
+            <div><button type="button" style="min-height:50px;padding:0 24px;border-radius:999px;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);border:0;font:700 15px system-ui,-apple-system,'Segoe UI',sans-serif;cursor:pointer;transition:transform .2s,box-shadow .2s" style-hover="transform:translateY(-2px);box-shadow:0 12px 28px -10px var(--rc-accent,#2443C9)">Change password</button></div>
+          </div>
+        </section>
+      </sc-if>
+      <section id="appearance" aria-labelledby="h-app" style="background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);border-radius:22px;box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22));overflow:hidden;scroll-margin-top:96px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:18px 24px;border-bottom:1px solid var(--rc-line,#D6D6CF)"><h2 id="h-app" style="margin:0;font-size:20px;font-weight:700">Appearance</h2><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:var(--rc-accent,#2443C9);font-weight:700">{{ appN }}</span></div>
+        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+          <div role="radiogroup" aria-label="Theme" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px">
+            <sc-for list="{{ opts }}" as="o" hint-placeholder-count="3">
+              <button type="button" role="radio" aria-checked="{{ o.on }}" onClick="{{ o.pick }}" style="padding:0;text-align:left;font:inherit;color:var(--rc-ink,#0E1116);background:var(--rc-surface,#FFFFFF);border:1.5px solid {{ o.bd }};border-radius:18px;overflow:hidden;box-shadow:{{ o.ring }};transform:{{ o.lift }};cursor:pointer;display:flex;flex-direction:column;transition:all .25s cubic-bezier(.2,.8,.2,1)" style-hover="transform:translateY(-3px)">
+                <span aria-hidden="true" style="display:flex;height:104px;border-bottom:1px solid var(--rc-line,#D6D6CF)">
+                  <sc-for list="{{ o.pv }}" as="p" hint-placeholder-count="1">
+                    <span style="flex:1;background:{{ p.page }};padding:10px;display:flex;flex-direction:column;gap:6px"><span style="height:9px;border-radius:99px;background:{{ p.bar }}"></span><span style="flex:1;border-radius:8px;background:{{ p.panel }};border:1px solid {{ p.line }};padding:8px;display:flex;flex-direction:column;gap:6px"><span style="height:5px;width:64%;border-radius:99px;background:{{ p.ink }}"></span><span style="height:5px;width:36%;border-radius:99px;background:{{ p.accent }}"></span></span></span>
+                  </sc-for>
+                </span>
+                <span style="display:flex;gap:12px;align-items:flex-start;padding:14px 16px">
+                  <span style="width:20px;height:20px;flex:none;margin-top:2px;border-radius:50%;border:2px solid {{ o.rad }};display:flex;align-items:center;justify-content:center;transition:border-color .2s"><span style="width:10px;height:10px;border-radius:50%;background:{{ o.dot }};transform:{{ o.dotS }};transition:transform .25s cubic-bezier(.3,1.6,.5,1)"></span></span>
+                  <span style="display:flex;flex-direction:column"><span style="font-size:16px;font-weight:700">{{ o.label }}</span><span style="font-size:13px;color:var(--rc-ink-2,#4A4F57)">{{ o.sub }}</span></span>
+                </span>
+              </button>
+            </sc-for>
+          </div>
+          <p style="margin:0;font-size:13px;color:var(--rc-ink-2,#4A4F57)">Saved on this device. Applies to every page, including passports opened from a QR label.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer style="background:#0B0D10;color:#A9AEB6;font-size:13px;padding:28px clamp(20px,4cqi,72px);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 32px">
+    <p style="margin:0;max-width:62ch;color:#E8EAED">Every number in this demo is sample data (toy values). Nothing here is a measurement.</p>
+    <p style="margin:0;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px">ReCompute · student demo · GYEBC 2026</p>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;tech&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const PV = {
+  light: { page: '#F4F4F1', bar: '#0E1116', panel: '#FFFFFF', line: '#D6D6CF', ink: '#0E1116', accent: '#2443C9' },
+  dark: { page: '#0B0D10', bar: '#000000', panel: '#14171C', line: '#2C3038', ink: '#E8EAED', accent: '#8EA2FF' },
+};
+class Component extends DCLogic {
+  state = { pref: 'light', session: null, sec: 0, name: 'Technician One (sample)', savedP: false, np: '', cp: '' };
+  componentDidMount() {
+    try { const v = localStorage.getItem('rc-session'); this.setState({ session: v == null ? null : v === 'tech' }); } catch (e) {}
+    this._h = () => { if (window.RC_THEME) this.setState({ pref: window.RC_THEME.get() }); };
+    window.addEventListener('rc-theme', this._h);
+    let n = 0; const w = () => { if (window.RC_THEME) this._h(); else if (n++ < 100) this._t = setTimeout(w, 50); }; w();
+  }
+  componentWillUnmount() { window.removeEventListener('rc-theme', this._h); clearTimeout(this._t); clearTimeout(this._s); }
+  renderVals() {
+    const s = this.state, tech = this.props.tech ?? s.session ?? true;
+    const opts = [
+      ['light', 'Light', 'Light background', [PV.light]],
+      ['dark', 'Dark', 'Dark background, easier in dim rooms', [PV.dark]],
+      ['system', 'Match device', 'Follows your phone or laptop setting', [PV.light, PV.dark]],
+    ].map(([v, label, sub, pv]) => { const on = s.pref === v;
+      return { label, sub, pv, on: String(on), bd: on ? 'var(--rc-accent,#2443C9)' : 'var(--rc-line,#D6D6CF)', ring: on ? '0 0 0 4px rgba(36,67,201,.14)' : 'none', lift: on ? 'translateY(-3px)' : 'none',
+        rad: on ? 'var(--rc-accent,#2443C9)' : 'var(--rc-line-strong,#A9A9A0)', dot: 'var(--rc-accent,#2443C9)', dotS: on ? 'scale(1)' : 'scale(0)',
+        pick: () => window.RC_THEME && window.RC_THEME.set(v) }; });
+    const list = tech ? [['01', 'Profile', '#profile'], ['02', 'Credentials', '#credentials'], ['03', 'Appearance', '#appearance']] : [['01', 'Appearance', '#appearance']];
+    const sections = list.map(([n, label, href], i) => { const on = s.sec === i;
+      return { n, label, href, pick: () => this.setState({ sec: i }), bg: on ? 'var(--rc-ink,#0E1116)' : 'transparent', fg: on ? 'var(--rc-surface,#FFFFFF)' : 'var(--rc-ink-2,#4A4F57)', nc: on ? 'var(--rc-surface,#FFFFFF)' : 'var(--rc-accent,#2443C9)' }; });
+    const L = s.np.length;
+    const str = L === 0 ? { w: '0%', c: 'transparent', t: 'At least 10 characters.', tc: 'var(--rc-ink-2,#4A4F57)' }
+      : L < 10 ? { w: Math.max(10, L * 9) + '%', c: 'var(--rc-uncertain,#8A4600)', t: `${10 - L} more character${10 - L === 1 ? '' : 's'} needed.`, tc: 'var(--rc-uncertain,#8A4600)' }
+      : { w: '100%', c: 'var(--rc-ok,#1D6B3B)', t: '✔ Long enough.', tc: 'var(--rc-ok,#1D6B3B)' };
+    const mismatch = s.cp.length > 0 && s.cp !== s.np;
+    return {
+      tech, opts, sections, appN: tech ? '03' : '01', str, mismatch, cpBd: mismatch ? 'var(--rc-danger,#B3261E)' : 'var(--rc-line-strong,#A9A9A0)',
+      intro: tech ? 'Signed in as Technician One (sample). Profile and password changes apply to this account only.' : 'Visitors can change the appearance. Log in to manage a technician profile and password.',
+      name: s.name, onName: e => this.setState({ name: e.target.value, savedP: false }),
+      saveProfile: () => { this.setState({ savedP: true }); clearTimeout(this._s); this._s = setTimeout(() => this.setState({ savedP: false }), 2500); }, savedP: s.savedP,
+      np: s.np, cp: s.cp, onNp: e => this.setState({ np: e.target.value }), onCp: e => this.setState({ cp: e.target.value }),
+    };
+  }
+}
+</script>
+</body>
+</html>

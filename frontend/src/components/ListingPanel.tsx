@@ -5,7 +5,7 @@ import type { Contact, PassportEvent } from '../api/types'
 import { asPrice, formatDate, formatPrice } from '../lib/format'
 import { enquiryLink, hasWipe } from '../lib/listing'
 import { EnvelopeIcon } from './icons'
-import { ErrorNotice, Notice, Panel, PanelTag, fieldClass, linkClass, monoLabel, primaryButton, secondaryButton } from './ui'
+import { ErrorNotice, Notice, Panel, PillTag, fieldClass, linkClass, monoLabel, primaryButton, secondaryButton } from './ui'
 
 const CURRENCIES = ['IDR', 'USD', 'EUR']
 
@@ -18,12 +18,12 @@ function ListedPrice({ listing, large = false }: { listing: PassportEvent; large
       <div className="flex flex-col gap-0.5">
         <span className={monoLabel}>Sample asking price</span>
         {price && (
-          <span className={`${large ? 'text-[32px]' : 'text-[28px]'} leading-[1.1] font-bold tracking-[-.02em] tabular-nums`}>
+          <span className={`${large ? 'text-[clamp(32px,3.2vw,46px)]' : 'text-[30px]'} leading-[1.05] font-[750] tracking-[-.03em] tabular-nums`}>
             {formatPrice(price)}
           </span>
         )}
       </div>
-      {note && <p className="text-sm text-ink-2">{note}</p>}
+      {note && <p className="text-[15px] text-ink-2">{note}</p>}
     </div>
   )
 }
@@ -50,33 +50,36 @@ export function ForSaleBox({ deviceId, listing }: { deviceId: string; listing: P
   const headingId = useId()
   const contact = useContact()
   return (
-    <section aria-labelledby={headingId} className="flex min-w-0 flex-[1_1_300px] flex-col border border-ink bg-surface shadow-offset">
-      <div className="flex items-center justify-between gap-2 bg-ink px-4 py-2.5 text-surface">
-        <h2 id={headingId} className="font-mono text-xs font-bold tracking-[.08em] uppercase">
+    <section
+      aria-labelledby={headingId}
+      className="flex w-full max-w-[560px] min-w-0 flex-col overflow-hidden rounded-[22px] bg-surface text-ink shadow-hero-card min-[1100px]:justify-self-end"
+    >
+      <div className="flex items-center justify-between gap-2.5 border-b border-line px-[22px] py-3.5">
+        <h2 id={headingId} className="flex items-center gap-2 font-mono text-xs font-bold tracking-[.1em] uppercase">
+          <span aria-hidden className="size-2 rounded-full bg-ok" />
           For sale
         </h2>
-        <span className="font-mono text-[11px] text-on-ink-2">listed {formatDate(listing.created_at)}</span>
+        <span className="font-mono text-xs text-ink-2">listed {formatDate(listing.created_at)}</span>
       </div>
-      <div className="flex flex-1 flex-col gap-3 p-4">
+      <div className="flex flex-1 flex-col gap-3.5 px-[22px] pt-5 pb-[22px]">
         <ListedPrice listing={listing} large />
         {contact ? (
           <>
-            <p className="text-sm">
-              Ask through the contact box:{' '}
+            <a href={enquiryLink(contact.email, deviceId)} className={`${primaryButton} min-h-[52px]`}>
+              <EnvelopeIcon />
+              Ask about this device
+            </a>
+            <p className="text-[13px] text-ink-2">
               <a href={`mailto:${contact.email}`} className={linkClass}>
                 {contact.email}
               </a>{' '}
               · {contact.organisation}
             </p>
-            <a href={enquiryLink(contact.email, deviceId)} className={`${secondaryButton} mt-auto`}>
-              <EnvelopeIcon />
-              Ask about this device
-            </a>
           </>
         ) : (
           <p className="text-sm">
             Ask through the{' '}
-            <Link to="/" className={linkClass}>
+            <Link to="/hardware" className={linkClass}>
               contact box
             </Link>
             , quoting the device ID.
@@ -133,28 +136,28 @@ export function SaleListing({ deviceId, events, listing, onChanged }: SaleListin
 
   if (listing) {
     return (
-      <Panel title="Sale listing" aside={<PanelTag>LISTED {formatDate(listing.created_at).toUpperCase()}</PanelTag>}>
+      <Panel title="Sale listing" aside={<PillTag tone="ok">LISTED</PillTag>}>
         <ListedPrice listing={listing} />
         {error && <ErrorNotice message={error} />}
         <div>
           <button type="button" className={secondaryButton} disabled={saving} onClick={() => run(() => unlistDevice(deviceId))}>
-            {saving ? 'Saving…' : 'Unlist'}
+            {saving ? 'Saving…' : 'Remove from sale'}
           </button>
         </div>
       </Panel>
     )
   }
 
-  const label = `flex flex-col gap-1.5 text-sm font-semibold ${wiped ? '' : 'text-ink-3'}`
+  const label = `flex flex-col gap-2 text-sm font-semibold ${wiped ? '' : 'text-ink-3'}`
   return (
-    <Panel title="Sale listing" aside={<PanelTag>NOT LISTED</PanelTag>}>
+    <Panel title="Sale listing" aside={wiped ? <PillTag tone="ready">READY</PillTag> : <PillTag tone="muted">NOT LISTED</PillTag>}>
       <form onSubmit={list} noValidate className="flex flex-col gap-3.5">
         {!wiped && (
           <Notice tone="warning">
             Listing needs a <strong>Data wipe</strong> event in the passport first. Log a Wipe on the left.
           </Notice>
         )}
-        <div className="grid grid-cols-[minmax(0,1fr)_96px] gap-2">
+        <div className="grid grid-cols-[minmax(0,1fr)_110px] gap-2.5">
           <label className={label}>
             Asking price
             <input
@@ -191,7 +194,7 @@ export function SaleListing({ deviceId, events, listing, onChanged }: SaleListin
         </label>
         {error && <ErrorNotice message={error} />}
         <div>
-          <button type="submit" className={primaryButton} disabled={saving || !wiped}>
+          <button type="submit" className={`${primaryButton} border-accent bg-accent`} disabled={saving || !wiped}>
             {saving ? 'Saving…' : 'List for sale'}
           </button>
         </div>

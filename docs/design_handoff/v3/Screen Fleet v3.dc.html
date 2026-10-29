@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="rc-theme.js"></script>
+  <style>
+    body{margin:0;background:#0B0D10}*{box-sizing:border-box}a{color:#2443C9}a:hover{color:#16298A}
+    @keyframes rcDrift{from{background-position:0 0,0 0}to{background-position:48px 48px,48px 48px}}
+    @keyframes rcGlow{0%,100%{opacity:.55;transform:translate(0,0) scale(1)}50%{opacity:.85;transform:translate(-4%,3%) scale(1.08)}}
+    @keyframes rcPulse{0%{box-shadow:0 0 0 0 rgba(111,208,143,.7)}70%{box-shadow:0 0 0 10px rgba(111,208,143,0)}100%{box-shadow:0 0 0 0 rgba(111,208,143,0)}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  </style>
+</helmet>
+<div data-rc-root="" style="container-type:inline-size;min-height:100vh;background:var(--rc-page,#F4F4F1);color:var(--rc-ink,#0E1116);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5;overflow-x:clip">
+  <dc-import name="RC Header v3" active="fleet" tech="{{ true }}" hint-size="100%,69px" style="position:sticky;top:0;z-index:40"></dc-import>
+
+  <section aria-labelledby="page-h" style="position:relative;overflow:hidden;background:#0B0D10;color:#E8EAED;margin-top:-69px;padding-top:69px">
+    <div aria-hidden="true" style="position:absolute;inset:0;background-image:linear-gradient(rgba(142,162,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(142,162,255,.07) 1px,transparent 1px);background-size:48px 48px;animation:rcDrift 6s linear infinite;mask-image:radial-gradient(ellipse 80% 90% at 30% 30%,#000 30%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 80% 90% at 30% 30%,#000 30%,transparent 80%)"></div>
+    <div aria-hidden="true" style="position:absolute;width:55%;height:140%;right:-12%;top:-50%;background:radial-gradient(closest-side,rgba(36,67,201,.55),transparent);filter:blur(20px);animation:rcGlow 9s ease-in-out infinite"></div>
+    <div style="position:relative;padding:clamp(36px,4.5cqi,72px) clamp(20px,4cqi,72px) clamp(36px,4.5cqi,64px);display:flex;flex-direction:column;gap:clamp(28px,3.5cqi,48px)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px 40px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <span style="align-self:flex-start;display:inline-flex;align-items:center;gap:10px;padding:7px 14px 7px 10px;border-radius:999px;border:1px solid rgba(142,162,255,.3);background:rgba(142,162,255,.08);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:600;letter-spacing:.06em;color:#B5C2FF"><span aria-hidden="true" style="width:8px;height:8px;border-radius:99px;background:#6FD08F;animation:rcPulse 2s infinite"></span>FLEET · HALL A</span>
+          <h1 id="page-h" style="margin:0;font-size:clamp(40px,5.4cqi,84px);line-height:1;font-weight:750;letter-spacing:-.045em;color:#FFFFFF">Fleet dashboard</h1>
+          <span style="font-size:clamp(16px,1.35cqi,19px);color:#A9AEB6">Hall A · 6 devices</span>
+        </div>
+        <a href="Screen Add Technician v3.dc.html" style="display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 24px;border-radius:999px;background:#8EA2FF;color:#0B0D10;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 10px 30px -8px rgba(142,162,255,.6);transition:transform .2s" style-hover="transform:translateY(-2px);color:#0B0D10">+ Add technician</a>
+      </div>
+      <ul aria-label="Fleet stats" style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px">
+        <sc-for list="{{ stats }}" as="s" hint-placeholder-count="5">
+          <li style="padding:18px 20px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid {{ s.bd }};display:flex;flex-direction:column;gap:6px;backdrop-filter:blur(6px)">
+            <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.1em;color:#8A9099">{{ s.k }}</span>
+            <span style="display:flex;align-items:center;gap:10px;font-size:clamp(32px,3.2cqi,46px);font-weight:750;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;color:{{ s.c }}">{{ s.v }}</span>
+            <span style="font-size:13px;color:#A9AEB6">{{ s.sub }}</span>
+          </li>
+        </sc-for>
+      </ul>
+    </div>
+  </section>
+
+  <main style="background-color:var(--rc-page,#F4F4F1);background-image:linear-gradient(var(--rc-grid,#E6E6DF) 1px,transparent 1px),linear-gradient(90deg,var(--rc-grid,#E6E6DF) 1px,transparent 1px);background-size:32px 32px;padding:clamp(28px,4cqi,64px) clamp(20px,4cqi,72px) clamp(48px,6cqi,96px);display:flex;flex-direction:column;gap:clamp(32px,4cqi,56px)">
+    <section aria-labelledby="per" style="display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--rc-accent,#2443C9)">01 · OUTCOMES</span><h2 id="per" style="margin:0;font-size:clamp(26px,2.8cqi,40px);line-height:1.05;letter-spacing:-.03em;font-weight:750">Devices per outcome</h2></div>
+        <span style="font-size:14px;color:var(--rc-ink-2,#4A4F57)">Pick an outcome to filter the device list.</span>
+      </div>
+      <div role="img" aria-label="Six devices, one per outcome" style="display:flex;height:18px;border-radius:999px;overflow:hidden;gap:3px;background:var(--rc-sunken,#EBEBE6)">
+        <sc-for list="{{ outcomes }}" as="o" hint-placeholder-count="6">
+          <span style="height:100%;width:{{ o.w }};background:{{ o.fg }};opacity:{{ o.segOp }};transition:width 1s cubic-bezier(.2,.8,.2,1) {{ o.d }},opacity .3s"></span>
+        </sc-for>
+      </div>
+      <ul aria-label="Devices per outcome" style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px">
+        <sc-for list="{{ outcomes }}" as="o" hint-placeholder-count="6">
+          <li>
+            <button type="button" aria-pressed="{{ o.on }}" onClick="{{ o.pick }}" style="width:100%;text-align:left;padding:18px 20px;border-radius:18px;background:{{ o.cardBg }};border:1.5px solid {{ o.cardBd }};color:var(--rc-ink,#0E1116);font:inherit;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 14px;align-items:center;box-shadow:{{ o.sh }};transform:{{ o.lift }};transition:all .25s cubic-bezier(.2,.8,.2,1)" style-hover="transform:translateY(-3px);box-shadow:0 2px 4px rgba(14,17,22,.06),0 20px 40px -20px rgba(14,17,22,.35)">
+              <span style="justify-self:start;padding:3px 10px;border-radius:999px;background:{{ o.fg }};color:var(--rc-surface,#FFFFFF);font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:700;letter-spacing:.06em">{{ o.k }}</span>
+              <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:28px;font-weight:700;line-height:1">{{ o.n }}</span>
+              <span style="grid-column:1 / -1;font-size:14px;color:var(--rc-ink-2,#4A4F57)">{{ o.m }}</span>
+            </button>
+          </li>
+        </sc-for>
+      </ul>
+    </section>
+
+    <section aria-labelledby="devs" style="display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--rc-accent,#2443C9)">02 · DEVICES</span><h2 id="devs" style="margin:0;font-size:clamp(26px,2.8cqi,40px);line-height:1.05;letter-spacing:-.03em;font-weight:750">Devices</h2></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <sc-if value="{{ hasFilter }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ clearFilter }}" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:0;background:var(--rc-ink,#0E1116);color:var(--rc-surface,#FFFFFF);font:600 14px system-ui,-apple-system,'Segoe UI',sans-serif;cursor:pointer">{{ filter }} <span aria-hidden="true">✕</span></button>
+          </sc-if>
+          <label style="position:relative;display:flex;align-items:center">
+            <span aria-hidden="true" style="position:absolute;left:16px;font-size:15px;color:var(--rc-ink-3,#6A6F77)">⌕</span>
+            <input type="search" aria-label="Search devices" placeholder="Search ID or location" value="{{ q }}" onChange="{{ onQ }}" style="min-height:46px;width:min(300px,80vw);padding:0 16px 0 40px;border-radius:999px;border:1px solid var(--rc-line-strong,#A9A9A0);background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116);font:400 15px system-ui,-apple-system,'Segoe UI',sans-serif"></input>
+          </label>
+        </div>
+      </div>
+      <ul aria-label="Devices" style="list-style:none;margin:0;padding:0;border-radius:22px;overflow:hidden;background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);box-shadow:var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))">
+        <sc-for list="{{ devices }}" as="d" hint-placeholder-count="6">
+          <li style="border-bottom:1px solid var(--rc-sunken,#EBEBE6)">
+            <a href="{{ d.href }}" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));align-items:center;gap:8px 24px;min-height:72px;padding:14px 24px;color:var(--rc-ink,#0E1116);text-decoration:none;transition:background .15s" style-hover="background:var(--rc-raised,#FAFAF8);color:var(--rc-ink,#0E1116)">
+              <span style="display:flex;align-items:center;gap:12px"><span style="width:10px;height:10px;border-radius:99px;background:{{ d.fg }};flex:none"></span><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:15px;font-weight:700">{{ d.id }}</span></span>
+              <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:15px;font-weight:600">{{ d.model }}</span><span style="font-size:13px;color:var(--rc-ink-2,#4A4F57)">{{ d.loc }}</span></span>
+              <span style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="padding:3px 10px;border-radius:999px;background:{{ d.bg }};border:1px solid {{ d.bd }};color:{{ d.fg }};font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:700;letter-spacing:.04em">{{ d.o }}</span><span aria-hidden="true" style="width:36px;height:36px;border-radius:999px;border:1px solid var(--rc-line,#D6D6CF);display:inline-flex;align-items:center;justify-content:center;color:var(--rc-accent,#2443C9)">→</span></span>
+            </a>
+          </li>
+        </sc-for>
+        <sc-if value="{{ none }}" hint-placeholder-val="{{ false }}">
+          <li style="padding:40px 24px;text-align:center;color:var(--rc-ink-2,#4A4F57)">No devices match. <button type="button" onClick="{{ clearAll }}" style="border:0;background:transparent;color:var(--rc-accent,#2443C9);font:600 15px system-ui,-apple-system,'Segoe UI',sans-serif;cursor:pointer;text-decoration:underline">Clear filters</button></li>
+        </sc-if>
+      </ul>
+    </section>
+  </main>
+
+  <footer style="background:#0B0D10;color:#A9AEB6;font-size:13px;padding:28px clamp(20px,4cqi,72px);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 32px">
+    <p style="margin:0;max-width:62ch;color:#E8EAED">Every number in this demo is sample data (toy values). Nothing here is a measurement.</p>
+    <p style="margin:0;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px">ReCompute · student demo · GYEBC 2026</p>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const OUT = {
+  KEEP: ['ok', '#1D6B3B', '#E4F2E8', '#A9D3B7'], UPGRADE: ['upgrade', '#0B5F86', '#E2F0F8', '#A6CFE6'],
+  REDEPLOY: ['redeploy', '#5B3597', '#EEE8F8', '#CBBBEA'], RECYCLE: ['recycle', '#3F4855', '#E8EBEF', '#BCC3CD'],
+  UNCERTAIN: ['uncertain', '#8A4600', '#FCE9D6', '#EBBE8E'], INSUFFICIENT_DATA: ['insufficient', '#4A4A4A', '#EEEEEE', '#A0A0A0'],
+};
+const col = o => { const [k, fg, bg, bd] = OUT[o]; return { fg: `var(--rc-${k},${fg})`, bg: `var(--rc-${k}-bg,${bg})`, bd: `var(--rc-${k}-line,${bd})` }; };
+const OM = [
+  ['KEEP', 'Replacing would not pay back its manufacturing emissions'], ['UPGRADE', 'Replace one component instead of the whole device'],
+  ['REDEPLOY', 'Move it to a lighter workload'], ['RECYCLE', 'Formal recycling, with its passport'],
+  ['UNCERTAIN', 'The answer changes within the input ranges; a human decides'], ['INSUFFICIENT_DATA', 'Inputs are missing, and the engine never guesses them'],
+];
+const DEVS = [['001', 'Row 1', 'REDEPLOY'], ['002', 'Row 1', 'KEEP'], ['003', 'Row 2', 'UPGRADE'], ['004', 'Row 3 · failed reliability check', 'RECYCLE'], ['005', 'Row 3', 'INSUFFICIENT_DATA'], ['006', 'Row 4', 'UNCERTAIN']];
+class Component extends DCLogic {
+  state = { c: 0, filter: null, q: '' };
+  componentDidMount() {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { this.setState({ c: 1 }); return; }
+    const t0 = performance.now(), step = t => { const c = Math.min(1, (t - t0) / 1100); this.setState({ c: 1 - Math.pow(1 - c, 3) }); if (c < 1) this._r = requestAnimationFrame(step); };
+    this._r = requestAnimationFrame(step);
+  }
+  componentWillUnmount() { cancelAnimationFrame(this._r); }
+  renderVals() {
+    const s = this.state, n = v => String(Math.round(v * s.c));
+    const stats = [
+      { k: 'DEVICES', v: n(6), sub: 'in Hall A', c: '#FFFFFF', bd: 'rgba(255,255,255,.1)' },
+      { k: 'NOT EVALUATED', v: n(0), sub: 'rule has run on all', c: '#FFFFFF', bd: 'rgba(255,255,255,.1)' },
+      { k: 'LISTED FOR SALE', v: n(2), sub: 'GPU-SRV-001, -003', c: '#FFFFFF', bd: 'rgba(255,255,255,.1)' },
+      { k: 'PASSPORTS INTACT', v: '✔ ' + n(6) + ' of 6', sub: 'checked 28 Oct, 20:50', c: '#6FD08F', bd: 'rgba(111,208,143,.35)' },
+      { k: 'PASSPORTS CHANGED', v: n(0), sub: 'none detected', c: '#FFFFFF', bd: 'rgba(255,255,255,.1)' },
+    ];
+    const outcomes = OM.map(([k, m], i) => { const on = s.filter === k, c = col(k);
+      return { k, m, n: 1, ...c, on: String(on), pick: () => this.setState({ filter: on ? null : k }),
+        w: s.c > 0.05 ? (100 / 6).toFixed(2) + '%' : '0%', d: (i * .08).toFixed(2) + 's', segOp: !s.filter || on ? 1 : .25,
+        cardBg: on ? c.bg : 'var(--rc-surface,#FFFFFF)', cardBd: on ? c.fg : 'var(--rc-line,#D6D6CF)',
+        sh: on ? '0 2px 4px rgba(14,17,22,.06),0 20px 40px -20px rgba(14,17,22,.35)' : 'var(--rc-shadow,0 1px 2px rgba(14,17,22,.06),0 10px 28px -14px rgba(14,17,22,.22))', lift: on ? 'translateY(-3px)' : 'none' }; });
+    const q = s.q.trim().toLowerCase();
+    const devices = DEVS.map(([num, r, o]) => ({ id: 'GPU-SRV-' + num, model: 'AccelServer-v1 (sample)', loc: 'Hall A / ' + r, o, ...col(o), href: `Screen Passport v3.dc.html?id=GPU-SRV-${num}&tech=1` }))
+      .filter(d => (!s.filter || d.o === s.filter) && (!q || (d.id + ' ' + d.loc).toLowerCase().includes(q)));
+    return {
+      stats, outcomes, devices, none: devices.length === 0, filter: s.filter || '', hasFilter: !!s.filter,
+      clearFilter: () => this.setState({ filter: null }), clearAll: () => this.setState({ filter: null, q: '' }),
+      q: s.q, onQ: e => this.setState({ q: e.target.value }),
+    };
+  }
+}
+</script>
+</body>
+</html>
