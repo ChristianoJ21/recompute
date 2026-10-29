@@ -55,6 +55,12 @@ describe('fleet page', () => {
     expect(within(accounts).getByText('Ana (sample)')).toBeTruthy()
   })
 
+  it('names the sample cities of the fleet, not every hall', async () => {
+    renderFleet()
+
+    expect(await screen.findByText('FLEET · JAKARTA')).toBeTruthy()
+  })
+
   it('lists every device with its outcome badge, linked to its passport', async () => {
     renderFleet()
 

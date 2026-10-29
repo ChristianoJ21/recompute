@@ -89,7 +89,7 @@ function Hero({ listings, featured, live }: HeroProps) {
       <NightBackdrop />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-[25%] -left-[10%] h-[60%] w-[40%] animate-glow-slow bg-[radial-gradient(closest-side,rgba(91,53,151,.45),transparent)] blur-[20px]"
+        className="pointer-events-none absolute -bottom-[25%] -left-[10%] h-[60%] w-[40%] animate-glow-slow bg-[radial-gradient(closest-side,rgba(74,111,12,.45),transparent)] blur-[20px]"
       />
       <div className={`${container} relative grid grid-cols-[repeat(auto-fit,minmax(min(100%,520px),1fr))] items-center gap-[clamp(40px,5vw,88px)] pt-[clamp(48px,7vw,120px)] pb-[clamp(56px,7vw,112px)]`}>
         <div className="flex animate-rise flex-col gap-[clamp(18px,2vw,28px)]">
@@ -98,7 +98,7 @@ function Hero({ listings, featured, live }: HeroProps) {
           </HeroChip>
           <h1 id="hero-h" className="text-[clamp(40px,6.2vw,96px)] leading-[.98] font-[750] tracking-[-.045em] text-balance text-white">
             Second-life AI servers, each with a{' '}
-            <span className="bg-[linear-gradient(90deg,#8EA2FF,#C2A6F2_60%,#79C4EC)] bg-clip-text text-transparent">passport you can check.</span>
+            <span className="bg-[linear-gradient(90deg,#7BE0A4,#C6EA8A_60%,#6FD3C0)] bg-clip-text text-transparent">passport you can check.</span>
           </h1>
           <p className="max-w-[58ch] text-[clamp(16px,1.35vw,19px)] text-pretty text-night-fg2">
             ReCompute helps a data centre keep AI servers in use longer instead of scrapping them early. Every device carries a

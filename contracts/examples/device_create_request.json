@@ -1,17 +1,17 @@
 {
   "id": "GPU-SRV-001",
-  "model": "AccelServer-v1 (sample)",
+  "model": "GPU server \u00b7 4\u00d7 NVIDIA A100 (sample)",
   "device_type": "gpu_server",
   "install_date": "2022-03-01",
-  "location": "Hall A / large-model training",
+  "location": "Jakarta, Indonesia \u00b7 Hall A / large-model training",
   "components": [
     {
       "type": "gpu",
-      "model": "Accel-v1"
+      "model": "NVIDIA A100"
     },
     {
       "type": "memory",
-      "model": "HBM-v1"
+      "model": "DDR4-3200 RDIMM"
     }
   ],
   "reliability_ok": true,

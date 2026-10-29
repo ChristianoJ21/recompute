@@ -28,11 +28,11 @@ def _inputs(W, i_old=I_OLD):
 def _device(id_, workload, W, reliability_ok=True, upgrade_options=None, i_old=I_OLD):
     return {
         "id": id_,
-        "model": "AccelServer-v1 (sample)",
+        "model": "GPU server · 4× NVIDIA A100 (sample)",
         "device_type": "gpu_server",
         "install_date": "2022-03-01",
-        "location": f"Hall A / {workload}",
-        "components": [{"type": "gpu", "model": "Accel-v1"}, {"type": "memory", "model": "HBM-v1"}],
+        "location": f"Jakarta, Indonesia · Hall A / {workload}",
+        "components": [{"type": "gpu", "model": "NVIDIA A100"}, {"type": "memory", "model": "DDR4-3200 RDIMM"}],
         "reliability_ok": reliability_ok,
         "inputs": _inputs(W, i_old),
         "upgrade_options": upgrade_options or [],

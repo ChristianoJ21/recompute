@@ -12,7 +12,7 @@ export const OUTCOME_STYLE: Record<Outcome, OutcomeStyle> = {
   KEEP: {
     label: 'KEEP',
     meaning: 'Replacing would not pay back its manufacturing emissions',
-    badge: 'border-ok-line bg-ok-bg text-ok',
+    badge: 'border-keep-line bg-keep-bg text-keep',
   },
   UPGRADE: {
     label: 'UPGRADE',
@@ -48,7 +48,7 @@ export const NOT_EVALUATED_STYLE: OutcomeStyle = {
 }
 
 const TONE: Record<Outcome, string> = {
-  KEEP: 'ok',
+  KEEP: 'keep',
   UPGRADE: 'upgrade',
   REDEPLOY: 'redeploy',
   RECYCLE: 'recycle',

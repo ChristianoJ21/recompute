@@ -154,6 +154,7 @@ def listing_row(session, device, list_event, outcome):
     telemetry = [e for e in events if e.kind == "telemetry"]
     return {
         "device_id": device.id, "model": device.model, "device_type": device.device_type,
+        "location": device.location,
         "install_date": device.install_date.isoformat(), "components": device.components,
         "reliability_ok": device.reliability_ok, "latest_outcome": outcome,
         "passport_intact": verify(device.id, events)["valid"],

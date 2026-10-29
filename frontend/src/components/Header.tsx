@@ -86,7 +86,7 @@ export function Header({ session, onLogOut }: HeaderProps) {
       className="sticky top-0 z-40 border-b border-white/8 text-night-fg"
     >
       {/* The glass lives on its own layer: a filter on <header> itself would trap the fixed drawer inside the bar. */}
-      <div aria-hidden className="absolute inset-0 -z-10 bg-night/80 backdrop-blur-[14px] backdrop-saturate-[1.4]" />
+      <div aria-hidden className="absolute inset-0 -z-10 bg-night/95 backdrop-blur-[14px] backdrop-saturate-[1.4]" />
       <div className="flex min-h-[68px] items-center gap-[clamp(16px,3vw,40px)] px-[clamp(20px,4vw,72px)]">
         <Link to="/" className="inline-flex min-h-11 shrink-0 items-center gap-2.5 text-white no-underline">
           <LogoMark />
@@ -175,7 +175,7 @@ function Drawer({ session, customer, pages, theme, onClose, onLogOut }: DrawerPr
     'flex min-h-[60px] flex-col justify-center rounded-xl px-3.5 py-1.5 text-left text-white no-underline hover:bg-white/6'
   return (
     <>
-      <div aria-hidden onClick={() => onClose()} className="fixed inset-0 z-50 bg-[rgba(5,7,10,.55)] backdrop-blur-[3px]" />
+      <div aria-hidden onClick={() => onClose()} className="fixed inset-0 z-50 bg-[rgba(4,18,10,.55)] backdrop-blur-[3px]" />
       <nav
         id="rc-menu"
         aria-label="Menu"
@@ -221,7 +221,7 @@ function Drawer({ session, customer, pages, theme, onClose, onLogOut }: DrawerPr
                 aria-checked={theme === option}
                 onClick={() => setTheme(option)}
                 className={`min-h-[38px] rounded-full text-[13px] font-semibold transition-colors duration-200 ${
-                  theme === option ? 'bg-night-accent text-night' : 'text-[#C9CCD1] hover:bg-white/6'
+                  theme === option ? 'bg-night-accent text-night' : 'text-night-fg2 hover:bg-white/6'
                 }`}
               >
                 {THEME_SHORT[option]}

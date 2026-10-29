@@ -120,7 +120,7 @@ function StaffPanel() {
         {SAMPLE_CHAIN.map((row, i) => (
           <li
             key={row.n}
-            className="grid animate-rise grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-xl border border-[#22262E] bg-white/[.035] px-3.5 py-[11px] font-mono text-xs"
+            className="grid animate-rise grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-xl border border-night-line bg-white/[.035] px-3.5 py-[11px] font-mono text-xs"
             style={{ animationDelay: `${0.2 + i * 0.12}s` }}
           >
             <span className="font-bold text-night-accent">#{row.n}</span>

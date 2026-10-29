@@ -103,7 +103,13 @@ export function formatDeviceType(type: string): string {
   return type.split(/[_\s]+/).filter(Boolean).map(word).join(' ')
 }
 
-/** "GPU Accel-v1 · Memory HBM-v1". */
+/** "GPU NVIDIA A100 · Memory DDR4-3200 RDIMM". */
 export function formatComponents(components: { type: string; model: string }[]): string {
   return components.map((c) => `${word(c.type, 0)} ${c.model}`).join(' · ')
+}
+
+/** "Jakarta, Indonesia" from a location written "City, Country · hall / use" (A10); null when it names no site. */
+export function locationSite(location: string): string | null {
+  const [site, rest] = location.split(' · ', 2)
+  return rest !== undefined && site.trim() ? site.trim() : null
 }

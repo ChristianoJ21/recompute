@@ -8,25 +8,31 @@
   --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
 
-  --color-ink: #0E1116;
-  --color-ink-2: #4A4F57;
-  --color-ink-3: #6A6F77;
-  --color-line-strong: #A9A9A0;
-  --color-line-mid: #C8C8C0;
-  --color-line: #D6D6CF;
-  --color-sunken: #EBEBE6;
-  --color-page: #F4F4F1;
-  --color-raised: #FAFAF8;
+  /* A10 phase 1 (30 Oct): white + green palette. White pages, forest-green accent, green-tinted greys;
+     checked by src/test/palette.test.ts (text >= 4.5:1 on every surface, both themes). */
+  --color-ink: #0D1A12;
+  --color-ink-2: #44544A;
+  --color-ink-3: #5B6B61;
+  --color-line-strong: #9DB3A4;
+  --color-line-mid: #C4D4C9;
+  --color-line: #D6E2D9;
+  --color-sunken: #EAF2EC;
+  --color-page: #FFFFFF;
+  --color-raised: #F5F9F6;
   --color-surface: #FFFFFF;
-  --color-grid: #E6E6DF;
-  --color-accent: #2443C9;
-  --color-accent-hover: #16298A;
-  --color-on-ink-2: #C9CCD1;
+  --color-grid: #E5EEE8;
+  --color-accent: #13723A;
+  --color-accent-hover: #0B5229;
+  --color-on-ink-2: #C5D3C9;
   --color-code-fg: #E6E8EB;
   --color-ok: #1D6B3B;
   --color-ok-bg: #E4F2E8;
   --color-ok-line: #A9D3B7;
   --color-ok-ink: #14492A;
+  /* KEEP is a leaf (yellow-) green, so it never reads as the accent or as a success tick. */
+  --color-keep: #4A6F0C;
+  --color-keep-bg: #EEF5DF;
+  --color-keep-line: #BFD79A;
   --color-upgrade: #0B5F86;
   --color-upgrade-bg: #E2F0F8;
   --color-upgrade-line: #A6CFE6;
@@ -51,39 +57,40 @@
   --color-note-line: #E3CC85;
   --color-note-ink: #3D2C00;
   --color-note-icon: #5E4300;
-  --color-bar: #0E1116;
-  --color-bar-line: #0E1116;
+  --color-bar: #0C2618;
+  --color-bar-line: #0C2618;
   --color-bar-fg: #FFFFFF;
-  --color-bar-fg2: #C9CCD1;
-  --color-bar-fg3: #8C929B;
+  --color-bar-fg2: #C5D3C9;
+  --color-bar-fg3: #8FB09B;
   /* SAMPLE DATA chip: the same in both themes. */
   --color-sample: #F2D27A;
   --color-sample-ink: #2E2100;
   /* Market chart lines, fixed order (colour follows the line). Checked with the dataviz palette validator,
-     all pairs, on the surface of each theme: lightness, chroma, colour-blind separation, contrast >= 3:1. */
-  --color-series-1: #2443C9;
+     all pairs, on the surface of each theme: lightness, chroma, colour-blind separation, contrast >= 3:1.
+     A10 (30 Oct): green leads; re-run on #FFFFFF and #0D1912, worst CVD pair delta E 8.4 light / 9.4 dark. */
+  --color-series-1: #199E70;
   --color-series-2: #EB6834;
-  --color-series-3: #199E70;
+  --color-series-3: #2443C9;
 
   /* v3 (docs/design_handoff/v3): inputs and notices 14px, panels 22px, buttons, chips and badges are pills. */
   --radius-ctl: 14px;
   --radius-panel: 22px;
-  /* The dark hero bands, header, footer and menu drawer stay dark in both themes. */
-  --color-night: #0B0D10;
-  --color-night-2: #14171C;
-  --color-night-line: #2C3038;
-  --color-night-fg: #E8EAED;
-  --color-night-fg2: #A9AEB6;
-  --color-night-fg3: #8A9099;
-  --color-night-accent: #8EA2FF;
-  --color-night-accent-2: #B5C2FF;
+  /* The hero bands, header, footer and menu drawer stay deep forest green in both themes. */
+  --color-night: #0C2618;
+  --color-night-2: #12321F;
+  --color-night-line: #24503A;
+  --color-night-fg: #E7F2EA;
+  --color-night-fg2: #A9C4B2;
+  --color-night-fg3: #8FB09B;
+  --color-night-accent: #7BE0A4;
+  --color-night-accent-2: #B4F0CB;
   --color-night-ok: #6FD08F;
   --shadow-panel: 0 1px 2px rgba(14, 17, 22, 0.06), 0 10px 28px -14px rgba(14, 17, 22, 0.22);
   --shadow-panel-hover: 0 2px 4px rgba(14, 17, 22, 0.08), 0 18px 36px -16px rgba(14, 17, 22, 0.35);
   --shadow-offset: 4px 4px 0 var(--color-ink);
   --shadow-lift: 0 12px 28px -10px var(--color-accent);
   --shadow-float: 0 2px 4px rgba(14, 17, 22, 0.04), 0 30px 60px -30px rgba(14, 17, 22, 0.35);
-  --shadow-hero-card: 0 40px 80px -30px rgba(0, 0, 0, 0.8), 0 0 80px -20px rgba(142, 162, 255, 0.4);
+  --shadow-hero-card: 0 40px 80px -30px rgba(0, 0, 0, 0.8), 0 0 80px -20px rgba(123, 224, 164, 0.35);
   --ease-draw: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   --animate-flow-x: rc-flow-x 0.8s linear infinite;
@@ -122,28 +129,31 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --color-ink: #E8EAED;
-  --color-ink-2: #A9AEB6;
-  --color-ink-3: #8A9099;
-  --color-line-strong: #4A5059;
-  --color-line-mid: #3A3F47;
-  --color-line: #2C3038;
-  --color-sunken: #1F232A;
-  --color-page: #0B0D10;
-  --color-raised: #1A1D23;
-  --color-surface: #14171C;
-  --color-grid: #151920;
-  --color-series-1: #5F78EC;
+  --color-ink: #E6F0E9;
+  --color-ink-2: #A6B9AC;
+  --color-ink-3: #8A9F91;
+  --color-line-strong: #46604F;
+  --color-line-mid: #33493B;
+  --color-line: #26382C;
+  --color-sunken: #182A1F;
+  --color-page: #07110B;
+  --color-raised: #14231A;
+  --color-surface: #0D1912;
+  --color-grid: #0F1D15;
+  --color-series-1: #199E70;
   --color-series-2: #D95926;
-  --color-series-3: #199E70;
-  --color-accent: #8EA2FF;
-  --color-accent-hover: #B5C2FF;
-  --color-on-ink-2: #4A4F57;
-  --color-code-fg: #14171C;
+  --color-series-3: #5F78EC;
+  --color-accent: #6EDC9A;
+  --color-accent-hover: #A6EEC2;
+  --color-on-ink-2: #44544A;
+  --color-code-fg: #0D1912;
   --color-ok: #6FD08F;
   --color-ok-bg: #10291A;
   --color-ok-line: #2B5A3C;
   --color-ok-ink: #A6E3BA;
+  --color-keep: #B5DC6E;
+  --color-keep-bg: #1C2A0E;
+  --color-keep-line: #4A6223;
   --color-upgrade: #79C4EC;
   --color-upgrade-bg: #0D2533;
   --color-upgrade-line: #24506A;
@@ -168,8 +178,8 @@
   --color-note-line: #5E4A12;
   --color-note-ink: #F2D27A;
   --color-note-icon: #F2D27A;
-  --color-bar: #000000;
-  --color-bar-line: #2C3038;
+  --color-bar: #04120A;
+  --color-bar-line: #26382C;
   --shadow-panel: 0 0 0 1px rgba(255, 255, 255, 0.02), 0 14px 32px -12px rgba(0, 0, 0, 0.75);
   --shadow-panel-hover: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 20px 40px -14px rgba(0, 0, 0, 0.85);
 }
@@ -206,8 +216,8 @@
 /* Faint accent grid that drifts behind the dark hero bands, fading out towards the edges. */
 @utility bg-night-grid {
   background-image:
-    linear-gradient(rgba(142, 162, 255, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(142, 162, 255, 0.07) 1px, transparent 1px);
+    linear-gradient(rgba(123, 224, 164, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(123, 224, 164, 0.08) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, #000 30%, transparent 80%);
 }

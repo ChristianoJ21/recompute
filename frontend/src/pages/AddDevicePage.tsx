@@ -100,7 +100,7 @@ export function AddDevicePage() {
             </label>
             <TextField label="Install date" type="date" error={problems.installDate} value={form.installDate} onChange={set('installDate')} />
           </div>
-          <TextField label="Location" maxLength={200} hint="Hall / rack or use, e.g. Hall B / object storage." value={form.location} onChange={set('location')} />
+          <TextField label="Location" maxLength={200} hint="City, country · hall / use, e.g. Batam, Indonesia · Hall B / object storage." value={form.location} onChange={set('location')} />
           <label className="flex min-h-11 items-center gap-3 text-sm font-semibold">
             <input
               type="checkbox"

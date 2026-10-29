@@ -1,18 +1,18 @@
 {
   "device": {
     "id": "GPU-SRV-001",
-    "model": "AccelServer-v1 (sample)",
+    "model": "GPU server \u00b7 4\u00d7 NVIDIA A100 (sample)",
     "device_type": "gpu_server",
     "install_date": "2022-03-01",
-    "location": "Hall A / large-model training",
+    "location": "Jakarta, Indonesia \u00b7 Hall A / large-model training",
     "components": [
       {
         "type": "gpu",
-        "model": "Accel-v1"
+        "model": "NVIDIA A100"
       },
       {
         "type": "memory",
-        "model": "HBM-v1"
+        "model": "DDR4-3200 RDIMM"
       }
     ],
     "reliability_ok": true,
@@ -45,14 +45,14 @@
     {
       "id": 1,
       "device_id": "GPU-SRV-001",
-      "created_at": "2026-10-29T12:47:34Z",
+      "created_at": "2026-10-29T17:07:44Z",
       "kind": "wipe",
       "payload": {
         "note": "NIST SP 800-88 Purge (sample)"
       },
       "actor": "tech-1",
       "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-      "hash": "db8d49df4217845489174e27e82db63290151ed74920a0e40e14a4f6b04c6690"
+      "hash": "5d795f6039e1869ce06aabdd8f008e5a02f629ca928e88a695d35bbf345b81ad"
     }
   ],
   "latest_evaluation": {
@@ -73,7 +73,7 @@
         "net_kg": 1200.0
       }
     },
-    "evaluated_at": "2026-10-29T12:47:34Z",
+    "evaluated_at": "2026-10-29T17:07:44Z",
     "sample_data": true
   }
 }

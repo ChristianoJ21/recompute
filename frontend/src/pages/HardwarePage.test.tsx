@@ -47,16 +47,28 @@ describe('available hardware page (public, no login)', () => {
 
     const [card] = await cards()
     expect(screen.getByRole('heading', { level: 1, name: 'Available hardware' })).toBeTruthy()
-    expect(within(card).getByText('AccelServer-v1 (sample)')).toBeTruthy()
+    expect(within(card).getByText('GPU server · 4× NVIDIA A100 (sample)')).toBeTruthy()
+    expect(within(card).getByText('Jakarta, Indonesia')).toBeTruthy()
+    expect(within(card).getByText(/sample location/i)).toBeTruthy()
     expect(within(card).getByText(/IDR\s45,000,000/)).toBeTruthy()
     expect(within(card).getByText(/sample asking price/i)).toBeTruthy()
     expect(within(card).getByText('REDEPLOY')).toBeTruthy()
     expect(within(card).getByText(/Passport intact/)).toBeTruthy()
-    expect(within(card).getByText(/GPU Accel-v1/)).toBeTruthy()
+    expect(within(card).getByText(/GPU NVIDIA A100/)).toBeTruthy()
     expect(within(card).getByText('data wipe')).toBeTruthy()
     expect(within(card).getByText('gpu temp')).toBeTruthy()
     expect(within(card).getByText('61 °C')).toBeTruthy()
     expect(within(card).getByRole('link', { name: /passport/i }).getAttribute('href')).toBe('/device/GPU-SRV-001')
+  })
+
+  it('still shows the card when an older backend (contract < v2.5) sends no location', async () => {
+    const { location: _omitted, ...older } = FIRST
+    vi.mocked(client.getListings).mockResolvedValue([older as Listing])
+    renderHardware()
+
+    const [card] = await cards()
+    expect(within(card).getByText('GPU server · 4× NVIDIA A100 (sample)')).toBeTruthy()
+    expect(within(card).queryByText(/sample location/i)).toBeNull()
   })
 
   it('shows a decorative line drawing of the device on each card', async () => {
