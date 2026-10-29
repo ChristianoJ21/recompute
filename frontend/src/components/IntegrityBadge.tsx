@@ -16,13 +16,13 @@ interface IntegrityBadgeProps {
 
 // Wording rule: the chain *detects* changes ("changed at event #N"); it never claims to prevent them.
 export function IntegrityBadge({ integrity, size = 'md', live = false }: IntegrityBadgeProps) {
-  const sizing = size === 'lg' ? 'py-[7px] pr-[11px] pl-2 text-[13px]' : 'py-[5px] pr-[9px] pl-1.5 text-xs'
+  const sizing = size === 'lg' ? 'py-[7px] pr-3 pl-2 text-[15px]' : 'py-[5px] pr-2.5 pl-1.5 text-[13px]'
   const { icon, label, tone } = describe(integrity)
   const role = live ? (integrity.status === 'changed' ? 'alert' : 'status') : undefined
   return (
     <span
       role={role}
-      className={`inline-flex shrink-0 items-center gap-[7px] rounded-full border font-mono leading-[1.1] font-semibold whitespace-nowrap ${sizing} ${tone}`}
+      className={`inline-flex shrink-0 items-center gap-2 rounded-full border-[1.5px] leading-[1.1] font-bold whitespace-nowrap ${sizing} ${tone}`}
     >
       {icon}
       <span>{label}</span>
@@ -33,7 +33,7 @@ export function IntegrityBadge({ integrity, size = 'md', live = false }: Integri
 function describe(integrity: Integrity) {
   switch (integrity.status) {
     case 'intact':
-      return { icon: <CheckIcon size={14} />, label: 'Passport intact', tone: 'border-ok-line bg-ok-bg text-ok' }
+      return { icon: <CheckIcon size={14} />, label: 'Passport intact', tone: 'border-transparent bg-sunken text-ink' }
     case 'changed':
       return {
         icon: <CrossIcon size={14} />,

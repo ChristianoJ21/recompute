@@ -64,17 +64,6 @@ export function PlayIcon() {
   )
 }
 
-export function LogoMark() {
-  return (
-    <svg width="34" height="14" viewBox="0 0 34 14" aria-hidden className="shrink-0">
-      <path d="M8 7h5.5M20.5 7h5" className="stroke-ink" strokeWidth="1.6" />
-      <rect x="1" y="3" width="7" height="8" fill="none" className="stroke-ink" strokeWidth="1.6" />
-      <rect x="13.5" y="3" width="7" height="8" fill="none" className="stroke-ink" strokeWidth="1.6" />
-      <rect x="25.5" y="2.5" width="8" height="9" className="fill-accent" />
-    </svg>
-  )
-}
-
 /** The hatched square in the SAMPLE DATA chip (same colours in both themes). */
 export function SampleIcon() {
   return (

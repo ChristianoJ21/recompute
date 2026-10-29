@@ -16,6 +16,9 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
+    "@fontsource-variable/figtree": "^5.3.0",
+    "@fontsource/baloo-2": "^5.3.0",
+    "@fontsource/gochi-hand": "^5.3.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router": "^7.18.5"

@@ -1,27 +1,23 @@
 import { useId, useState, type InputHTMLAttributes, type ReactNode } from 'react'
-import type { Photo } from '../lib/photos'
-import { BandPhoto } from './HeroPhoto'
+import { Link } from 'react-router'
+import { Chip, type ChipPose } from '../design/Art'
 import { CheckIcon, CrossIcon, NoteIcon } from './icons'
 
-// Shared classes and building blocks of the design system (docs/design_handoff/README.md).
+// Shared classes and building blocks of the clay design system (Claude Design, 30 Oct): cream cards on mint paper,
+// forest ink outlines, tangerine buttons that squish when pressed, hand-written copper notes.
 
+// The spring easing is the one from the design (recompute-motion.js uses the same curve for its own animations).
 const buttonBase =
-  'inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full border px-6 text-[15px] font-bold no-underline transition-[translate,box-shadow,border-color,background-color] duration-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:border-transparent disabled:bg-sunken disabled:text-ink-3 disabled:shadow-none'
+  'inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-[18px] border-[2.5px] px-6 text-base font-extrabold no-underline transition-[translate,rotate,scale,box-shadow,background-color] duration-200 ease-spring active:translate-y-1 active:scale-x-[.97] active:scale-y-[.92] disabled:cursor-not-allowed disabled:translate-y-0 disabled:rotate-0 disabled:scale-100 disabled:border-line-strong disabled:bg-sunken disabled:text-ink-3 disabled:shadow-none disabled:hover:translate-y-0 disabled:hover:rotate-0'
 
-export const primaryButton = `${buttonBase} border-accent bg-accent text-surface hover:-translate-y-0.5 hover:border-accent-hover hover:bg-accent-hover hover:shadow-lift active:translate-y-0 active:shadow-none`
+/** The tangerine call to action: forest ink text and outline, a hard drop shadow, squishes on press. */
+export const primaryButton = `${buttonBase} border-cta-ink bg-cta text-cta-ink shadow-pop hover:-translate-y-0.5 hover:-rotate-1 hover:text-cta-ink`
 
-export const secondaryButton = `${buttonBase} border-line-strong bg-transparent font-semibold text-ink hover:border-ink hover:bg-raised`
-
-/** The solid green pill on the bands ("Browse hardware", "+ Add technician"). */
-export const nightButton =
-  'inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-full bg-night-accent px-6 text-[15px] font-bold text-night no-underline shadow-[0_10px_30px_-8px_rgba(19,114,58,.25)] transition-[translate,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-8px_rgba(19,114,58,.35)]'
-
-/** Outlined pill on the dark bands ("How it works", "← Fleet"). */
-export const nightGhostButton =
-  'inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-5 font-semibold text-white no-underline transition-colors duration-200 hover:border-white/40 hover:bg-white/5'
+/** The cream button with an ink outline, next to a primary one or on its own for lighter actions. */
+export const secondaryButton = `${buttonBase} border-ink bg-surface text-ink shadow-[0_5px_0_color-mix(in_srgb,var(--color-ink)_85%,transparent)] hover:-translate-y-0.5 hover:rotate-1 hover:text-ink`
 
 export const fieldClass =
-  'min-h-[50px] w-full rounded-ctl border border-line-strong bg-surface px-4 text-base font-normal text-ink placeholder:text-ink-3 focus:border-accent focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_15%,transparent)] focus:outline-none disabled:border-line disabled:bg-sunken disabled:text-ink-3 aria-invalid:border-danger'
+  'min-h-[50px] w-full rounded-ctl border-2 border-line-strong bg-surface px-4 text-base font-normal text-ink placeholder:text-ink-3 focus:border-ink focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_22%,transparent)] focus:outline-none disabled:border-line disabled:bg-sunken disabled:text-ink-3 aria-invalid:border-danger'
 
 export const labelClass = 'flex flex-col gap-2 text-sm font-semibold'
 
@@ -29,38 +25,41 @@ export const hintClass = 'text-[13px] font-normal text-ink-2'
 
 export const monoLabel = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-2'
 
-export const panelClass = 'overflow-hidden rounded-panel border border-line bg-surface shadow-panel'
+export const panelClass = 'rounded-panel bg-surface shadow-panel'
 
-/** Content column: full width up to 1440px, side padding about 20px on a phone and 72px on a wide screen. */
-export const container = 'mx-auto w-full max-w-[1440px] px-[clamp(20px,4vw,72px)]'
+/** Content column: full width up to 1240px (the design's width), side padding about 16px on a phone and 40px wide. */
+export const container = 'mx-auto w-full max-w-[1240px] px-[clamp(16px,4vw,40px)]'
 
-/** A light content band under a hero: blueprint grid, generous vertical padding. */
-export const band = 'bg-blueprint pt-[clamp(28px,4vw,64px)] pb-[clamp(48px,6vw,96px)]'
+/** A content area under a page heading: plain paper, generous vertical padding. */
+export const band = 'pt-[clamp(8px,2vw,24px)] pb-[clamp(48px,6vw,96px)]'
 
-export const linkClass = 'font-semibold text-accent underline-offset-[3px] hover:underline'
+export const linkClass = 'font-semibold text-accent underline-offset-[3px] hover:text-accent-hover hover:underline'
 
 const panelPad = 'px-5 sm:px-6'
 
 interface PanelProps {
   title: ReactNode
-  /** Mono accent line above the title: "01 · DECISION". */
+  /** Small caps line above the title: "01 · DECISION". */
   eyebrow?: string
   /** Right side of the title strip: a mono tag, a badge or a button. */
   aside?: ReactNode
   id?: string
   className?: string
+  /** Masking tape on the top edge. */
+  tape?: boolean
   children: ReactNode
 }
 
-/** A titled panel: rounded, hairline border, title strip, padded body. */
-export function Panel({ title, eyebrow, aside, id, className = '', children }: PanelProps) {
+/** A titled clay card: cream, soft shadow, a dashed rule under the title strip, padded body. */
+export function Panel({ title, eyebrow, aside, id, className = '', tape = false, children }: PanelProps) {
   const headingId = useId()
   return (
     <section id={id} aria-labelledby={headingId} className={`relative scroll-mt-24 ${panelClass} ${className}`}>
-      <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line py-[18px] ${panelPad}`}>
-        <div className="flex flex-col gap-0.5">
-          {eyebrow && <span className="font-mono text-xs font-bold tracking-[.08em] text-accent">{eyebrow}</span>}
-          <h2 id={headingId} className="text-[clamp(20px,1.8vw,22px)] font-bold tracking-[-.02em]">
+      {tape && <span aria-hidden className="rc-tape" />}
+      <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b-2 border-dashed border-line py-[18px] ${panelPad}`}>
+        <div className="flex flex-col gap-1.5">
+          {eyebrow && <span className="rc-eyebrow text-accent">{eyebrow}</span>}
+          <h2 id={headingId} className="text-[clamp(22px,2vw,26px)] leading-[1.1] font-extrabold tracking-[-.01em]">
             {title}
           </h2>
         </div>
@@ -71,7 +70,7 @@ export function Panel({ title, eyebrow, aside, id, className = '', children }: P
   )
 }
 
-/** Mono tag on the right of a panel title strip ("TECHNICIAN", "02"). */
+/** Small tag on the right of a panel title strip ("TECHNICIAN", "02"). */
 export function PanelTag({ children }: { children: ReactNode }) {
   return <span className="font-mono text-[11px] font-semibold tracking-[.08em] text-ink-2">{children}</span>
 }
@@ -96,13 +95,13 @@ interface SectionTitleProps {
   children?: ReactNode
 }
 
-/** Mono accent eyebrow over a large section heading. */
+/** Small caps eyebrow over a large Baloo section heading. */
 export function SectionTitle({ eyebrow, title, id, children }: SectionTitleProps) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
-      <div className="flex flex-col gap-2.5">
-        <span className="font-mono text-[13px] font-bold tracking-[.08em] text-accent">{eyebrow}</span>
-        <h2 id={id} className="text-[clamp(28px,3.4vw,48px)] leading-[1.02] font-[750] tracking-[-.035em]">
+      <div data-reveal="1" className="flex flex-col gap-2.5">
+        <span className="rc-eyebrow text-accent">{eyebrow}</span>
+        <h2 id={id} className="text-[clamp(36px,5vw,60px)] leading-[.95] font-extrabold tracking-[-.02em] text-balance">
           {title}
         </h2>
       </div>
@@ -111,73 +110,111 @@ export function SectionTitle({ eyebrow, title, id, children }: SectionTitleProps
   )
 }
 
-/** Green pulsing dot in the hero chips ("FLEET · HALL A"). */
+/** Tangerine dot with a soft pulsing ring ("live"). */
 export function LiveDot() {
-  return <span aria-hidden className="size-2 shrink-0 animate-ring rounded-full bg-night-ok" />
+  return <span aria-hidden className="size-2 shrink-0 animate-ring rounded-full bg-cta" />
 }
 
-/** Rounded mono chip at the top of a hero. */
+/** A sticker at the top of a page heading: cream pill, forest outline, tilted a little. */
 export function HeroChip({ live = false, children }: { live?: boolean; children: ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2.5 self-start rounded-full border border-night-accent/30 bg-night-accent/8 py-[7px] pr-3.5 pl-2.5 font-mono text-xs font-semibold tracking-[.06em] text-night-accent-2">
-      {live && <LiveDot />}
+    <span className="rc-eyebrow inline-flex -rotate-[1.5deg] items-center gap-2.5 self-start rounded-full border-[1.5px] border-ink bg-surface px-3.5 py-2 leading-[1.2]">
+      {live ? <LiveDot /> : <span aria-hidden className="size-2 shrink-0 rounded-full bg-accent-fill" />}
       {children}
     </span>
   )
 }
 
-/** Drifting grid and a soft glow behind a dark band (decoration only). */
-export function NightBackdrop({ glow = 'rgba(19,114,58,.14)' }: { glow?: string }) {
-  return (
-    <>
-      <div aria-hidden className="pointer-events-none absolute inset-0 animate-drift bg-night-grid" />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-[30%] -right-[10%] h-[110%] w-[60%] animate-glow blur-[20px]"
-        style={{ background: `radial-gradient(closest-side, ${glow}, transparent)` }}
-      />
-    </>
-  )
-}
-
 interface PageHeroProps {
-  /** A stock photo, blurred behind the band (decoration, credited). */
-  photo?: Photo
   /** Above the title: a HeroChip or a HeroLabel. */
   eyebrow?: ReactNode
   title: ReactNode
   /** Right column on wide screens, below on phones: an action or a paragraph. */
   aside?: ReactNode
+  /** Beside the title on wide screens: a Chip pose or another illustration. */
+  mascot?: ReactNode
   /** Under the title: intro text. */
   children?: ReactNode
 }
 
-/** The band that opens every v3 page (white + green; forest in dark mode): eyebrow, large H1, intro, optional aside. */
-export function PageHero({ photo, eyebrow, title, aside, children }: PageHeroProps) {
+/** The heading that opens every page: sticker, large Baloo H1, intro, optional aside and mascot. */
+export function PageHero({ eyebrow, title, aside, mascot, children }: PageHeroProps) {
   return (
-    <section data-band className="relative overflow-hidden bg-night text-night-fg">
-      {photo && <BandPhoto photo={photo} />}
-      <NightBackdrop />
-      <div className={`${container} relative flex flex-wrap items-end justify-between gap-x-10 gap-y-7 py-[clamp(40px,5vw,80px)]`}>
-        <div className="flex max-w-[860px] min-w-0 flex-col gap-4">
+    <section className="relative">
+      <div className={`${container} flex flex-wrap items-end justify-between gap-x-10 gap-y-7 pt-[clamp(28px,5vw,64px)] pb-[clamp(20px,3vw,40px)]`}>
+        <div className="flex max-w-[860px] min-w-0 flex-[1_1_480px] flex-col gap-5">
           {eyebrow}
-          <h1 className="text-[clamp(40px,5.4vw,84px)] leading-none font-[750] tracking-[-.045em] text-white">{title}</h1>
+          <h1 className="text-[clamp(42px,6vw,80px)] leading-[.95] font-extrabold tracking-[-.025em] text-balance">{title}</h1>
           {children}
         </div>
         {aside}
+        {mascot}
       </div>
     </section>
   )
 }
 
-/** Plain mono eyebrow on a dark hero ("SETTINGS", "MARKET"). */
+/** Small caps label above a page heading ("SETTINGS", "MARKET"). */
 export function HeroLabel({ children }: { children: ReactNode }) {
-  return <span className="font-mono text-xs font-semibold tracking-[.12em] text-night-accent-2">{children}</span>
+  return <span className="rc-eyebrow text-accent">{children}</span>
 }
 
-/** Intro paragraph on a dark hero. */
+/** Intro paragraph under a page heading. */
 export function HeroText({ children }: { children: ReactNode }) {
-  return <p className="max-w-[62ch] text-[clamp(16px,1.35vw,19px)] text-pretty text-night-fg2">{children}</p>
+  return <p className="max-w-[44em] text-[clamp(17px,1.5vw,19px)] leading-[1.6] font-medium text-pretty text-ink-2">{children}</p>
+}
+
+/** A hand-written note in copper ink. Decorative commentary only: the facts are always in plain text elsewhere. */
+export function HandNote({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <span className={`rc-hand text-[clamp(17px,1.8vw,22px)] leading-[1.1] ${className}`}>{children}</span>
+}
+
+/** The cream card of a form (put `<span aria-hidden className="rc-tape" />` first inside it for the tape). */
+export const formCard = 'relative flex w-full flex-col gap-5 rounded-panel bg-surface p-[clamp(22px,3vw,36px)] shadow-float'
+
+/** Pill link back to where you came from ("← Fleet"). */
+export function BackLink({ to, children }: { to: string; children: ReactNode }) {
+  return (
+    <Link
+      to={to}
+      className="inline-flex min-h-10 items-center rounded-[14px] border-[1.5px] border-line-strong px-3.5 text-sm font-bold whitespace-nowrap text-ink no-underline transition-[scale,background-color] duration-200 ease-spring hover:bg-sunken hover:text-ink active:scale-95"
+    >
+      {children}
+    </Link>
+  )
+}
+
+interface FormPageProps {
+  title: string
+  intro: string
+  /** Above the heading: a BackLink. */
+  back?: ReactNode
+  /** Width of the form column in px. */
+  width?: number
+  /** Chip's pose over the heading. */
+  pose?: ChipPose
+  children: ReactNode
+}
+
+/** A centred page for one form: Chip, a large heading, an intro, then the form card (and any links) under it. */
+export function FormPage({ title, intro, back, width = 520, pose = 'wave', children }: FormPageProps) {
+  return (
+    <>
+      <section className="relative">
+        <div className={`${container} flex flex-col items-center gap-4 pt-[clamp(24px,4vw,48px)] pb-[clamp(20px,3vw,32px)] text-center`}>
+          {back}
+          <Chip pose={pose} anim={['blink', 'antenna']} eyes className="aspect-[204/214] w-[clamp(84px,10vw,112px)]" />
+          <h1 className="text-[clamp(38px,5vw,64px)] leading-[.95] font-extrabold tracking-[-.025em] text-balance">{title}</h1>
+          <p className="max-w-[54ch] text-[clamp(15px,1.3vw,18px)] font-medium text-pretty text-ink-2">{intro}</p>
+        </div>
+      </section>
+      <div className="flex justify-center px-[clamp(16px,4vw,40px)] pb-[clamp(48px,6vw,96px)]">
+        <div className="relative flex w-full flex-col gap-5" style={{ maxWidth: width }}>
+          {children}
+        </div>
+      </div>
+    </>
+  )
 }
 
 const TONES = {
@@ -196,7 +233,7 @@ interface NoticeProps {
 export function Notice({ tone, children, action }: NoticeProps) {
   const { box, icon, role } = TONES[tone]
   return (
-    <div role={role} className={`flex items-start gap-2.5 rounded-ctl border px-3.5 py-3 text-sm ${box}`}>
+    <div role={role} className={`flex items-start gap-2.5 rounded-ctl border-[1.5px] px-3.5 py-3 text-sm font-medium ${box}`}>
       <span className="mt-0.5">{icon}</span>
       <span className="min-w-0 flex-1">{children}</span>
       {action}
@@ -209,7 +246,7 @@ export function ErrorNotice({ message, onRetry }: { message: string; onRetry?: (
     <button
       type="button"
       onClick={onRetry}
-      className="min-h-9 shrink-0 rounded-full border border-danger bg-surface px-3.5 text-[13px] font-semibold text-danger-ink"
+      className="min-h-9 shrink-0 rounded-full border-[1.5px] border-danger bg-surface px-3.5 text-[13px] font-bold text-danger-ink"
     >
       Try again
     </button>
@@ -224,30 +261,34 @@ export function ErrorNotice({ message, onRetry }: { message: string; onRetry?: (
 /** "✘ message" under a form field. */
 export function FieldError({ id, children }: { id: string; children: ReactNode }) {
   return (
-    <span id={id} role="alert" className="text-[13px] font-normal text-danger">
+    <span id={id} role="alert" className="text-[13px] font-medium text-danger">
       <span aria-hidden>✘ </span>
       {children}
     </span>
   )
 }
 
-/** Skeleton panel while data loads. */
+/** While data loads: Chip at work on his laptop, with skeleton lines. */
 export function Loading({ label }: { label: string }) {
   return (
-    <div role="status" aria-busy="true" className={`flex flex-col gap-3 p-6 ${panelClass}`}>
-      <span className="font-mono text-xs text-ink-2">{label}</span>
-      <span className="h-3 w-2/5 rounded-full bg-sunken" />
-      <span className="h-7 w-[70%] rounded-full bg-sunken" />
-      <span className="h-3 w-[90%] rounded-full bg-sunken" />
+    <div role="status" aria-busy="true" className={`flex items-center gap-5 p-6 ${panelClass}`}>
+      <Chip pose="work" anim={['work', 'blink']} className="aspect-[280/214] w-[clamp(96px,16vw,140px)] shrink-0" />
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <span className="rc-hand text-xl leading-none">{label}</span>
+        <span className="h-3 w-2/5 rounded-full bg-sunken" />
+        <span className="h-3 w-[90%] rounded-full bg-sunken" />
+      </div>
     </div>
   )
 }
 
+/** Nothing to show: Chip asleep under a dashed outline. */
 export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="flex flex-col gap-1.5 rounded-panel border border-dashed border-line-strong bg-surface px-6 py-10 text-center">
-      <strong className="text-lg">{title}</strong>
-      {children && <span className="text-sm text-ink-2">{children}</span>}
+    <div className="flex flex-col items-center gap-3 rounded-panel border-2 border-dashed border-line-strong bg-surface px-6 py-10 text-center">
+      <Chip pose="sleep" anim={['zzz']} className="aspect-[204/214] w-24" />
+      <strong className="font-display text-2xl font-extrabold">{title}</strong>
+      {children && <span className="max-w-[34em] text-[15px] text-ink-2">{children}</span>}
     </div>
   )
 }
@@ -274,7 +315,7 @@ export function TextField({ label, hint, error, invalid, mono = false, className
   const describedBy = [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-semibold">
+      <label htmlFor={id} className="text-sm font-bold">
         {label}
       </label>
       <input
@@ -309,7 +350,7 @@ export function PasswordField({ label, hint, error, invalid, minLength, classNam
   const describedBy = [shownHint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-sm font-semibold">
+      <label htmlFor={id} className="text-sm font-bold">
         {label}
       </label>
       <span className="relative flex">
@@ -327,13 +368,13 @@ export function PasswordField({ label, hint, error, invalid, minLength, classNam
           aria-label={visible ? 'Hide password' : 'Show password'}
           aria-pressed={visible}
           onClick={() => setVisible((v) => !v)}
-          className="absolute inset-y-1.5 right-1.5 rounded-[10px] bg-sunken px-3.5 text-[13px] font-semibold text-ink"
+          className="absolute inset-y-1.5 right-1.5 rounded-[10px] bg-sunken px-3.5 text-[13px] font-bold text-ink"
         >
           {visible ? 'Hide' : 'Show'}
         </button>
       </span>
       {meter && (
-        <span aria-hidden className="h-1.5 overflow-hidden rounded-full bg-sunken">
+        <span aria-hidden className="h-2 overflow-hidden rounded-full bg-sunken">
           <span className="block h-full rounded-full transition-[width] duration-300" style={{ width: `${meter.share * 100}%`, background: meter.colour }} />
         </span>
       )}

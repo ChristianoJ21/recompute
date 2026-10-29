@@ -27,7 +27,7 @@ py -m uvicorn api.main:create_app --factory --port 8000   # API at http://localh
 
 ## Frontend
 
-React + Vite + TypeScript + Tailwind (Node 20.19+ or 22.12+). It reaches the API through the Vite proxy (`/api/*` → `http://localhost:8000/*`, prefix stripped, in both `dev` and `preview`), so no CORS setup is needed. Tailwind is compiled at build time, so the built app runs offline. Only `frontend/src/api/client.ts` calls the backend.
+React + Vite + TypeScript + Tailwind (Node 20.19+ or 22.12+). It reaches the API through the Vite proxy (`/api/*` → `http://localhost:8000/*`, prefix stripped, in both `dev` and `preview`), so no CORS setup is needed. Tailwind is compiled at build time and the fonts are bundled (`@fontsource`), so the built app runs offline. Only `frontend/src/api/client.ts` calls the backend.
 
 With the backend running (see above), in a second terminal:
 
@@ -38,7 +38,7 @@ npm run dev        # http://localhost:5173
 npm test           # Vitest; all tests must pass
 ```
 
-Pages: **public** (no login) `/` Home, `/hardware` Available hardware (listed devices, sample price, contact box), `/market` market-forecast charts (empty until verified figures are in `data/market_forecast.json`), `/device/<id>` passport (read only). **Technician** (log in via "Technician login"): `/fleet` dashboard with stats, `/devices/new` Add device (a new SAMPLE DATA passport record; blank rule inputs are sent as missing), `/technicians/new` Add technician, and on the passport page the action form, Evaluate and List for sale / Remove from sale. The token is kept in `sessionStorage` (gone when the tab closes); Log out forgets it. `/settings`: everyone picks Light / Dark / Match device (stored in `localStorage["rc-theme"]`); a technician also changes their full name and password there (contract v2.3). Times are shown in WIB. Design reference: `docs/design_handoff/`.
+Pages: **public** (no login) `/` Home, `/hardware` Available hardware (listed devices, sample price, contact box), `/market` market-forecast charts (empty until verified figures are in `data/market_forecast.json`), `/device/<id>` passport (read only). **Technician** (log in via "Technician login"): `/fleet` dashboard with stats, `/devices/new` Add device (a new SAMPLE DATA passport record; blank rule inputs are sent as missing), `/technicians/new` Add technician, and on the passport page the action form, Evaluate and List for sale / Remove from sale. The token is kept in `sessionStorage` (gone when the tab closes); Log out forgets it. `/settings`: everyone picks Light / Dark / Match device (stored in `localStorage["rc-theme"]`); a technician also changes their full name and password there (contract v2.3). Times are shown in WIB. Design: the clay redesign from Claude Design (mint paper, Chip the robot, scroll-driven "how it works"); its illustrations, motion engine and what is still open are in `frontend/src/design/README.md`. Older reference: `docs/design_handoff/`.
 
 ### Technician accounts
 
