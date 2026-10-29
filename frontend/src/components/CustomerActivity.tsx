@@ -9,7 +9,7 @@ import { EmptyState, ErrorNotice, Loading, Panel, SectionTitle, linkClass } from
 
 type State = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; enquiries: Enquiry[]; customers: CustomerRow[] }
 
-const cell = 'border-b border-sunken py-2.5 pr-4 text-left align-top'
+const cell = 'border-b-2 border-dashed border-line py-2.5 pr-4 text-left align-top'
 
 export function CustomerActivity() {
   const [state, setState] = useState<State>({ status: 'loading' })
@@ -40,7 +40,7 @@ export function CustomerActivity() {
             ) : (
               <ul aria-label="Questions from customers" className="flex flex-col">
                 {state.enquiries.map((enquiry) => (
-                  <li key={enquiry.id} className="flex flex-col gap-1.5 border-b border-sunken py-3.5 last:border-b-0">
+                  <li key={enquiry.id} className="flex flex-col gap-1.5 border-b-2 border-dashed border-line py-3.5 last:border-b-0">
                     <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1 font-mono text-xs text-ink-2">
                       <Link to={`/device/${encodeURIComponent(enquiry.device_id)}`} className={`${linkClass} font-mono text-[13px]`}>
                         {enquiry.device_id}

@@ -3,14 +3,15 @@ import { Link } from 'react-router'
 import { describeError, getListings, getMyEnquiries, logout } from '../api/client'
 import type { Enquiry, Listing } from '../api/types'
 import { OutcomeBadge } from '../components/OutcomeBadge'
-import { EmptyState, ErrorNotice, HeroChip, Loading, NightBackdrop, Panel, band, container, linkClass, nightGhostButton } from '../components/ui'
+import { EmptyState, ErrorNotice, HeroChip, Loading, PageHero, Panel, band, container, linkClass, secondaryButton } from '../components/ui'
+import { Chip } from '../design/Art'
 import { useFavourites } from '../lib/favourites'
 import { formatDateTime, formatPrice } from '../lib/format'
 import { useCustomer } from '../lib/session'
 
-const row = 'flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-sunken py-3.5 last:border-b-0'
+const row = 'flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b-2 border-dashed border-line py-3.5 last:border-b-0'
 const removeButton =
-  'inline-flex min-h-11 items-center rounded-full border border-line-strong px-4 text-sm font-semibold text-ink transition-colors duration-200 hover:border-ink hover:bg-raised'
+  'inline-flex min-h-11 items-center rounded-[14px] border-2 border-line-strong px-4 text-sm font-bold text-ink transition-[scale,background-color] duration-200 ease-spring hover:border-ink hover:bg-sunken active:scale-95'
 
 /** A customer's own page (contract v2.4): saved devices, questions sent, log out. Shown only when logged in (App). */
 export function AccountPage() {
@@ -39,21 +40,20 @@ export function AccountPage() {
   if (!customer) return null
   return (
     <>
-      <section data-band className="relative overflow-hidden bg-night text-night-fg">
-        <NightBackdrop />
-        <div className={`${container} relative flex flex-wrap items-end justify-between gap-x-10 gap-y-5 pt-[clamp(32px,4vw,56px)] pb-[clamp(36px,4vw,56px)]`}>
-          <div className="flex flex-col gap-3.5">
-            <HeroChip>CUSTOMER ACCOUNT</HeroChip>
-            <h1 className="text-[clamp(40px,5.4vw,84px)] leading-none font-[750] tracking-[-.045em] text-white">My account</h1>
-            <p className="text-[clamp(16px,1.35vw,19px)] text-night-fg2">
-              {customer.customer.name} · <span className="font-mono text-[0.9em]">{customer.customer.email}</span>
-            </p>
-          </div>
-          <button type="button" onClick={logout} className={`${nightGhostButton} min-h-[52px] px-6`}>
+      <PageHero
+        eyebrow={<HeroChip>CUSTOMER ACCOUNT</HeroChip>}
+        title="My account"
+        aside={
+          <button type="button" onClick={logout} className={secondaryButton}>
             Log out
           </button>
-        </div>
-      </section>
+        }
+        mascot={<Chip pose="wave" anim={['wave', 'blink', 'antenna']} eyes className="aspect-[204/214] w-[110px]" />}
+      >
+        <p className="text-[clamp(16px,1.35vw,19px)] font-medium text-ink-2">
+          {customer.customer.name} · <span className="font-mono text-[0.9em]">{customer.customer.email}</span>
+        </p>
+      </PageHero>
       <div className={band}>
         <div className={`${container} flex flex-col gap-[clamp(20px,2.4vw,32px)]`}>
           {error && <ErrorNotice message={error} />}
@@ -125,7 +125,7 @@ function Questions({ enquiries }: { enquiries: Enquiry[] | null }) {
   return (
     <ul aria-label="Your questions" className="flex flex-col">
       {enquiries.map((enquiry) => (
-        <li key={enquiry.id} className="flex flex-col gap-1.5 border-b border-sunken py-3.5 last:border-b-0">
+        <li key={enquiry.id} className="flex flex-col gap-1.5 border-b-2 border-dashed border-line py-3.5 last:border-b-0">
           <span className="flex flex-wrap items-baseline gap-x-3 font-mono text-xs text-ink-2">
             <Link to={`/device/${encodeURIComponent(enquiry.device_id)}`} className={`${linkClass} text-[13px]`}>
               {enquiry.device_id}

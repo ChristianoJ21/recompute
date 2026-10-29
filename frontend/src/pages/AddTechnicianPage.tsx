@@ -2,14 +2,14 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { addTechnician, describeError } from '../api/client'
 import {
+  BackLink,
   ErrorNotice,
-  NightBackdrop,
+  FormPage,
   Notice,
   PasswordField,
   TextField,
-  container,
+  formCard,
   initials,
-  nightGhostButton,
   primaryButton,
   secondaryButton,
 } from '../components/ui'
@@ -53,35 +53,25 @@ export function AddTechnicianPage() {
   }
 
   return (
-    <>
-      <section data-band className="relative overflow-hidden bg-night text-night-fg">
-        <NightBackdrop />
-        <div className={`${container} relative flex flex-col items-center gap-5 pt-[clamp(24px,3vw,40px)] pb-[clamp(100px,10vw,150px)] text-center`}>
-          <Link to="/fleet" className={`${nightGhostButton} min-h-9 px-3.5 font-mono text-[13px] font-normal`}>
-            ← Fleet
-          </Link>
-          <h1 className="text-[clamp(36px,4.6vw,72px)] leading-none font-[750] tracking-[-.045em] text-white">Add a technician</h1>
-          <p className="max-w-[52ch] text-[clamp(15px,1.3vw,18px)] text-night-fg2">
-            Creates a login for a colleague. Share the password with them in person.
-          </p>
-        </div>
-      </section>
-      <div className="flex justify-center bg-blueprint px-[clamp(20px,4vw,72px)] pb-[clamp(48px,6vw,96px)]">
-        <form
-          onSubmit={submit}
-          noValidate
-          className="relative -mt-[clamp(72px,8vw,110px)] flex w-full max-w-[620px] animate-rise flex-col gap-5 rounded-[24px] border border-line bg-surface p-[clamp(22px,3vw,36px)] shadow-float"
-        >
+    <FormPage
+      title="Add a technician"
+      intro="Creates a login for a colleague. Share the password with them in person."
+      back={<BackLink to="/fleet">← Fleet</BackLink>}
+      width={620}
+      pose={added ? 'celebrate' : 'wave'}
+    >
+        <form onSubmit={submit} noValidate className={formCard}>
+          <span aria-hidden className="rc-tape" />
           {added && (
             <Notice tone="success">
               <strong>Technician added.</strong> {added} can log in now.
             </Notice>
           )}
           {error && <ErrorNotice message={error} />}
-          <div aria-hidden className="flex items-center gap-3.5 border-b border-sunken pb-[18px]">
+          <div aria-hidden className="flex items-center gap-3.5 border-b-2 border-dashed border-line pb-[18px]">
             <span
-              className={`flex size-[52px] shrink-0 items-center justify-center rounded-full font-mono text-base font-extrabold transition-colors duration-300 ${
-                values.name.trim() ? 'bg-accent text-surface' : 'bg-sunken text-ink-3'
+              className={`flex size-[52px] shrink-0 items-center justify-center rounded-2xl font-mono text-base font-extrabold transition-colors duration-300 ${
+                values.name.trim() ? 'bg-ink text-surface' : 'bg-sunken text-ink-3'
               }`}
             >
               {values.name.trim() ? initials(values.name) : '?'}
@@ -122,7 +112,6 @@ export function AddTechnicianPage() {
             </Link>
           </div>
         </form>
-      </div>
-    </>
+    </FormPage>
   )
 }

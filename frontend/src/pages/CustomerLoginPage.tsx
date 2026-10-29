@@ -2,26 +2,15 @@ import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { ApiError, customerLogin, describeError } from '../api/client'
 import { SpinnerIcon } from '../components/icons'
-import { ErrorNotice, NightBackdrop, Notice, PasswordField, TextField, container, linkClass, primaryButton } from '../components/ui'
+import { ErrorNotice, FormPage, Notice, PasswordField, TextField, formCard, linkClass, primaryButton } from '../components/ui'
 import { useCustomer } from '../lib/session'
 
-const card = 'flex w-full flex-col gap-5 rounded-[24px] border border-line bg-surface p-[clamp(22px,3vw,36px)] shadow-float'
-
-/** Dark title band over a form card, shared by the customer login and sign-up pages. */
+/** Chip, a heading and a form card, shared by the customer login and sign-up pages. */
 export function AccountShell({ title, intro, children }: { title: string; intro: string; children: ReactNode }) {
   return (
-    <>
-      <section data-band className="relative overflow-hidden bg-night text-night-fg">
-        <NightBackdrop />
-        <div className={`${container} relative flex flex-col items-center gap-4 pt-[clamp(32px,4vw,56px)] pb-[clamp(100px,10vw,150px)] text-center`}>
-          <h1 className="text-[clamp(36px,4.6vw,72px)] leading-none font-[750] tracking-[-.045em] text-white">{title}</h1>
-          <p className="max-w-[54ch] text-[clamp(15px,1.3vw,18px)] text-pretty text-night-fg2">{intro}</p>
-        </div>
-      </section>
-      <div className="flex justify-center bg-blueprint px-[clamp(20px,4vw,72px)] pb-[clamp(48px,6vw,96px)]">
-        <div className="relative -mt-[clamp(72px,8vw,110px)] flex w-full max-w-[520px] animate-rise flex-col gap-5">{children}</div>
-      </div>
-    </>
+    <FormPage title={title} intro={intro}>
+      {children}
+    </FormPage>
   )
 }
 
@@ -63,7 +52,8 @@ export function CustomerLoginPage() {
           </Link>
         </Notice>
       )}
-      <form onSubmit={submit} className={card}>
+      <form onSubmit={submit} className={formCard}>
+        <span aria-hidden className="rc-tape" />
         {wrongLogin ? (
           <Notice tone="error">
             <strong>Wrong e-mail or password.</strong> Check both and try again.

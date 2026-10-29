@@ -1,10 +1,9 @@
 import { useState, type FormEvent } from 'react'
-import { BandPhoto } from '../components/HeroPhoto'
-import { PHOTOS } from '../lib/photos'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { ApiError, describeError, login } from '../api/client'
 import { SpinnerIcon } from '../components/icons'
-import { ErrorNotice, NightBackdrop, Notice, PasswordField, TextField, linkClass, panelClass, primaryButton } from '../components/ui'
+import { ErrorNotice, Notice, PasswordField, TextField, formCard, linkClass, primaryButton } from '../components/ui'
+import { Chip } from '../design/Art'
 import { useSession } from '../lib/session'
 
 export function LoginPage() {
@@ -34,11 +33,11 @@ export function LoginPage() {
   return (
     <div className="grid min-h-[calc(100dvh-68px)] grid-cols-[repeat(auto-fit,minmax(min(100%,460px),1fr))]">
       <StaffPanel />
-      <div className="flex items-center justify-center bg-blueprint px-[clamp(20px,4vw,72px)] py-[clamp(40px,5vw,72px)]">
-        <div className="flex w-full max-w-[460px] animate-rise flex-col gap-[22px]">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-[clamp(32px,3.2vw,44px)] leading-[1.05] font-[750] tracking-[-.035em]">Technician login</h1>
-            <p className="text-base text-pretty text-ink-2">
+      <div className="flex items-center justify-center px-[clamp(16px,4vw,72px)] py-[clamp(40px,5vw,72px)]">
+        <div className="flex w-full max-w-[460px] flex-col gap-[22px]">
+          <div className="flex flex-col gap-2.5">
+            <h1 className="text-[clamp(38px,3.8vw,54px)] leading-[.95] font-extrabold tracking-[-.02em]">Technician login</h1>
+            <p className="text-base font-medium text-pretty text-ink-2">
               Reading passports needs no login. There is no sign-up: an admin or a colleague creates your account.
             </p>
           </div>
@@ -50,7 +49,8 @@ export function LoginPage() {
               </Link>
             </Notice>
           )}
-          <form onSubmit={submit} className={`flex flex-col gap-[18px] p-[clamp(20px,2.4vw,32px)] ${panelClass} shadow-float`}>
+          <form onSubmit={submit} className={`${formCard} gap-[18px]`}>
+            <span aria-hidden className="rc-tape" />
             {wrongLogin ? (
               <Notice tone="error">
                 <strong>Wrong username or password.</strong> Check both and try again.
@@ -80,6 +80,8 @@ export function LoginPage() {
               {sending && <SpinnerIcon size={16} />}
               {sending ? 'Logging in…' : 'Log in'}
             </button>
+            {/* Chip works on it while the server answers. */}
+            {sending && <Chip pose="work" anim={['work', 'blink']} className="mx-auto aspect-[280/214] w-24" />}
           </form>
           <p className="text-[15px] text-ink-2">
             Buying hardware?{' '}
@@ -108,30 +110,28 @@ function StaffPanel() {
   return (
     <section
       aria-hidden
-      data-band
-      className="relative flex min-h-[420px] flex-col justify-center gap-7 overflow-hidden bg-night px-[clamp(20px,4vw,72px)] py-[clamp(40px,6vw,96px)] text-night-fg"
+      className="relative flex min-h-[420px] flex-col justify-center gap-7 overflow-hidden bg-band px-[clamp(20px,4vw,72px)] py-[clamp(40px,6vw,96px)]"
     >
-      <BandPhoto photo={PHOTOS.login} linked={false} />
-      <NightBackdrop />
       <div className="relative flex max-w-[520px] flex-col gap-3.5">
-        <span className="font-mono text-xs font-semibold tracking-[.12em] text-night-accent-2">STAFF ONLY</span>
-        <p className="text-[clamp(30px,3.6vw,56px)] leading-[1.02] font-[750] tracking-[-.04em] text-white">
+        <span className="rc-eyebrow text-redeploy">STAFF ONLY</span>
+        <p className="font-display text-[clamp(32px,3.6vw,52px)] leading-none font-extrabold tracking-[-.02em] text-balance">
           Every action you log becomes part of the device&apos;s passport.
         </p>
       </div>
-      <ol className="relative flex max-w-[460px] flex-col gap-2">
+      <ol data-stagger="1" className="relative flex max-w-[460px] flex-col gap-2.5">
         {SAMPLE_CHAIN.map((row, i) => (
           <li
             key={row.n}
-            className="grid animate-rise grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-xl border border-night-line bg-white/[.035] px-3.5 py-[11px] font-mono text-xs"
-            style={{ animationDelay: `${0.2 + i * 0.12}s` }}
+            className="grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[14px] bg-surface px-3.5 py-[11px] font-mono text-sm shadow-panel"
+            style={{ rotate: `${i % 2 ? 0.8 : -0.8}deg` }}
           >
-            <span className="font-bold text-night-accent">#{row.n}</span>
-            <span className="truncate text-night-fg">{row.kind}</span>
-            <span className="text-night-fg3">→ #{row.n - 1}</span>
+            <span className="font-bold text-accent">#{row.n}</span>
+            <span className="truncate">{row.kind}</span>
+            <span className="text-ink-2">→ #{row.n - 1}</span>
           </li>
         ))}
       </ol>
+      <Chip pose="point" anim={['point', 'blink']} className="absolute right-[6%] bottom-[6%] hidden aspect-[204/214] w-24 sm:block" />
     </section>
   )
 }

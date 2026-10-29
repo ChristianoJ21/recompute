@@ -4,8 +4,9 @@ import type { Session } from '../api/types'
 import {
   ErrorNotice,
   HeroLabel,
-  NightBackdrop,
+  HeroText,
   Notice,
+  PageHero,
   Panel,
   PanelTag,
   PasswordField,
@@ -15,6 +16,7 @@ import {
   initials,
   primaryButton,
 } from '../components/ui'
+import { Chip } from '../design/Art'
 import { THEMES, THEME_LABEL, setTheme, useTheme, type Theme } from '../lib/theme'
 import { useSession } from '../lib/session'
 
@@ -33,39 +35,39 @@ export function SettingsPage() {
 
   return (
     <>
-      <section data-band className="relative overflow-hidden bg-night text-night-fg">
-        <NightBackdrop />
-        <div className={`${container} relative flex flex-wrap items-center gap-[clamp(18px,2.4vw,32px)] py-[clamp(36px,4.5vw,72px)]`}>
-          {session && (
+      <PageHero
+        eyebrow={<HeroLabel>SETTINGS</HeroLabel>}
+        title="Settings"
+        mascot={
+          session ? (
             <span
               aria-hidden
-              className="flex size-[clamp(72px,7vw,104px)] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#9CCFAE,#C2CF9A)] font-mono text-[clamp(22px,2.2vw,32px)] font-extrabold text-night shadow-[0_0_0_6px_rgba(19,114,58,.15)]"
+              className="flex size-[clamp(72px,7vw,104px)] shrink-0 rotate-3 items-center justify-center rounded-[24px] bg-ink font-mono text-[clamp(22px,2.2vw,32px)] font-extrabold text-surface shadow-float"
             >
               {initials(session.technician.name)}
             </span>
-          )}
-          <div className="flex min-w-0 flex-col gap-2.5">
-            <HeroLabel>SETTINGS</HeroLabel>
-            <h1 className="text-[clamp(36px,4.6vw,72px)] leading-none font-[750] tracking-[-.045em] text-white">Settings</h1>
-            <p className="max-w-[62ch] text-[clamp(15px,1.3vw,18px)] text-night-fg2">
-              {session
-                ? `Signed in as ${session.technician.name}. Profile and password changes apply to this account only.`
-                : 'Visitors can change the appearance. Log in to manage a technician profile and password.'}
-            </p>
-          </div>
-        </div>
-      </section>
+          ) : (
+            <Chip pose="work" anim={['work', 'blink']} className="aspect-[280/214] w-[150px]" />
+          )
+        }
+      >
+        <HeroText>
+          {session
+            ? `Signed in as ${session.technician.name}. Profile and password changes apply to this account only.`
+            : 'Visitors can change the appearance. Log in to manage a technician profile and password.'}
+        </HeroText>
+      </PageHero>
       <div className={band}>
         <div className={`${container} flex flex-wrap items-start gap-[clamp(20px,3vw,48px)]`}>
           <nav
             aria-label="Settings sections"
-            className="flex max-w-full flex-[1_1_220px] flex-row flex-wrap gap-1.5 rounded-[20px] border border-line bg-surface p-2 shadow-panel md:sticky md:top-[93px] md:flex-col"
+            className="flex max-w-full flex-[1_1_220px] flex-row flex-wrap gap-1.5 rounded-[24px] bg-surface p-2 shadow-panel md:sticky md:top-[93px] md:flex-col"
           >
             {sections.map(([n, label, href]) => (
               <a
                 key={href}
                 href={href}
-                className="flex min-h-[52px] items-center gap-3 rounded-[14px] px-3.5 text-[15px] font-semibold text-ink no-underline hover:bg-raised"
+                className="flex min-h-[52px] items-center gap-3 rounded-[16px] px-3.5 text-[15px] font-bold text-ink no-underline hover:bg-sunken hover:text-ink"
               >
                 <span className="font-mono text-xs text-accent">{n}</span>
                 {label}
@@ -114,7 +116,7 @@ function ProfilePanel({ session }: { session: Session }) {
   return (
     <Panel id="profile" title="Profile" aside={<PanelTag>01</PanelTag>}>
       <div className="flex items-center gap-3.5">
-        <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-full bg-accent font-mono text-lg font-bold text-surface">
+        <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-ink font-mono text-lg font-bold text-surface">
           {initials(savedName)}
         </span>
         <div className="flex min-w-0 flex-col">
@@ -232,10 +234,10 @@ function CredentialsPanel() {
   )
 }
 
-// Fixed preview colours: each card shows its own theme whatever the page is in.
+// Fixed preview colours: each card shows its own theme whatever the page is in (mint paper + cream card, forest paper + card).
 const PREVIEW = {
-  light: { page: '#FFFFFF', bar: '#F1F7F2', panel: '#FFFFFF', line: '#D6E2D9', ink: '#0D1A12', accent: '#13723A' },
-  dark: { page: '#07110B', bar: '#04120A', panel: '#0D1912', line: '#26382C', ink: '#E6F0E9', accent: '#86C99E' },
+  light: { page: '#F1F7F2', bar: '#FFFCF5', panel: '#FFFCF5', line: '#D2E0D6', ink: '#1E3B2C', accent: '#FF7A33' },
+  dark: { page: '#12241B', bar: '#1B3327', panel: '#1B3327', line: '#2A4636', ink: '#EAF3EC', accent: '#FF7A33' },
 }
 
 const THEME_TEXT: Record<Theme, { sub: string; previews: (keyof typeof PREVIEW)[] }> = {
@@ -254,8 +256,8 @@ function AppearancePanel({ index }: { index: string }) {
           return (
             <label
               key={value}
-              className={`flex cursor-pointer flex-col overflow-hidden rounded-[18px] border-[1.5px] bg-surface transition-[translate,box-shadow] duration-200 hover:-translate-y-[3px] has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent ${
-                on ? '-translate-y-[3px] border-accent shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_15%,transparent)]' : 'border-line hover:border-line-strong'
+              className={`flex cursor-pointer flex-col overflow-hidden rounded-[20px] border-2 bg-surface transition-[translate,box-shadow] duration-200 ease-spring hover:-translate-y-[3px] has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent ${
+                on ? '-translate-y-[3px] border-ink shadow-[0_5px_0_var(--color-ink)]' : 'border-line hover:border-line-strong'
               }`}
             >
               <input type="radio" name="theme" value={value} checked={on} onChange={() => setTheme(value)} className="sr-only" />
@@ -276,9 +278,9 @@ function AppearancePanel({ index }: { index: string }) {
               <span className="flex items-start gap-2.5 px-3 py-2.5">
                 <span
                   aria-hidden
-                  className={`mt-0.5 flex size-[18px] shrink-0 items-center justify-center rounded-full border-2 ${on ? 'border-accent' : 'border-line-strong'}`}
+                  className={`mt-0.5 flex size-[18px] shrink-0 items-center justify-center rounded-full border-2 ${on ? 'border-ink' : 'border-line-strong'}`}
                 >
-                  <span className={`size-2 rounded-full ${on ? 'bg-accent' : ''}`} />
+                  <span className={`size-2 rounded-full ${on ? 'bg-ink' : ''}`} />
                 </span>
                 <span className="flex flex-col">
                   <span className="text-[15px] font-bold">{THEME_LABEL[value]}</span>

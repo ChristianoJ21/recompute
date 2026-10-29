@@ -3,15 +3,15 @@ import { Link, useNavigate } from 'react-router'
 import { createDevice, describeError } from '../api/client'
 import { INPUT_MEANINGS } from '../components/DeviceFacts'
 import {
+  BackLink,
   ErrorNotice,
   FieldError,
-  NightBackdrop,
+  FormPage,
   TextField,
-  container,
   fieldClass,
+  formCard,
   hintClass,
   monoLabel,
-  nightGhostButton,
   primaryButton,
   secondaryButton,
 } from '../components/ui'
@@ -19,10 +19,10 @@ import { COMPONENT_TYPES, DEVICE_TYPES, INPUT_KEYS, buildDevice, emptyDeviceForm
 import { formatDeviceType } from '../lib/format'
 
 const selectClass = `${fieldClass} px-3`
-const fieldset = 'flex flex-col gap-4 border-t border-sunken pt-5'
-const smallLabel = 'flex flex-col gap-1.5 text-sm font-semibold'
+const fieldset = 'flex flex-col gap-4 border-t-2 border-dashed border-line pt-5'
+const smallLabel = 'flex flex-col gap-1.5 text-sm font-bold'
 const squareButton =
-  'inline-flex size-[50px] shrink-0 items-center justify-center rounded-full border border-line-strong text-ink transition-colors duration-200 hover:border-ink hover:bg-raised'
+  'inline-flex size-[50px] shrink-0 items-center justify-center rounded-[14px] border-2 border-line-strong text-ink transition-[scale,background-color] duration-200 ease-spring hover:border-ink hover:bg-sunken active:scale-90'
 
 /** A technician adds a device record (SAMPLE DATA); its passport opens next, where Evaluate runs the rule. */
 export function AddDevicePage() {
@@ -55,25 +55,15 @@ export function AddDevicePage() {
   }
 
   return (
-    <>
-      <section data-band className="relative overflow-hidden bg-night text-night-fg">
-        <NightBackdrop />
-        <div className={`${container} relative flex flex-col items-center gap-5 pt-[clamp(24px,3vw,40px)] pb-[clamp(100px,10vw,150px)] text-center`}>
-          <Link to="/fleet" className={`${nightGhostButton} min-h-9 px-3.5 font-mono text-[13px] font-normal`}>
-            ← Fleet
-          </Link>
-          <h1 className="text-[clamp(36px,4.6vw,72px)] leading-none font-[750] tracking-[-.045em] text-white">Add a device</h1>
-          <p className="max-w-[56ch] text-[clamp(15px,1.3vw,18px)] text-night-fg2">
-            Starts a passport for a device in the fleet. Every value is SAMPLE DATA. Records are never edited later, so check the ID.
-          </p>
-        </div>
-      </section>
-      <div className="flex justify-center bg-blueprint px-[clamp(20px,4vw,72px)] pb-[clamp(48px,6vw,96px)]">
-        <form
-          onSubmit={submit}
-          noValidate
-          className="relative -mt-[clamp(72px,8vw,110px)] flex w-full max-w-[760px] animate-rise flex-col gap-5 rounded-[24px] border border-line bg-surface p-[clamp(22px,3vw,36px)] shadow-float"
-        >
+    <FormPage
+      title="Add a device"
+      intro="Starts a passport for a device in the fleet. Every value is SAMPLE DATA. Records are never edited later, so check the ID."
+      back={<BackLink to="/fleet">← Fleet</BackLink>}
+      width={760}
+      pose="carry"
+    >
+        <form onSubmit={submit} noValidate className={formCard}>
+          <span aria-hidden className="rc-tape" />
           {error && <ErrorNotice message={error} />}
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-[18px]">
             <TextField
@@ -206,7 +196,6 @@ export function AddDevicePage() {
             </Link>
           </div>
         </form>
-      </div>
-    </>
+    </FormPage>
   )
 }

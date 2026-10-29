@@ -8,15 +8,18 @@ import { SolidBadge } from '../components/SolidBadge'
 import {
   EmptyState,
   ErrorNotice,
+  HandNote,
   HeroChip,
   Loading,
-  NightBackdrop,
+  PageHero,
   SectionTitle,
   band,
   container,
-  nightButton,
   panelClass,
+  primaryButton,
+  secondaryButton,
 } from '../components/ui'
+import { Chip } from '../design/Art'
 import { formatDateTime, locationSite } from '../lib/format'
 import { OUTCOME_STYLE, outcomeColours } from '../lib/outcomes'
 
@@ -81,31 +84,35 @@ export function FleetPage() {
   const ready = state.status === 'ready' && state.devices.length > 0 ? state : null
   return (
     <>
-      <section data-band aria-labelledby="fleet-h" className="relative overflow-hidden bg-night text-night-fg">
-        <NightBackdrop />
-        <div className={`${container} relative flex flex-col gap-[clamp(28px,3.5vw,48px)] pt-[clamp(36px,4.5vw,72px)] pb-[clamp(36px,4.5vw,64px)]`}>
-          <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-5">
-            <div className="flex flex-col gap-3.5">
-              <HeroChip live>FLEET{ready ? ` · ${sites(ready.devices).toUpperCase()}` : ''}</HeroChip>
-              <h1 id="fleet-h" className="text-[clamp(40px,5.4vw,84px)] leading-none font-[750] tracking-[-.045em] text-white">
-                Fleet dashboard
-              </h1>
-              {ready && (
-                <p className="text-[clamp(16px,1.35vw,19px)] text-night-fg2">{`${sites(ready.devices)} · ${plural(ready.summary.devices, 'device')}`}</p>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-2.5">
-              <Link to="/devices/new" className={nightButton}>
-                + Add device
-              </Link>
-              <Link to="/technicians/new" className={nightButton}>
-                + Add technician
-              </Link>
-            </div>
+      <PageHero
+        eyebrow={<HeroChip live>FLEET{ready ? ` · ${sites(ready.devices).toUpperCase()}` : ''}</HeroChip>}
+        title="Fleet dashboard"
+        aside={
+          <div className="flex flex-wrap items-center gap-3">
+            <Link to="/devices/new" className={primaryButton}>
+              + Add device
+            </Link>
+            <Link to="/technicians/new" className={secondaryButton}>
+              + Add technician
+            </Link>
           </div>
-          {ready && <StatsTiles devices={ready.devices} summary={ready.summary} stats={ready.stats} />}
+        }
+        mascot={
+          <div data-reveal="1" className="flex items-end gap-1.5">
+            <HandNote className="max-w-[8em] -rotate-3 pb-10 text-right">the whole fleet at a glance</HandNote>
+            <Chip pose="point" anim={['point', 'blink']} className="aspect-[204/214] w-[112px]" />
+          </div>
+        }
+      >
+        {ready && (
+          <p className="text-[clamp(16px,1.35vw,19px)] font-medium text-ink-2">{`${sites(ready.devices)} · ${plural(ready.summary.devices, 'device')}`}</p>
+        )}
+      </PageHero>
+      {ready && (
+        <div className={`${container} pb-[clamp(16px,2vw,32px)]`}>
+          <StatsTiles devices={ready.devices} summary={ready.summary} stats={ready.stats} />
         </div>
-      </section>
+      )}
       <div className={band}>
         <div className={`${container} flex flex-col gap-[clamp(32px,4vw,56px)]`}>
           {state.status === 'loading' && <Loading label="Loading the fleet…" />}
@@ -158,16 +165,16 @@ function Fleet({ devices, summary }: { devices: DeviceSummary[]; summary: FleetS
                   type="button"
                   aria-pressed={on}
                   onClick={() => setOutcome(on ? null : key)}
-                  className={`grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3.5 gap-y-2.5 rounded-[18px] border-[1.5px] px-5 py-[18px] text-left text-ink transition-[translate,box-shadow] duration-200 hover:-translate-y-[3px] hover:shadow-panel-hover ${
-                    on ? '-translate-y-[3px] shadow-panel-hover' : 'border-line bg-surface'
+                  className={`grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3.5 gap-y-2.5 rounded-[20px] border-2 px-5 py-[18px] text-left text-ink shadow-panel transition-[translate,box-shadow] duration-200 ease-spring hover:-translate-y-[3px] hover:shadow-panel-hover ${
+                    on ? '-translate-y-[3px] shadow-panel-hover' : 'border-transparent bg-surface'
                   }`}
-                  style={on ? { background: colours.bg, borderColor: colours.fg } : undefined}
+                  style={on ? { background: colours.bg, borderColor: colours.dot } : undefined}
                 >
                   <span className="justify-self-start">
                     <SolidBadge outcome={key} />
                   </span>
-                  <span className="font-mono text-[28px] leading-none font-bold tabular-nums">{summary.counts[key]}</span>
-                  <span className="col-span-full text-sm text-ink-2">{OUTCOME_STYLE[key].meaning}</span>
+                  <span className="font-display text-[34px] leading-none font-extrabold tabular-nums">{summary.counts[key]}</span>
+                  <span className="col-span-full text-sm font-medium text-ink-2">{OUTCOME_STYLE[key].meaning}</span>
                 </button>
               </li>
             )
@@ -181,7 +188,7 @@ function Fleet({ devices, summary }: { devices: DeviceSummary[]; summary: FleetS
               <button
                 type="button"
                 onClick={() => setOutcome(null)}
-                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-4 text-sm font-semibold text-surface"
+                className="inline-flex min-h-11 items-center gap-2 rounded-[14px] bg-ink px-4 text-sm font-bold text-surface"
               >
                 {OUTCOME_STYLE[outcome].label} <span aria-hidden>✕</span>
               </button>
@@ -192,19 +199,19 @@ function Fleet({ devices, summary }: { devices: DeviceSummary[]; summary: FleetS
               placeholder="Search ID or location"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="min-h-[46px] w-[min(300px,80vw)] rounded-full border border-line-strong bg-surface px-4 text-[15px] text-ink placeholder:text-ink-3"
+              className="min-h-[46px] w-[min(300px,80vw)] rounded-[14px] border-2 border-line-strong bg-surface px-4 text-[15px] text-ink placeholder:text-ink-3 focus:border-ink focus:outline-none"
             />
           </div>
         </SectionTitle>
         <ul aria-label="Devices" className={panelClass}>
           {shown.map((device) => (
-            <li key={device.id} className="border-b border-sunken last:border-b-0">
+            <li key={device.id} className="border-b-2 border-dashed border-line last:border-b-0">
               <Link
                 to={`/device/${encodeURIComponent(device.id)}`}
                 className="grid min-h-[72px] grid-cols-[repeat(auto-fit,minmax(min(100%,160px),1fr))] items-center gap-x-6 gap-y-2 px-6 py-3.5 text-ink no-underline hover:bg-raised"
               >
                 <span className="flex items-center gap-3">
-                  <span aria-hidden className="size-2.5 shrink-0 rounded-full" style={{ background: outcomeColours(device.latest_outcome).fg }} />
+                  <span aria-hidden className="size-2.5 shrink-0 rounded-full" style={{ background: outcomeColours(device.latest_outcome).dot }} />
                   <span className="font-mono text-[15px] font-bold">{device.id}</span>
                 </span>
                 <span className="flex min-w-0 flex-col">
@@ -213,7 +220,7 @@ function Fleet({ devices, summary }: { devices: DeviceSummary[]; summary: FleetS
                 </span>
                 <span className="flex items-center justify-between gap-3">
                   <OutcomeBadge outcome={device.latest_outcome} />
-                  <span aria-hidden className="flex size-9 items-center justify-center rounded-full border border-line text-accent">
+                  <span aria-hidden className="flex size-9 items-center justify-center rounded-[12px] bg-sunken font-extrabold text-ink">
                     →
                   </span>
                 </span>
@@ -249,7 +256,7 @@ function OutcomeBar({ summary, selected }: { summary: FleetSummary; selected: Ou
           className="h-full transition-opacity duration-300"
           style={{
             width: `${(summary.counts[key] / total) * 100}%`,
-            background: outcomeColours(key).fg,
+            background: outcomeColours(key).dot,
             opacity: selected && selected !== key ? 0.25 : 1,
           }}
         />
@@ -301,21 +308,21 @@ function StatsTiles({ devices, summary, stats }: { devices: DeviceSummary[]; sum
         // Status is shown with an icon and words, never colour alone.
         <li
           key={tile.label}
-          className={`flex min-w-0 flex-col gap-1.5 rounded-[18px] border px-5 py-[18px] backdrop-blur-[6px] ${
-            tile.tone === 'danger' ? 'border-danger-line bg-danger-bg' : 'border-white/10 bg-white/4'
+          className={`flex min-w-0 flex-col gap-1.5 rounded-[20px] px-5 py-[18px] shadow-panel ${
+            tile.tone === 'danger' ? 'border-2 border-danger-line bg-danger-bg' : 'bg-surface'
           }`}
         >
-          <span className="font-mono text-[11px] font-semibold tracking-[.1em] text-night-fg3 uppercase">{tile.label}</span>
+          <span className="rc-eyebrow text-[11px] text-ink-2">{tile.label}</span>
           <span
-            className={`flex items-center gap-2.5 text-[clamp(32px,3.2vw,46px)] leading-none font-[750] tracking-[-.03em] tabular-nums ${
-              tile.tone === 'ok' ? 'text-ok' : tile.tone === 'danger' ? 'text-danger' : 'text-white'
+            className={`flex items-center gap-2.5 font-display text-[clamp(30px,3vw,42px)] leading-none font-extrabold whitespace-nowrap tabular-nums ${
+              tile.tone === 'ok' ? 'text-ok' : tile.tone === 'danger' ? 'text-danger' : 'text-ink'
             }`}
           >
             {tile.tone === 'ok' && <span aria-hidden className="text-[0.6em]">✔</span>}
             {tile.tone === 'danger' && <span aria-hidden className="text-[0.6em]">✘</span>}
             {tile.value}
           </span>
-          <span className="text-[13px] break-words text-night-fg2">{tile.sub}</span>
+          <span className="text-[13px] font-medium break-words text-ink-2">{tile.sub}</span>
         </li>
       ))}
     </ul>

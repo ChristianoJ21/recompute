@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { describeError, signUp } from '../api/client'
-import { ErrorNotice, Notice, PasswordField, TextField, linkClass, primaryButton } from '../components/ui'
+import { ErrorNotice, Notice, PasswordField, TextField, formCard, linkClass, primaryButton } from '../components/ui'
 import { AccountShell } from './CustomerLoginPage'
 
 const MIN_PASSWORD = 10 // same rule as the backend (api/customers.py)
@@ -45,11 +45,8 @@ export function SignupPage() {
       title="Create an account"
       intro="For buyers: save listed devices and send questions to the data centre. No checkout and no payment: prices are sample values."
     >
-      <form
-        onSubmit={submit}
-        noValidate
-        className="flex w-full flex-col gap-5 rounded-[24px] border border-line bg-surface p-[clamp(22px,3vw,36px)] shadow-float"
-      >
+      <form onSubmit={submit} noValidate className={formCard}>
+        <span aria-hidden className="rc-tape" />
         <Notice tone="warning">
           Demo only: the hosted demo forgets accounts when its server restarts. Do not reuse a password from another site.
         </Notice>
