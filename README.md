@@ -1,7 +1,9 @@
 # ReCompute demo app
 
 Working demo of ReCompute for the GYEBC 2026 Grand Final. Spec: [`docs/PRD_ReCompute_App.md`](docs/PRD_ReCompute_App.md).
-**Every number in this app is SAMPLE DATA**: toy values to show the logic, never measurements and never essay evidence.
+**Every device, price and passport in this app is SAMPLE DATA**: toy values to show the logic, never measurements and
+never essay evidence. The one exception is the Market page (`/market`): published figures from verified evidence-sheet
+rows (`data/market_forecast.json`), each with its source, page and evidence row.
 
 | Folder | Owner |
 |---|---|
