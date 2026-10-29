@@ -1,16 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { getListings, verifyEvents } from '../api/client'
 import type { Listing } from '../api/types'
+import { HomeIntro } from '../components/HomeIntro'
 import { HowItWorks } from '../components/HowItWorks'
 import { LivePassportCard, useLiveDevice } from '../components/LivePassportCard'
 import { SolidBadge } from '../components/SolidBadge'
 import { HeroChip, NightBackdrop, SectionTitle, container, nightButton, nightGhostButton, primaryButton } from '../components/ui'
 import { formatDateTime, formatPrice } from '../lib/format'
+import { markIntroSeen, shouldPlayIntro } from '../lib/intro'
 import { outcomeColours } from '../lib/outcomes'
 
 /** Public home page (v3): what ReCompute is, a live passport, how it works, and the released devices. */
 export function HomePage() {
+  const [intro, setIntro] = useState(shouldPlayIntro)
+  useEffect(() => {
+    if (intro) markIntroSeen() // seen once it starts, so leaving mid-intro does not replay it
+  }, [intro])
+  const endIntro = useCallback(() => setIntro(false), [])
   const [listings, setListings] = useState<Listing[] | null>(null)
   useEffect(() => {
     let active = true
@@ -32,6 +39,7 @@ export function HomePage() {
 
   return (
     <>
+      {intro && <HomeIntro onDone={endIntro} />}
       <Hero listings={listings} featured={featured} live={live} />
       <HowItWorks events={events} listing={featured} />
       <Released listings={listings} />
