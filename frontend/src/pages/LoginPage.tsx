@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { HeroPhoto } from '../components/HeroPhoto'
+import { BandPhoto } from '../components/HeroPhoto'
 import { PHOTOS } from '../lib/photos'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { ApiError, describeError, login } from '../api/client'
@@ -111,6 +111,7 @@ function StaffPanel() {
       data-band
       className="relative flex min-h-[420px] flex-col justify-center gap-7 overflow-hidden bg-night px-[clamp(20px,4vw,72px)] py-[clamp(40px,6vw,96px)] text-night-fg"
     >
+      <BandPhoto photo={PHOTOS.login} linked={false} />
       <NightBackdrop />
       <div className="relative flex max-w-[520px] flex-col gap-3.5">
         <span className="font-mono text-xs font-semibold tracking-[.12em] text-night-accent-2">STAFF ONLY</span>
@@ -118,7 +119,6 @@ function StaffPanel() {
           Every action you log becomes part of the device&apos;s passport.
         </p>
       </div>
-      <HeroPhoto photo={PHOTOS.login} ratio="aspect-[16/9]" tint className="max-w-[460px]" />
       <ol className="relative flex max-w-[460px] flex-col gap-2">
         {SAMPLE_CHAIN.map((row, i) => (
           <li

@@ -1,4 +1,6 @@
 import { useId, useState, type InputHTMLAttributes, type ReactNode } from 'react'
+import type { Photo } from '../lib/photos'
+import { BandPhoto } from './HeroPhoto'
 import { CheckIcon, CrossIcon, NoteIcon } from './icons'
 
 // Shared classes and building blocks of the design system (docs/design_handoff/README.md).
@@ -139,6 +141,8 @@ export function NightBackdrop({ glow = 'rgba(19,114,58,.14)' }: { glow?: string 
 }
 
 interface PageHeroProps {
+  /** A stock photo, blurred behind the band (decoration, credited). */
+  photo?: Photo
   /** Above the title: a HeroChip or a HeroLabel. */
   eyebrow?: ReactNode
   title: ReactNode
@@ -149,9 +153,10 @@ interface PageHeroProps {
 }
 
 /** The band that opens every v3 page (white + green; forest in dark mode): eyebrow, large H1, intro, optional aside. */
-export function PageHero({ eyebrow, title, aside, children }: PageHeroProps) {
+export function PageHero({ photo, eyebrow, title, aside, children }: PageHeroProps) {
   return (
     <section data-band className="relative overflow-hidden bg-night text-night-fg">
+      {photo && <BandPhoto photo={photo} />}
       <NightBackdrop />
       <div className={`${container} relative flex flex-wrap items-end justify-between gap-x-10 gap-y-7 py-[clamp(40px,5vw,80px)]`}>
         <div className="flex max-w-[860px] min-w-0 flex-col gap-4">

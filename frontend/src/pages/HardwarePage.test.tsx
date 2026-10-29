@@ -50,6 +50,7 @@ describe('available hardware page (public, no login)', () => {
     expect(within(card).getByText('GPU server · 4× NVIDIA A100 (sample)')).toBeTruthy()
     expect(within(card).getByText('Jakarta, Indonesia')).toBeTruthy()
     expect(within(card).getByText(/sample location/i)).toBeTruthy()
+    expect(within(card).getByRole('link', { name: 'imgix / Unsplash' })).toBeTruthy()
     expect(within(card).getByText(/IDR\s45,000,000/)).toBeTruthy()
     expect(within(card).getByText(/sample asking price/i)).toBeTruthy()
     expect(within(card).getByText('REDEPLOY')).toBeTruthy()
