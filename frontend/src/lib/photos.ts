@@ -44,4 +44,28 @@ export const PHOTOS = {
     width: 1600,
     height: 898,
   },
+  switch: {
+    src: '/images/card-switch.jpg',
+    alt: 'Network switch and patch panel in a cabinet',
+    credit: 'Dimitri Karastelev',
+    source: 'https://unsplash.com/photos/pl6My-v7gnE',
+    width: 1200,
+    height: 800,
+  },
+  workstation: {
+    src: '/images/card-workstation.jpg',
+    alt: 'Inside a desktop PC with a graphics card',
+    credit: 'Andy Holmes',
+    source: 'https://unsplash.com/photos/EOAKUQcsFIU',
+    width: 1200,
+    height: 1600,
+  },
 } satisfies Record<string, Photo>
+
+/** The listing-card photo for a device type: racks for servers, the rack photo for any other type. */
+export function photoFor(deviceType: string): Photo {
+  if (deviceType === 'storage_server') return PHOTOS.home
+  if (deviceType === 'network_switch') return PHOTOS.switch
+  if (deviceType === 'workstation') return PHOTOS.workstation
+  return PHOTOS.hardware
+}

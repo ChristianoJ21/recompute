@@ -4,7 +4,7 @@ import { getListings, verifyEvents } from '../api/client'
 import type { Listing } from '../api/types'
 import { HomeIntro } from '../components/HomeIntro'
 import { HowItWorks } from '../components/HowItWorks'
-import { HeroPhoto } from '../components/HeroPhoto'
+import { BandPhoto } from '../components/HeroPhoto'
 import { LivePassportCard, useLiveDevice } from '../components/LivePassportCard'
 import { PHOTOS } from '../lib/photos'
 import { SolidBadge } from '../components/SolidBadge'
@@ -88,6 +88,7 @@ function Hero({ listings, featured, live }: HeroProps) {
   const newest = live?.events.reduce<string | null>((latest, event) => (!latest || event.created_at > latest ? event.created_at : latest), null)
   return (
     <section data-band aria-labelledby="hero-h" className="relative overflow-hidden bg-night text-night-fg">
+      <BandPhoto photo={PHOTOS.home} />
       <NightBackdrop />
       <div
         aria-hidden
@@ -137,15 +138,11 @@ function Hero({ listings, featured, live }: HeroProps) {
             )}
           </ul>
         </div>
-        {/* The live card overlaps the lower part of the photo: the photo is illustrative, the card is real passport data. */}
-        <div className="relative flex animate-rise flex-col [animation-delay:200ms]">
-          <HeroPhoto photo={PHOTOS.home} className="ml-[16%]" />
-          {featured && (
-            <div className="relative -mt-[34%] mr-[10%]">
-              <LivePassportCard listing={featured} detail={live} />
-            </div>
-          )}
-        </div>
+        {featured && (
+          <div className="animate-rise [animation-delay:200ms]">
+            <LivePassportCard listing={featured} detail={live} />
+          </div>
+        )}
       </div>
     </section>
   )

@@ -2,8 +2,8 @@
 import { existsSync, statSync } from 'node:fs'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { HeroPhoto } from '../components/HeroPhoto'
-import { PHOTOS } from '../lib/photos'
+import { BandPhoto, CardPhoto } from '../components/HeroPhoto'
+import { PHOTOS, photoFor } from '../lib/photos'
 
 // A10 phase 2 (Panji, 30 Oct): real photos, each download approved by Panji (name, source, size), self-hosted.
 describe('stock photos', () => {
@@ -19,11 +19,29 @@ describe('stock photos', () => {
   })
 
   it('captions a photo as illustrative, crediting the photographer and Unsplash', () => {
-    render(<HeroPhoto photo={PHOTOS.market} />)
+    render(<CardPhoto photo={PHOTOS.market} />)
 
-    expect(screen.getByRole('img', { name: PHOTOS.market.alt }).getAttribute('src')).toBe(PHOTOS.market.src)
+    expect(screen.getByRole('img', { name: `Illustrative photo: ${PHOTOS.market.alt}` }).getAttribute('src')).toBe(PHOTOS.market.src)
     expect(screen.getByText(/illustrative photo/i)).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Tyler Daviaux / Unsplash' }).getAttribute('href')).toBe(PHOTOS.market.source)
+  })
+
+  it('blurs a band photo behind the band colour and the grid, as decoration with a visible credit', () => {
+    const { container } = render(<BandPhoto photo={PHOTOS.home} />)
+
+    const img = container.querySelector('img')
+    expect(img?.getAttribute('src')).toBe(PHOTOS.home.src)
+    expect(img?.getAttribute('alt')).toBe('')
+    expect(img?.className).toMatch(/blur-/)
+    expect(screen.getByRole('link', { name: 'imgix / Unsplash' }).getAttribute('href')).toBe(PHOTOS.home.source)
+  })
+
+  it('gives each listed device type a matching photo (racks for servers), any other type the rack photo', () => {
+    expect(photoFor('gpu_server')).toBe(PHOTOS.hardware)
+    expect(photoFor('storage_server')).toBe(PHOTOS.home)
+    expect(photoFor('network_switch')).toBe(PHOTOS.switch)
+    expect(photoFor('workstation')).toBe(PHOTOS.workstation)
+    expect(photoFor('robot_arm')).toBe(PHOTOS.hardware)
   })
 
   it('puts a photo on the home, hardware, market and technician login pages', () => {
