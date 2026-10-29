@@ -39,9 +39,10 @@ export function HardwareArt({ deviceType, components, colour, className = '' }: 
         <span className={caption}>FIG. A · FRONT VIEW</span>
       </div>
       {parts.length > 0 && (
-        <div className="flex min-w-0 flex-[1_1_120px] flex-col gap-3">
+        // Beside the server the parts stack; once wrapped below it (phones) they sit side by side.
+        <div className="flex min-w-0 flex-[1_1_120px] flex-wrap gap-3">
           {parts.map((part) => (
-            <div key={part} data-part={part} className="flex flex-col gap-1">
+            <div key={part} data-part={part} className="flex min-w-0 flex-[1_1_120px] flex-col gap-1">
               {part === 'gpu' ? <GpuCard /> : <MemoryModule />}
               <span className={caption}>{PART_CAPTION[part]}</span>
             </div>
