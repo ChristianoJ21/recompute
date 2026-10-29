@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Evaluation } from '../api/types'
 import { formatDateTime, formatKg, formatSigned, netBarGeometry } from '../lib/format'
 import { prefersReducedMotion } from '../lib/theme'
+import { Chip } from '../design/Art'
 import { PlayIcon } from './icons'
 import { OutcomeBadge } from './OutcomeBadge'
 import { ErrorNotice, Panel, monoLabel, primaryButton } from './ui'
@@ -31,11 +32,14 @@ export function WhyPanel({ evaluation, evaluating, error, onEvaluate }: Props) {
       {evaluation ? (
         <EvaluationDetails evaluation={evaluation} />
       ) : (
-        <p className="text-[15px] text-ink-2">
-          {onEvaluate
-            ? "Not evaluated yet. Press Evaluate to run the decision rule on this device's inputs."
-            : 'Not evaluated yet. A logged-in technician can run the decision rule on this device.'}
-        </p>
+        <div className="flex items-center gap-4">
+          <Chip pose="sleep" anim={['zzz']} className="aspect-[204/214] w-20 shrink-0" />
+          <p className="text-[15px] font-medium text-ink-2">
+            {onEvaluate
+              ? "Not evaluated yet. Press Evaluate to run the decision rule on this device's inputs."
+              : 'Not evaluated yet. A logged-in technician can run the decision rule on this device.'}
+          </p>
+        </div>
       )}
     </Panel>
   )
@@ -53,14 +57,16 @@ function EvaluationDetails({ evaluation }: { evaluation: Evaluation }) {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-start gap-3">
-        <OutcomeBadge outcome={outcome} size="md" />
-        <p className="flex-[1_1_280px] text-[clamp(17px,1.6vw,19px)] leading-[1.4] font-medium text-pretty">{reason}</p>
+        <OutcomeBadge outcome={outcome} size="md" tilt />
+        <p className="flex-[1_1_280px] text-[clamp(17px,1.6vw,19px)] leading-[1.4] font-semibold text-pretty">{reason}</p>
+        {/* Chip points at the reason: that sentence is the whole decision. */}
+        <Chip pose="point" anim={['point', 'blink']} className="-mt-3 hidden aspect-[204/214] w-[76px] shrink-0 -scale-x-100 sm:block" />
       </div>
       {net_min_kg !== null && net_max_kg !== null && <NetSavingBar min={net_min_kg} max={net_max_kg} />}
       {scenarios && (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-3">
           {SCENARIOS.map(({ key, name, text }) => (
-            <div key={key} className="flex flex-col gap-2 rounded-2xl border border-line bg-raised p-4">
+            <div key={key} className="flex flex-col gap-2 rounded-2xl bg-sunken p-4">
               <span className={monoLabel}>{name}</span>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <OutcomeBadge outcome={scenarios[key].outcome} />
@@ -136,10 +142,10 @@ function NetSavingBar({ min, max }: { min: number; max: number }) {
         />
         <div className="absolute top-[26px] right-0 h-3.5 rounded-r-full bg-sunken" style={at(zero)} />
         <div
-          className="absolute top-[19px] h-7 min-w-1 rounded-full bg-accent shadow-[0_10px_24px_-8px_var(--color-accent)] transition-[left,width] duration-1000 ease-draw"
+          className="absolute top-[19px] h-7 min-w-1 rounded-full border-2 border-ink bg-accent-fill shadow-[0_3px_0_var(--color-ink)] transition-[left,width] duration-1000 ease-draw"
           style={{ left: `${ready ? start : zero}%`, width: `${ready ? end - start : 0}%` }}
         />
-        <div className="absolute top-3 -ml-px h-10 w-0.5 bg-ink" style={at(zero)} />
+        <div className="absolute top-3 -ml-px h-10 w-[3px] rounded-sm bg-ink" style={at(zero)} />
         <span className="absolute -top-1.5 -translate-x-1/2 font-mono text-[11px] font-bold" style={at(zero)}>
           0
         </span>

@@ -12,7 +12,7 @@ import { ErrorNotice, Notice, Panel, PillTag, fieldClass, linkClass, monoLabel, 
 
 const CURRENCIES = ['IDR', 'USD', 'EUR']
 const askToggle =
-  'inline-flex min-h-[52px] cursor-pointer list-none items-center justify-center rounded-full border border-line-strong px-5 text-[15px] font-semibold text-ink transition-colors duration-200 hover:border-ink hover:bg-raised [&::-webkit-details-marker]:hidden'
+  'inline-flex min-h-[52px] cursor-pointer list-none items-center justify-center rounded-[18px] border-2 border-ink bg-surface px-5 text-[15px] font-bold text-ink transition-[scale,background-color] duration-200 ease-spring hover:bg-sunken active:scale-95 [&::-webkit-details-marker]:hidden'
 
 /** Price, note and date of the device's current `list` event. */
 function ListedPrice({ listing, large = false }: { listing: PassportEvent; large?: boolean }) {
@@ -23,7 +23,7 @@ function ListedPrice({ listing, large = false }: { listing: PassportEvent; large
       <div className="flex flex-col gap-0.5">
         <span className={monoLabel}>Sample asking price</span>
         {price && (
-          <span className={`${large ? 'text-[clamp(32px,3.2vw,46px)]' : 'text-[30px]'} leading-[1.05] font-[750] tracking-[-.03em] tabular-nums`}>
+          <span className={`${large ? 'text-[clamp(34px,3.4vw,48px)]' : 'text-[32px]'} font-display leading-[1.05] font-extrabold tabular-nums`}>
             {formatPrice(price)}
           </span>
         )}
@@ -60,10 +60,10 @@ export function ForSaleBox({ deviceId, listing }: { deviceId: string; listing: P
   return (
     <section
       aria-labelledby={headingId}
-      className="flex w-full max-w-[560px] min-w-0 flex-col overflow-hidden rounded-[22px] bg-surface text-ink shadow-hero-card min-[1100px]:justify-self-end"
+      className="relative flex w-full max-w-[560px] min-w-0 flex-col rounded-[24px] bg-surface text-ink shadow-float min-[1100px]:justify-self-end"
     >
-      <div className="flex items-center justify-between gap-2.5 border-b border-line px-[22px] py-3.5">
-        <h2 id={headingId} className="flex items-center gap-2 font-mono text-xs font-bold tracking-[.1em] uppercase">
+      <div className="flex items-center justify-between gap-2.5 border-b-2 border-dashed border-line px-[22px] py-3.5">
+        <h2 id={headingId} className="rc-eyebrow flex items-center gap-2">
           <span aria-hidden className="size-2 rounded-full bg-ok" />
           For sale
         </h2>
@@ -224,7 +224,7 @@ export function SaleListing({ deviceId, events, listing, onChanged }: SaleListin
         </label>
         {error && <ErrorNotice message={error} />}
         <div>
-          <button type="submit" className={`${primaryButton} border-accent bg-accent`} disabled={saving || !wiped}>
+          <button type="submit" className={primaryButton} disabled={saving || !wiped}>
             {saving ? 'Saving…' : 'List for sale'}
           </button>
         </div>

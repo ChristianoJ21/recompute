@@ -1,6 +1,7 @@
 import { useId, useState, type FormEvent } from 'react'
 import { addEvent, describeError } from '../api/client'
 import type { EventKind } from '../api/types'
+import { Chip } from '../design/Art'
 import { ErrorNotice, Notice, Panel, PanelTag, fieldClass, labelClass, primaryButton } from './ui'
 
 // Telemetry is left out on purpose: only the simulator writes it.
@@ -62,7 +63,7 @@ export function TechnicianForm({ deviceId, onAdded }: { deviceId: string; onAdde
                   onChange={() => setKind(action.kind)}
                   className="peer sr-only"
                 />
-                <span className="flex min-h-[46px] cursor-pointer items-center justify-center rounded-full border border-line-strong bg-surface text-sm font-semibold text-ink transition-colors duration-200 hover:border-ink peer-checked:border-ink peer-checked:bg-ink peer-checked:text-surface peer-focus-visible:outline-3 peer-focus-visible:-outline-offset-3 peer-focus-visible:outline-accent">
+                <span className="flex min-h-[46px] cursor-pointer items-center justify-center rounded-[14px] border-2 border-line-strong bg-surface text-sm font-bold text-ink transition-[scale,background-color] duration-200 ease-spring hover:border-ink active:scale-95 peer-checked:border-ink peer-checked:bg-ink peer-checked:text-surface peer-focus-visible:outline-3 peer-focus-visible:-outline-offset-3 peer-focus-visible:outline-accent">
                   {action.label}
                 </span>
               </label>
@@ -84,14 +85,20 @@ export function TechnicianForm({ deviceId, onAdded }: { deviceId: string; onAdde
         </label>
         {error && <ErrorNotice message={error} />}
         {added !== null && (
-          <Notice tone="success">
-            <strong>Added to passport</strong> as event #{added}.
-          </Notice>
+          <div className="flex items-center gap-3">
+            <Chip pose="celebrate" anim={['hop']} className="aspect-[204/214] w-[68px] shrink-0" />
+            <div className="flex-1">
+              <Notice tone="success">
+                <strong>Added to passport</strong> as event #{added}.
+              </Notice>
+            </div>
+          </div>
         )}
-        <div>
+        <div className="flex items-center gap-3">
           <button type="submit" className={primaryButton} disabled={saving}>
             {saving ? 'Saving…' : 'Add to passport'}
           </button>
+          {saving && <Chip pose="work" anim={['work', 'blink']} className="aspect-[280/214] w-[84px]" />}
         </div>
       </form>
     </Panel>

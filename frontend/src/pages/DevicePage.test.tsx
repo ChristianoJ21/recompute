@@ -187,13 +187,15 @@ describe('device page', () => {
     expect(screen.getByText('SAMPLE DATA')).toBeTruthy()
   })
 
-  it('draws the device and its parts as a decorative line drawing', async () => {
+  it('draws the device on a clay stage: its chassis and one of its parts, both decorative', async () => {
     const { container } = renderDevice()
 
     await screen.findByRole('list', { name: 'Passport events' })
-    const art = container.querySelector('[data-art="gpu_server"]')
-    expect(art?.getAttribute('aria-hidden')).toBe('true')
-    expect(art?.querySelectorAll('[data-part]')).toHaveLength(2)
+    const stage = container.querySelector('[data-device-art="rack"]')
+    const chassis = stage?.querySelector('[data-art="rack"]')
+    expect(chassis?.getAttribute('data-variant')).toBe('gpu')
+    expect(chassis?.getAttribute('aria-hidden')).toBe('true')
+    expect(stage?.querySelector('[data-art="gpu"]')?.getAttribute('aria-hidden')).toBe('true')
   })
 })
 

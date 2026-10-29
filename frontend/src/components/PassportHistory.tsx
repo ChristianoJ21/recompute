@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { PassportEvent } from '../api/types'
 import { asPrice, formatDateTime, formatPrice } from '../lib/format'
 import type { PassportCheck } from '../lib/passportCheck'
+import { Art } from '../design/Art'
 import { IntegrityBadge } from './IntegrityBadge'
 import { Panel, secondaryButton } from './ui'
 
@@ -41,6 +42,7 @@ export function PassportHistory({ events, check }: PassportHistoryProps) {
         {events.length} {events.length === 1 ? 'event' : 'events'} · newest first
       </span>
       <IntegrityBadge integrity={check.integrity} live />
+      <Art name="chain" anim={['links']} className="hidden h-6 w-16 sm:block" />
     </div>
   )
 
@@ -94,12 +96,12 @@ function EventItem({ event, previousId, link, reason }: EventItemProps) {
       <div className="relative flex justify-center">
         <div className="absolute inset-y-0 w-px bg-line-mid" />
         <div
-          className={`relative mt-[18px] size-2.5 border-[1.5px] transition-shadow duration-300 ${style.node} ${
+          className={`relative mt-[18px] size-3 rounded-full border-2 transition-shadow duration-300 ${style.node} ${
             link === 'verified' ? 'shadow-[0_0_0_4px_var(--color-ok-bg)]' : link === 'bad' ? 'shadow-[0_0_0_4px_var(--color-danger-bg)]' : ''
           }`}
         />
       </div>
-      <div className="flex min-w-0 flex-col gap-1 border-b border-sunken py-3">
+      <div className="flex min-w-0 flex-col gap-1 border-b-2 border-dashed border-line py-3">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <span className={`text-[15px] font-bold ${style.text}`}>{style.label}</span>
           <time dateTime={event.created_at} className="font-mono text-xs text-ink-2">
@@ -108,7 +110,7 @@ function EventItem({ event, previousId, link, reason }: EventItemProps) {
         </div>
         <span className="text-[13px] text-ink-2">by {event.actor}</span>
         {note && <span className="text-sm">{note}</span>}
-        {details && <span className="self-start bg-page px-2 py-1 font-mono text-xs break-all text-ink">{details}</span>}
+        {details && <span className="self-start rounded-md bg-sunken px-2 py-1 font-mono text-xs break-all text-ink">{details}</span>}
         <span className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] text-ink-3">
           <span title={event.hash ?? undefined}>
             #{event.id} · hash {hash}

@@ -18,8 +18,8 @@ export const INPUT_MEANINGS = Object.fromEntries(INPUTS.map(({ key, ...rest }) =
   { meaning: string; unit: string }
 >
 
-const heading ='font-mono text-[11px] tracking-[.08em] text-ink-2 uppercase'
-const row = 'border-b border-sunken py-1.5'
+const heading = 'rc-eyebrow text-[11px] text-ink-2'
+const row = 'border-b-2 border-dashed border-line py-1.5'
 
 function RangeValue({ range, unit }: { range: Range | null; unit: string }) {
   if (!range) return <span className="font-semibold text-uncertain">missing</span>
@@ -45,7 +45,7 @@ function RuleInputs({ device }: { device: Device }) {
         Replace only if <span className="font-mono text-ink">(I_old − I_new) × W × T &gt; E_new</span>, run at both ends of every
         range.
       </p>
-      <dl className="grid grid-cols-[minmax(0,1fr)_max-content] border-t border-sunken text-[13px]">
+      <dl className="grid grid-cols-[minmax(0,1fr)_max-content] border-t-2 border-dashed border-line text-[13px]">
         {rows.map(({ name, key, value }) => (
           <div key={name} className="contents">
             <dt className={row}>
@@ -82,7 +82,7 @@ export function TechnicalDetails({ device }: { device: Device }) {
       <details className="group">
         <summary className="flex min-h-[52px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 sm:px-6 [&::-webkit-details-marker]:hidden">
           <span className="flex flex-col">
-            <span id={headingId} className="text-lg font-bold">
+            <span id={headingId} className="font-display text-xl font-extrabold">
               Technical details
             </span>
             <span className="text-[13px] text-ink-2">Rule inputs, device record, QR label</span>
@@ -92,11 +92,11 @@ export function TechnicalDetails({ device }: { device: Device }) {
             <span className="hidden group-open:inline">−</span>
           </span>
         </summary>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-6 border-t border-line p-4 sm:p-6">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-6 border-t-2 border-dashed border-line p-4 sm:p-6">
           <RuleInputs device={device} />
           <div className="flex flex-col gap-2">
             <h3 className={heading}>Device record</h3>
-            <pre className="bg-ink p-3 font-mono text-xs leading-relaxed break-all whitespace-pre-wrap text-code-fg">{deviceRecord(device)}</pre>
+            <pre className="rounded-xl bg-forest p-3 font-mono text-xs leading-relaxed break-all whitespace-pre-wrap text-forest-fg">{deviceRecord(device)}</pre>
           </div>
           <div className="flex flex-col gap-2">
             <h3 className={heading}>QR label</h3>
@@ -106,7 +106,7 @@ export function TechnicalDetails({ device }: { device: Device }) {
               alt={`QR code that opens the passport of ${device.id}`}
               width={160}
               height={160}
-              className="size-40 border border-line-strong bg-white p-1"
+              className="size-40 rotate-2 rounded-xl bg-white p-2 shadow-panel"
             />
             <span className="font-mono text-[11px] text-ink-2">→ /device/{device.id}</span>
           </div>
