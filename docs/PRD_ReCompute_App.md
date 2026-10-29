@@ -1,6 +1,6 @@
 # PRD: ReCompute Demo App
 
-> **Version:** 2.3 · 29 October 2026 · Owner: Panji · v1.1: decision engine (§5.2) aligned with the essay · v1.2: frontend switched from Streamlit to React + Vite + TypeScript + Tailwind · **v2.0: phase 2 (§15): public showcase, technician login, market-forecast charts, hosting** · **v2.1: listings show a sample price (§15); still no buy button or payment** · **v2.2: a logged-in technician can add technicians (§15.5); no public sign-up, no buyer accounts** · **v2.3: frontend redesign (light/dark theme, ☰ menu) and a `/settings` page where a technician changes their own name and password (§15.8)**
+> **Version:** 2.4 · 29 October 2026 · Owner: Panji · v1.1: decision engine (§5.2) aligned with the essay · v1.2: frontend switched from Streamlit to React + Vite + TypeScript + Tailwind · **v2.0: phase 2 (§15): public showcase, technician login, market-forecast charts, hosting** · **v2.1: listings show a sample price (§15); still no buy button or payment** · **v2.2: a logged-in technician can add technicians (§15.5); no public sign-up, no buyer accounts** · **v2.3: frontend redesign (light/dark theme, ☰ menu) and a `/settings` page where a technician changes their own name and password (§15.8)** · **v2.4: backend hosting moved from Railway Hobby (trial ended) to Render's free plan; the sample database is rebuilt on every start (§15.6)**
 > **Readers:** Panji, Jose, AI Agent A (backend), AI Agent B (frontend)
 > **Architecture overview:** https://claude.ai/artifact/BNMfdbkQ71VdABKVZMjBjD (share it from the page's Share menu)
 > **Essay first.** No app work before the essay is submitted (Fri 30 Oct). Build during judging (1–8 Nov) so the demo is ready if we reach the Top 5 (announced 9 Nov, Grand Final 14 Nov).
@@ -340,13 +340,13 @@ The device/passport page stays **public to read** (a buyer must be able to check
 - **No public sign-up and no buyer accounts** (the app collects no visitor data; buyers use the contact box). The first technician is made with `py -m tools.create_technician`; after that a logged-in technician can add colleagues (`POST /auth/technicians`).
 - Wrong username and wrong password give the same message. After 5 failed logins for one username in 15 minutes the API answers 429 for the rest of that window.
 - A technician changes their own name (`PATCH /auth/me`) and password (`POST /auth/password`, needs the current one; wrong guesses count towards the same 429 lock). Tokens issued before a password change stay valid until they expire (12 h at most).
-- Without `RECOMPUTE_SECRET_KEY` the backend makes a random key at start, so tokens end on restart (fine on the laptop; **always set it on Railway**).
+- Without `RECOMPUTE_SECRET_KEY` the backend makes a random key at start, so tokens end on restart (fine on the laptop; **always set it on the host**; Render generates it).
 
 ### 15.6 Hosting
-- **Frontend: Vercel** (`vite build`). `vercel.json` rewrites `/api/*` to the Railway backend URL, so the browser still calls `/api/*` (same origin, no CORS), and sends every other path to `index.html` so `/device/:id` deep links work.
-- **Backend: Railway Hobby** (about USD 5/month). SQLite on a Railway volume (`RECOMPUTE_DB_URL=sqlite:////data/recompute.db`); env `RECOMPUTE_SECRET_KEY` and `RECOMPUTE_FRONTEND_URL=https://<vercel-app>/device/{device_id}` (so printed QR codes open the hosted page).
+- **Frontend: Vercel** (`vite build`). `vercel.json` rewrites `/api/*` to the Render backend URL, so the browser still calls `/api/*` (same origin, no CORS), and sends every other path to `index.html` so `/device/:id` deep links work.
+- **Backend: Render free plan** (v2.4, 29 Oct; Railway's trial ended). Blueprint `render.yaml`; Singapore region. The free plan has no persistent disk, so each new container runs `tools/boot_demo.py`, which builds the SAMPLE DATA database (`RECOMPUTE_DB_URL=sqlite:////tmp/recompute.db`) and the demo technicians `tech-1`/`tech-2` with passwords from `RECOMPUTE_DEMO_PASSWORD_TECH_1`/`_2` (set in the Render dashboard; kept locally only in a gitignored `*.local.txt`). Env `RECOMPUTE_SECRET_KEY` (generated) and `RECOMPUTE_FRONTEND_URL=https://<vercel-app>/device/{device_id}` (so printed QR codes open the hosted page). Trade-offs: the service sleeps after 15 min idle and takes about a minute to wake (open the site a minute before a demo); changes made on the hosted site are lost on restart, redeploy or sleep. A paid host with a disk (Railway Hobby ~USD 5/mo, Render paid + disk) remains the upgrade path.
 - **Offline fallback** stays as in §4/§13: laptop backend + `vite preview --host`. Print two QR sets (hosted and laptop) or re-print at the venue; test both before 14 Nov.
-- The hosted database holds only sample data and the technician accounts; seed it with `scripts/seed.py` after logging in.
+- The hosted database holds only sample data and the demo technician accounts; on Render it is built automatically at start (no manual seeding).
 
 ### 15.7 Risks (added to §13)
 | Risk | Mitigation |
