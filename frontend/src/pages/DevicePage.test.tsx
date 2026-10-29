@@ -186,6 +186,15 @@ describe('device page', () => {
     await screen.findByRole('list', { name: 'Passport events' })
     expect(screen.getByText('SAMPLE DATA')).toBeTruthy()
   })
+
+  it('draws the device and its parts as a decorative line drawing', async () => {
+    const { container } = renderDevice()
+
+    await screen.findByRole('list', { name: 'Passport events' })
+    const art = container.querySelector('[data-art="gpu_server"]')
+    expect(art?.getAttribute('aria-hidden')).toBe('true')
+    expect(art?.querySelectorAll('[data-part]')).toHaveLength(2)
+  })
 })
 
 describe('passport integrity badge', () => {
