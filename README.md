@@ -36,7 +36,7 @@ npm run dev        # http://localhost:5173
 npm test           # Vitest; all tests must pass
 ```
 
-Pages: **public** (no login) `/` Available hardware (listed devices, sample price, contact box), `/market` market-forecast charts (empty until verified figures are in `data/market_forecast.json`), `/device/<id>` passport (read only). **Technician** (log in via "Technician login"): `/fleet` dashboard with stats, and on the passport page the action form, Evaluate and List for sale / Unlist. The token is kept in `sessionStorage` (gone when the tab closes); Log out forgets it. `/settings`: everyone picks Light / Dark / Match device (stored in `localStorage["rc-theme"]`); a technician also changes their full name and password there (contract v2.3). Times are shown in WIB. Design reference: `docs/design_handoff/`.
+Pages: **public** (no login) `/` Home, `/hardware` Available hardware (listed devices, sample price, contact box), `/market` market-forecast charts (empty until verified figures are in `data/market_forecast.json`), `/device/<id>` passport (read only). **Technician** (log in via "Technician login"): `/fleet` dashboard with stats, `/devices/new` Add device (a new SAMPLE DATA passport record; blank rule inputs are sent as missing), `/technicians/new` Add technician, and on the passport page the action form, Evaluate and List for sale / Remove from sale. The token is kept in `sessionStorage` (gone when the tab closes); Log out forgets it. `/settings`: everyone picks Light / Dark / Match device (stored in `localStorage["rc-theme"]`); a technician also changes their full name and password there (contract v2.3). Times are shown in WIB. Design reference: `docs/design_handoff/`.
 
 ### Technician accounts
 
@@ -46,7 +46,7 @@ Load the sample fleet from the repo root (backend running):
 
 ```
 $env:RECOMPUTE_USERNAME = "tech-1"; $env:RECOMPUTE_PASSWORD = "<password>"   # PowerShell; bash: export ...
-py scripts/seed.py                                          # workloads, 6 devices, evaluates each (one per outcome), lists 2 for sale
+py scripts/seed.py                                          # workloads, 13 devices, evaluates each (every outcome appears), lists 5 for sale
 py scripts/simulate_telemetry.py                            # one SIMULATED telemetry event per device
 py scripts/simulate_telemetry.py --rounds 0 --interval 10   # keep adding readings until Ctrl+C
 ```

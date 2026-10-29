@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { asPrice, formatDate, formatDateTime, formatKg, formatPrice, formatRange, netBarGeometry, telemetryReadings } from './format'
+import {
+  asPrice,
+  formatComponents,
+  formatDate,
+  formatDateTime,
+  formatDeviceType,
+  formatKg,
+  formatPrice,
+  formatRange,
+  netBarGeometry,
+  telemetryReadings,
+} from './format'
 
 describe('formatKg', () => {
   it('signs the value and uses a typographic minus', () => {
@@ -45,6 +56,15 @@ describe('netBarGeometry', () => {
     const { start, end } = netBarGeometry(300, 300)
     expect(start).toBe(end)
     expect(inside(start)).toBe(true)
+  })
+})
+
+describe('device type and parts', () => {
+  it('writes hardware acronyms in capitals', () => {
+    expect(formatDeviceType('network_switch')).toBe('Network switch')
+    expect(formatComponents([{ type: 'psu', model: 'PSU-800-v1' }, { type: 'nic', model: 'Net-25G-v1' }, { type: 'storage', model: 'Drive-v1' }])).toBe(
+      'PSU PSU-800-v1 · NIC Net-25G-v1 · Storage Drive-v1',
+    )
   })
 })
 

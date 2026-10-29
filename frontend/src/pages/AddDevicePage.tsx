@@ -21,6 +21,8 @@ import { formatDeviceType } from '../lib/format'
 const selectClass = `${fieldClass} px-3`
 const fieldset = 'flex flex-col gap-4 border-t border-sunken pt-5'
 const smallLabel = 'flex flex-col gap-1.5 text-sm font-semibold'
+const squareButton =
+  'inline-flex size-[50px] shrink-0 items-center justify-center rounded-full border border-line-strong text-ink transition-colors duration-200 hover:border-ink hover:bg-raised'
 
 /** A technician adds a device record (SAMPLE DATA); its passport opens next, where Evaluate runs the rule. */
 export function AddDevicePage() {
@@ -112,7 +114,7 @@ export function AddDevicePage() {
           <fieldset className={fieldset}>
             <legend className={`${monoLabel} mb-1`}>Parts</legend>
             {form.components.map((part, index) => (
-              <div key={index} className="grid grid-cols-[minmax(110px,160px)_1fr_auto] items-end gap-3">
+              <div key={index} className="grid grid-cols-[7rem_minmax(0,1fr)_auto] items-end gap-3">
                 <div className={smallLabel}>
                   <span aria-hidden>Type</span>
                   <select
@@ -142,7 +144,7 @@ export function AddDevicePage() {
                   type="button"
                   aria-label={`Remove part ${index + 1}`}
                   onClick={() => setForm({ ...form, components: form.components.filter((_, i) => i !== index) })}
-                  className={`${secondaryButton} min-h-12 px-4`}
+                  className={squareButton}
                 >
                   <span aria-hidden>✕</span>
                 </button>
@@ -152,7 +154,7 @@ export function AddDevicePage() {
             <button
               type="button"
               onClick={() => setForm({ ...form, components: [...form.components, { type: COMPONENT_TYPES[0], model: '' }] })}
-              className={`${secondaryButton} min-h-11 self-start`}
+              className={`${secondaryButton} self-start`}
             >
               + Add part
             </button>
@@ -165,8 +167,8 @@ export function AddDevicePage() {
               “low” for a single value.
             </p>
             {INPUT_KEYS.map((key) => (
-              <div key={key} className="grid grid-cols-[minmax(0,1fr)_minmax(72px,120px)_minmax(72px,120px)] items-center gap-3">
-                <span className="flex min-w-0 flex-col">
+              <div key={key} className="grid grid-cols-2 items-center gap-x-3 gap-y-2 sm:grid-cols-[minmax(0,1fr)_120px_120px]">
+                <span className="col-span-2 flex min-w-0 flex-col sm:col-span-1">
                   <span className="font-mono text-sm font-semibold">{key}</span>
                   <span className={hintClass}>
                     {INPUT_MEANINGS[key].meaning} ({INPUT_MEANINGS[key].unit})
