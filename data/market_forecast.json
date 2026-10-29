@@ -1,1 +1,191 @@
-[]
+[
+  {
+    "series": "Generated",
+    "year": 2010,
+    "value": 34,
+    "unit": "billion kg",
+    "kind": "actual",
+    "source": "Baldé et al., 2024",
+    "page": "12",
+    "evidence_row": "E08",
+    "chart": "Global e-waste: generated vs documented as formally collected and recycled"
+  },
+  {
+    "series": "Generated",
+    "year": 2022,
+    "value": 62,
+    "unit": "billion kg",
+    "kind": "actual",
+    "source": "Baldé et al., 2024",
+    "page": "9",
+    "evidence_row": "E06",
+    "chart": "Global e-waste: generated vs documented as formally collected and recycled"
+  },
+  {
+    "series": "Generated",
+    "year": 2030,
+    "value": 82,
+    "unit": "billion kg",
+    "kind": "forecast",
+    "source": "Baldé et al., 2024",
+    "page": "18",
+    "evidence_row": "E09",
+    "chart": "Global e-waste: generated vs documented as formally collected and recycled",
+    "note": "Business-as-usual scenario"
+  },
+  {
+    "series": "Recycled",
+    "year": 2010,
+    "value": 8,
+    "unit": "billion kg",
+    "kind": "actual",
+    "source": "Baldé et al., 2024",
+    "page": "12",
+    "evidence_row": "E08",
+    "chart": "Global e-waste: generated vs documented as formally collected and recycled"
+  },
+  {
+    "series": "Recycled",
+    "year": 2022,
+    "value": 13.8,
+    "unit": "billion kg",
+    "kind": "actual",
+    "source": "Baldé et al., 2024",
+    "page": "12",
+    "evidence_row": "E08",
+    "chart": "Global e-waste: generated vs documented as formally collected and recycled"
+  },
+  {
+    "series": "Recycled",
+    "year": 2030,
+    "value": 16,
+    "unit": "billion kg",
+    "kind": "forecast",
+    "source": "Baldé et al., 2024",
+    "page": "60",
+    "evidence_row": "E48",
+    "chart": "Global e-waste: generated vs documented as formally collected and recycled",
+    "note": "Business-as-usual scenario"
+  },
+  {
+    "series": "Documented formal collection and recycling rate",
+    "year": 2022,
+    "value": 22.3,
+    "unit": "% of e-waste generated",
+    "kind": "actual",
+    "source": "Baldé et al., 2024",
+    "page": "12",
+    "evidence_row": "E07"
+  },
+  {
+    "series": "Documented formal collection and recycling rate",
+    "year": 2030,
+    "value": 20,
+    "unit": "% of e-waste generated",
+    "kind": "forecast",
+    "source": "Baldé et al., 2024",
+    "page": "18",
+    "evidence_row": "E09",
+    "note": "Business-as-usual scenario"
+  },
+  {
+    "series": "All servers",
+    "year": 2014,
+    "value": 14,
+    "unit": "million servers",
+    "kind": "actual",
+    "source": "Shehabi et al., 2024",
+    "page": "30",
+    "evidence_row": "E41",
+    "chart": "U.S. installed server base (model estimate)"
+  },
+  {
+    "series": "All servers",
+    "year": 2020,
+    "value": 21,
+    "unit": "million servers",
+    "kind": "actual",
+    "source": "Shehabi et al., 2024",
+    "page": "30",
+    "evidence_row": "E41",
+    "chart": "U.S. installed server base (model estimate)"
+  },
+  {
+    "series": "All servers",
+    "year": 2028,
+    "value": 37,
+    "unit": "million servers",
+    "kind": "forecast",
+    "source": "Shehabi et al., 2024",
+    "page": "30",
+    "evidence_row": "E02",
+    "chart": "U.S. installed server base (model estimate)",
+    "note": "Almost 37 million, depending on GPU shipments 2024–2028"
+  },
+  {
+    "series": "AI servers, high",
+    "year": 2020,
+    "value": 1.6,
+    "unit": "million servers",
+    "kind": "actual",
+    "source": "Shehabi et al., 2024",
+    "page": "30",
+    "evidence_row": "E01",
+    "chart": "U.S. installed server base (model estimate)"
+  },
+  {
+    "series": "AI servers, high",
+    "year": 2028,
+    "value": 12,
+    "unit": "million servers",
+    "kind": "forecast",
+    "source": "Shehabi et al., 2024",
+    "page": "30",
+    "evidence_row": "E02",
+    "chart": "U.S. installed server base (model estimate)",
+    "note": "High end of the 8–12 million scenario range"
+  },
+  {
+    "series": "AI servers, low",
+    "year": 2020,
+    "value": 1.6,
+    "unit": "million servers",
+    "kind": "actual",
+    "source": "Shehabi et al., 2024",
+    "page": "30",
+    "evidence_row": "E01",
+    "chart": "U.S. installed server base (model estimate)"
+  },
+  {
+    "series": "AI servers, low",
+    "year": 2028,
+    "value": 8,
+    "unit": "million servers",
+    "kind": "forecast",
+    "source": "Shehabi et al., 2024",
+    "page": "30",
+    "evidence_row": "E02",
+    "chart": "U.S. installed server base (model estimate)",
+    "note": "Low end of the 8–12 million scenario range"
+  },
+  {
+    "series": "Assumed average U.S. server lifetime (model assumption)",
+    "year": 2020,
+    "value": 5,
+    "unit": "years",
+    "kind": "actual",
+    "source": "Shehabi et al., 2024",
+    "page": "30",
+    "evidence_row": "E15"
+  },
+  {
+    "series": "Assumed average U.S. server lifetime (model assumption)",
+    "year": 2023,
+    "value": 5.7,
+    "unit": "years",
+    "kind": "actual",
+    "source": "Shehabi et al., 2024",
+    "page": "30",
+    "evidence_row": "E15"
+  }
+]

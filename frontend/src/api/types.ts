@@ -177,6 +177,10 @@ export interface ForecastPoint {
   source: string
   page: string
   evidence_row: string
+  /** Panel title; lines with the same chart (and unit and source) share one panel. Defaults to `series`. */
+  chart?: string
+  /** Short qualifier shown in the tooltip and the table, e.g. "Business-as-usual scenario". */
+  note?: string
 }
 
 /** Body of POST /auth/technicians: a logged-in technician adds a colleague. */

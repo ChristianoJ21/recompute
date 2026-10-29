@@ -25,7 +25,7 @@ const point = (
 })
 
 describe('market page', () => {
-  it('shows an empty state and no numbers while there are no verified figures', () => {
+  it('draws the published charts from data/market_forecast.json, one source each, with no mock data', () => {
     render(
       <MemoryRouter initialEntries={['/market']}>
         <App />
@@ -33,8 +33,19 @@ describe('market page', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'Market context' })).toBeTruthy()
-    expect(screen.getByText(/Waiting for verified figures/)).toBeTruthy()
-    expect(screen.queryByRole('img')).toBeNull()
+    for (const title of [
+      'Global e-waste: generated vs documented as formally collected and recycled',
+      'Documented formal collection and recycling rate',
+      'U.S. installed server base (model estimate)',
+      'Assumed average U.S. server lifetime (model assumption)',
+    ]) {
+      expect(screen.getByRole('heading', { name: title })).toBeTruthy()
+    }
+    expect(screen.getAllByRole('img')).toHaveLength(4)
+    expect(screen.getAllByText(/^Source: Baldé et al\., 2024, pp\. [\d, ]+\./)).toHaveLength(2)
+    expect(screen.getAllByText(/^Source: Shehabi et al\., 2024, p\. 30\./)).toHaveLength(2)
+    expect(screen.queryByText(/MOCK DATA/)).toBeNull()
+    expect(screen.queryByText(/Waiting for verified figures/)).toBeNull()
   })
 })
 
@@ -59,7 +70,67 @@ describe('forecast charts', () => {
     expect(screen.getAllByRole('img')).toHaveLength(1)
     const table = screen.getByRole('table')
     expect(within(table).getAllByText('Test source, p. 12')).toHaveLength(3)
-    expect(within(table).getByText('Forecast')).toBeTruthy()
+    expect(within(table).getByText('Forecast or scenario')).toBeTruthy()
+    expect(within(table).getAllByText('Published figure')).toHaveLength(2)
+  })
+
+  it('puts series that share a chart title in one panel, named in a legend and on the lines', async () => {
+    render(
+      <ForecastCharts
+        points={[
+          point(2010, 34, 'actual', { chart: 'Shared chart', series: 'Generated' }),
+          point(2030, 82, 'forecast', { chart: 'Shared chart', series: 'Generated', note: 'Business-as-usual scenario' }),
+          point(2010, 8, 'actual', { chart: 'Shared chart', series: 'Recycled' }),
+        ]}
+      />,
+    )
+
+    expect(screen.getAllByRole('img')).toHaveLength(1)
+    expect(screen.getByRole('heading', { name: 'Shared chart' })).toBeTruthy()
+    const legend = screen.getByRole('list', { name: 'Series' })
+    expect(within(legend).getByText('Generated')).toBeTruthy()
+    expect(within(legend).getByText('Recycled')).toBeTruthy()
+    const plot = screen.getByRole('img')
+    expect(within(plot).getByText('Generated')).toBeTruthy()
+    expect(within(plot).getByText('Recycled')).toBeTruthy()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Table' }))
+    const table = screen.getByRole('table')
+    expect(within(table).getByRole('columnheader', { name: 'Series' })).toBeTruthy()
+    expect(within(table).getAllByText('Generated')).toHaveLength(2)
+    expect(within(table).getByText('Business-as-usual scenario')).toBeTruthy()
+  })
+
+  it('shows a point in a tooltip on hover and on keyboard focus, with its note and source', async () => {
+    const user = userEvent.setup()
+    render(
+      <ForecastCharts
+        points={[
+          point(2020, 1.6, 'actual', { chart: 'Servers', series: 'AI, high' }),
+          point(2028, 12, 'forecast', { chart: 'Servers', series: 'AI, high', note: 'High end of the range' }),
+          point(2020, 1.6, 'actual', { chart: 'Servers', series: 'AI, low' }),
+        ]}
+      />,
+    )
+    const target = screen.getByLabelText(/^AI, high, 2028: 12 units/)
+
+    await user.hover(target)
+    const tooltip = screen.getByRole('tooltip')
+    expect(tooltip.textContent).toContain('AI, high')
+    expect(tooltip.textContent).toContain('High end of the range')
+    expect(tooltip.textContent).toContain('Source: Test source, p. 12')
+    await user.unhover(target)
+    expect(screen.queryByRole('tooltip')).toBeNull()
+
+    target.focus()
+    expect(await screen.findByRole('tooltip')).toBeTruthy()
+  })
+
+  it('shows no series legend when a chart has one line: the title names it', () => {
+    render(<ForecastCharts points={[point(2020, 5, 'actual'), point(2023, 5.7, 'actual')]} />)
+
+    expect(screen.queryByRole('list', { name: 'Series' })).toBeNull()
+    expect(screen.getByRole('heading', { name: 'Test series' })).toBeTruthy()
   })
 
   it('leaves out any point that is not traced to an evidence row', () => {

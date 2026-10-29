@@ -7,7 +7,7 @@ import { HeroLabel, PageHero, band, container } from '../components/ui'
 // Only `npm run dev` sets this (frontend/.env.development); builds, hosting and tests never show mock numbers.
 const MOCK_ALLOWED = import.meta.env.VITE_MARKET_MOCK === '1'
 
-/** Public market context (PRD 15.4). Hanif supplies the verified figures; until then the page stays empty. */
+/** Public market context (PRD 15.4): published figures from verified evidence-sheet rows only. */
 export function MarketPage() {
   const verified = forecast as ForecastPoint[]
   const mock = MOCK_ALLOWED && verified.length === 0

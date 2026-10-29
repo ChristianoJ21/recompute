@@ -71,22 +71,49 @@ describe('sample listings in data/sample_devices.json', () => {
 
 describe('data/market_forecast.json (PRD 15.4)', () => {
   const points = forecast as ForecastPoint[]
+  const REQUIRED = ['evidence_row', 'kind', 'page', 'series', 'source', 'unit', 'value', 'year']
+  const OPTIONAL = ['chart', 'note']
+  const panel = (point: ForecastPoint) => point.chart ?? point.series
+  const line = (point: ForecastPoint) => `${panel(point)} / ${point.series}`
+  const valuesBy = (key: (point: ForecastPoint) => string, value: (point: ForecastPoint) => string) => {
+    const seen = new Map<string, Set<string>>()
+    for (const point of points) seen.set(key(point), (seen.get(key(point)) ?? new Set()).add(value(point)))
+    return seen
+  }
 
   it('holds only points traced to a source page and an evidence row', () => {
+    expect(points.length).toBeGreaterThan(0)
     for (const point of points) {
-      expect(Object.keys(point).sort()).toEqual(
-        ['evidence_row', 'kind', 'page', 'series', 'source', 'unit', 'value', 'year'].sort(),
-      )
+      const keys = Object.keys(point)
+      for (const key of REQUIRED) expect(keys, key).toContain(key)
+      for (const key of keys) expect([...REQUIRED, ...OPTIONAL], key).toContain(key)
       expect(['actual', 'forecast']).toContain(point.kind)
       expect(point.source.trim()).not.toBe('')
       expect(String(point.page).trim()).not.toBe('')
       expect(point.evidence_row).toMatch(/^E\d+$/)
+      expect(Number.isFinite(point.value) && point.value >= 0, point.series).toBe(true)
     }
   })
 
-  it('uses one unit per series, so no chart mixes units', () => {
-    const units = new Map<string, Set<string>>()
-    for (const point of points) units.set(point.series, (units.get(point.series) ?? new Set()).add(point.unit))
-    for (const [series, seen] of units) expect(seen.size, series).toBe(1)
+  it('uses one unit and one source per chart, so no chart mixes units or publications', () => {
+    for (const [chart, units] of valuesBy(panel, (point) => point.unit)) expect(units.size, chart).toBe(1)
+    for (const [chart, sources] of valuesBy(panel, (point) => point.source)) expect(sources.size, chart).toBe(1)
+  })
+
+  it('draws at most three lines per chart (the validated series palette has three slots)', () => {
+    for (const [chart, series] of valuesBy(panel, (point) => point.series)) expect(series.size, chart).toBeLessThanOrEqual(3)
+  })
+
+  it('has at most one point per year on each line', () => {
+    for (const [name, years] of valuesBy(line, (point) => String(point.year))) {
+      expect(years.size, name).toBe(points.filter((point) => line(point) === name).length)
+    }
+  })
+
+  it('keeps decisions 8 and 10 and open item 11', () => {
+    const has = (name: string) => points.some((point) => point.source.startsWith(name))
+    expect(has('Wang') && has('de Vries-Gao'), 'decision 8: never Wang with de Vries-Gao').toBe(false)
+    expect(has('Shehabi') && has('Smith'), 'decision 10: Shehabi or Smith, never both').toBe(false)
+    expect(has('WSTS'), 'open item 11: WSTS 2026 forecast not verified').toBe(false)
   })
 })

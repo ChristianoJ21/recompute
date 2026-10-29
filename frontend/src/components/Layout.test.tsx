@@ -150,7 +150,11 @@ describe('header menu', () => {
     renderAt('/settings')
 
     expect(screen.getByText('SAMPLE DATA')).toBeTruthy()
-    expect(within(screen.getByRole('contentinfo')).getByText(/Nothing here is a measurement/)).toBeTruthy()
+    const footer = within(screen.getByRole('contentinfo'))
+    // The Market charts are published figures, so the footer must not call every number sample data.
+    expect(footer.getByText(/Devices, prices and passports in this demo are sample data \(toy values\)/)).toBeTruthy()
+    expect(footer.getByText(/Market charts show published figures/)).toBeTruthy()
+    expect(footer.queryByText(/Every number in this demo is sample data/)).toBeNull()
   })
 
   it('shows a not-found page for an unknown address', () => {

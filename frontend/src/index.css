@@ -59,6 +59,11 @@
   /* SAMPLE DATA chip: the same in both themes. */
   --color-sample: #F2D27A;
   --color-sample-ink: #2E2100;
+  /* Market chart lines, fixed order (colour follows the line). Checked with the dataviz palette validator,
+     all pairs, on the surface of each theme: lightness, chroma, colour-blind separation, contrast >= 3:1. */
+  --color-series-1: #2443C9;
+  --color-series-2: #EB6834;
+  --color-series-3: #199E70;
 
   /* v3 (docs/design_handoff/v3): inputs and notices 14px, panels 22px, buttons, chips and badges are pills. */
   --radius-ctl: 14px;
@@ -128,6 +133,9 @@
   --color-raised: #1A1D23;
   --color-surface: #14171C;
   --color-grid: #151920;
+  --color-series-1: #5F78EC;
+  --color-series-2: #D95926;
+  --color-series-3: #199E70;
   --color-accent: #8EA2FF;
   --color-accent-hover: #B5C2FF;
   --color-on-ink-2: #4A4F57;
