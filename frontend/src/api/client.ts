@@ -5,12 +5,18 @@
 import type {
   ChainCheck,
   Contact,
+  CustomerRow,
+  CustomerSession,
   Device,
   DeviceDetail,
   DeviceSummary,
+  Enquiry,
   Evaluation,
+  Favourite,
   FleetSummary,
   Listing,
+  NewCustomer,
+  NewEnquiry,
   NewEvent,
   NewListing,
   NewTechnician,
@@ -21,6 +27,8 @@ import type {
 
 const API_BASE = '/api'
 export const SESSION_KEY = 'recompute.session'
+/** A customer login (contract v2.4) is stored apart; a tab holds at most one of the two logins. */
+export const CUSTOMER_KEY = 'recompute.customer'
 
 export class ApiError extends Error {
   readonly status: number
@@ -38,13 +46,18 @@ const sessionListeners = new Set<() => void>()
 let cachedRaw: string | null = null
 let cachedSession: Session | null = null
 
-function readStoredSession(): string | null {
+let cachedCustomerRaw: string | null = null
+let cachedCustomer: CustomerSession | null = null
+
+function readStored(key: string): string | null {
   try {
-    return sessionStorage.getItem(SESSION_KEY)
+    return sessionStorage.getItem(key)
   } catch {
-    return null // storage blocked (private mode): the technician stays logged out
+    return null // storage blocked (private mode): nobody stays logged in
   }
 }
+
+const readStoredSession = () => readStored(SESSION_KEY)
 
 function parseSession(raw: string | null): Session | null {
   if (!raw) return null
@@ -72,13 +85,43 @@ export function currentSession(): Session | null {
   return cachedSession && Date.parse(cachedSession.expires_at) > Date.now() ? cachedSession : null
 }
 
-function storeSession(session: Session | null) {
+function parseCustomer(raw: string | null): CustomerSession | null {
+  if (!raw) return null
   try {
-    if (session) sessionStorage.setItem(SESSION_KEY, JSON.stringify(session))
-    else sessionStorage.removeItem(SESSION_KEY)
+    const value: unknown = JSON.parse(raw)
+    if (!value || typeof value !== 'object') return null
+    const session = value as CustomerSession
+    const valid =
+      typeof session.token === 'string' && typeof session.expires_at === 'string' && typeof session.customer?.email === 'string'
+    return valid ? session : null
   } catch {
-    // Storage blocked: currentSession() keeps answering null, so the login page stays visible.
+    return null
   }
+}
+
+/** The logged-in customer's session (contract v2.4), or null. Same caching rule as currentSession(). */
+export function currentCustomer(): CustomerSession | null {
+  const raw = readStored(CUSTOMER_KEY)
+  if (raw !== cachedCustomerRaw) {
+    cachedCustomerRaw = raw
+    cachedCustomer = parseCustomer(raw)
+  }
+  return cachedCustomer && Date.parse(cachedCustomer.expires_at) > Date.now() ? cachedCustomer : null
+}
+
+function store(key: string, value: unknown) {
+  try {
+    if (value) sessionStorage.setItem(key, JSON.stringify(value))
+    else sessionStorage.removeItem(key)
+  } catch {
+    // Storage blocked: currentSession() and currentCustomer() keep answering null, so the login pages stay visible.
+  }
+}
+
+/** Sets both logins at once (one of them is always null) and tells the subscribers once. */
+function setLogins(technician: Session | null, customer: CustomerSession | null) {
+  store(SESSION_KEY, technician)
+  store(CUSTOMER_KEY, customer)
   sessionListeners.forEach((listener) => listener())
 }
 
@@ -95,7 +138,7 @@ export function subscribeSession(listener: () => void): () => void {
 const devicePath = (id: string) => `/devices/${encodeURIComponent(id)}`
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = currentSession()?.token
+  const token = currentSession()?.token ?? currentCustomer()?.token
   let response: Response
   try {
     response = await fetch(API_BASE + path, {
@@ -110,7 +153,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     throw new ApiError(0, 'Cannot reach the ReCompute server. Check the network connection and try again.')
   }
   // Expired or refused token: forget it, so the page shows the logged-out view and the login link.
-  if (response.status === 401 && token) storeSession(null)
+  if (response.status === 401 && token) setLogins(null, null)
   if (!response.ok) throw new ApiError(response.status, await errorMessage(response))
   return (await response.json()) as T
 }
@@ -154,13 +197,13 @@ export async function login(username: string, password: string): Promise<Session
     method: 'POST',
     body: JSON.stringify({ username, password }),
   })
-  storeSession(session)
+  setLogins(session, null) // one login per tab: a technician login ends a customer login
   return session
 }
 
-/** There is no logout endpoint: logging out means forgetting the token. */
+/** There is no logout endpoint: logging out means forgetting the token (technician or customer). */
 export function logout(): void {
-  storeSession(null)
+  setLogins(null, null)
 }
 
 export const getListings = () => request<Listing[]>('/listings')
@@ -180,7 +223,7 @@ export const addTechnician = (account: NewTechnician) =>
 export async function updateProfile(name: string): Promise<Technician> {
   const technician = await request<Technician>('/auth/me', { method: 'PATCH', body: JSON.stringify({ name }) })
   const session = currentSession()
-  if (session) storeSession({ ...session, technician })
+  if (session) setLogins({ ...session, technician }, null)
   return technician
 }
 
@@ -190,3 +233,35 @@ export const changePassword = (currentPassword: string, newPassword: string) =>
     method: 'POST',
     body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
   })
+
+// ---- customer accounts (contract v2.4) ---------------------------------------------
+
+async function startCustomerSession(path: string, body: unknown): Promise<CustomerSession> {
+  const session = await request<CustomerSession>(path, { method: 'POST', body: JSON.stringify(body) })
+  setLogins(null, session) // one login per tab: a customer login ends a technician login
+  return session
+}
+
+/** Public sign-up for buyers; the new customer is logged in at once. */
+export const signUp = (account: NewCustomer) => startCustomerSession('/customers/signup', account)
+
+export const customerLogin = (email: string, password: string) => startCustomerSession('/customers/login', { email, password })
+
+const favouritePath = (id: string) => `/customers/me/favourites/${encodeURIComponent(id)}`
+
+export const getFavourites = () => request<Favourite[]>('/customers/me/favourites')
+
+export const saveFavourite = (id: string) => request<Favourite>(favouritePath(id), { method: 'PUT' })
+
+export const removeFavourite = (id: string) => request<{ device_id: string; removed: boolean }>(favouritePath(id), { method: 'DELETE' })
+
+export const sendEnquiry = (enquiry: NewEnquiry) =>
+  request<Enquiry>('/customers/me/enquiries', { method: 'POST', body: JSON.stringify(enquiry) })
+
+export const getMyEnquiries = () => request<Enquiry[]>('/customers/me/enquiries')
+
+/** Technicians (the admins) only. */
+export const getEnquiries = () => request<Enquiry[]>('/enquiries')
+
+/** Technicians (the admins) only. */
+export const getCustomers = () => request<CustomerRow[]>('/customers')

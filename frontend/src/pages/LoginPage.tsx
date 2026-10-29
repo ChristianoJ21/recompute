@@ -79,6 +79,12 @@ export function LoginPage() {
               {sending ? 'Logging in…' : 'Log in'}
             </button>
           </form>
+          <p className="text-[15px] text-ink-2">
+            Buying hardware?{' '}
+            <Link to="/account/login" className={linkClass}>
+              Customer login
+            </Link>
+          </p>
           <Link to="/hardware" className={`${linkClass} inline-flex min-h-11 items-center self-start text-[15px]`}>
             ← Back to available hardware
           </Link>

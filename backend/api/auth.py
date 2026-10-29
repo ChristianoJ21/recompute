@@ -1,6 +1,7 @@
-"""Technician login (PRD 15.5, contract v2.0): scrypt password hashes, HMAC-signed bearer tokens.
+"""Logins (PRD 15.5, contract v2.0; customers v2.4): scrypt password hashes, HMAC-signed bearer tokens.
 
-Standard library only. A token is base64url(JSON {sub, exp}) + "." + base64url(HMAC-SHA256 of that part).
+Standard library only. A token is base64url(JSON {sub, role, exp}) + "." + base64url(HMAC-SHA256 of that part).
+Technicians are the admins: every passport write needs a technician token, and a customer token is refused (403).
 """
 import base64
 import hashlib
@@ -71,21 +72,24 @@ def _sign(secret_key, payload):
     return _b64(hmac.new(secret_key.encode(), payload.encode(), hashlib.sha256).digest())
 
 
-def issue_token(secret_key, username):
+def issue_token(secret_key, subject, role="technician"):
     expires = utcnow() + TOKEN_TTL
-    payload = _b64(json.dumps({"sub": username, "exp": int(expires.timestamp())}).encode())
+    payload = _b64(json.dumps({"sub": subject, "role": role, "exp": int(expires.timestamp())}).encode())
     return {"token": f"{payload}.{_sign(secret_key, payload)}", "expires_at": iso(expires)}
 
 
 def read_token(secret_key, token):
-    """Username inside a valid token; ValueError says why a token is refused."""
+    """(subject, role) inside a valid token; ValueError says why a token is refused.
+
+    Tokens issued before customer accounts (contract v2.4) carry no role: only technicians had logins then.
+    """
     payload, _, signature = token.partition(".")
     if not payload or not hmac.compare_digest(signature.encode(), _sign(secret_key, payload).encode()):
         raise ValueError("invalid login token")
     claims = json.loads(_unb64(payload))
     if utcnow() >= datetime.fromtimestamp(claims["exp"], timezone.utc):
         raise ValueError("login token expired")
-    return claims["sub"]
+    return claims["sub"], claims.get("role", "technician")
 
 
 def unauthorized(message):
@@ -95,14 +99,22 @@ def unauthorized(message):
 bearer = HTTPBearer(auto_error=False)
 
 
-def require_technician(request: Request, credentials: HTTPAuthorizationCredentials | None = Depends(bearer)):
-    """Dependency for every write endpoint: the logged-in technician, or 401."""
+def token_subject(request, credentials, role, login_path):
+    """Subject of a valid token of this role: 401 without a valid token, 403 for a token of the other role."""
     if credentials is None:
-        raise unauthorized("Log in first: send 'Authorization: Bearer <token>' from POST /auth/login.")
+        raise unauthorized(f"Log in first: send 'Authorization: Bearer <token>' from {login_path}.")
     try:
-        username = read_token(request.app.state.secret_key, credentials.credentials)
+        subject, token_role = read_token(request.app.state.secret_key, credentials.credentials)
     except ValueError as error:
-        raise unauthorized(f"{str(error).capitalize()}; log in again with POST /auth/login.") from error
+        raise unauthorized(f"{str(error).capitalize()}; log in again with {login_path}.") from error
+    if token_role != role:
+        raise HTTPException(403, f"This needs a {role} login.")
+    return subject
+
+
+def require_technician(request: Request, credentials: HTTPAuthorizationCredentials | None = Depends(bearer)):
+    """Dependency for every write endpoint (technicians are the admins): the logged-in technician, or 401/403."""
+    username = token_subject(request, credentials, "technician", "POST /auth/login")
     with request.app.state.session_factory() as session:
         technician = session.get(Technician, username)
     if technician is None:
@@ -113,9 +125,13 @@ def require_technician(request: Request, credentials: HTTPAuthorizationCredentia
 # ---- failed-login lock ----------------------------------------------------------
 
 class LoginLock:
-    """Counts failed logins per username in memory; MAX_FAILED_LOGINS within LOCK_WINDOW locks it."""
+    """Counts failed logins per key in memory; `limit` of them within LOCK_WINDOW locks that key.
 
-    def __init__(self):
+    Also a plain rate limit (sign-ups per client, enquiries per customer): record() counts one attempt.
+    """
+
+    def __init__(self, limit=MAX_FAILED_LOGINS):
+        self._limit = limit
         self._failures = {}
         self._mutex = threading.Lock()
 
@@ -128,11 +144,13 @@ class LoginLock:
 
     def is_locked(self, username):
         with self._mutex:
-            return len(self._recent(username)) >= MAX_FAILED_LOGINS
+            return len(self._recent(username)) >= self._limit
 
     def failed(self, username):
         with self._mutex:
             self._failures[username] = [*self._recent(username), utcnow()]
+
+    record = failed
 
     def succeeded(self, username):
         with self._mutex:

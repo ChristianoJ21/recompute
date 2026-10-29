@@ -3,12 +3,14 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import devicesList from '../../../contracts/examples/devices_list.json'
+import customersList from '../../../contracts/examples/customers_list.json'
+import enquiriesList from '../../../contracts/examples/enquiries_list.json'
 import chainOk from '../../../contracts/examples/events_verify.json'
 import fleetSummary from '../../../contracts/examples/fleet_summary.json'
 import listings from '../../../contracts/examples/listings.json'
 import { App } from '../App'
 import * as client from '../api/client'
-import type { ChainCheck, DeviceSummary, FleetSummary, Listing } from '../api/types'
+import type { ChainCheck, CustomerRow, DeviceSummary, Enquiry, FleetSummary, Listing } from '../api/types'
 import { signIn } from '../test/session'
 
 vi.mock('../api/client', async (importOriginal) => ({
@@ -17,6 +19,8 @@ vi.mock('../api/client', async (importOriginal) => ({
   getFleetSummary: vi.fn(),
   getListings: vi.fn(),
   verifyEvents: vi.fn(),
+  getEnquiries: vi.fn(),
+  getCustomers: vi.fn(),
 }))
 
 const renderFleet = () =>
@@ -34,6 +38,21 @@ describe('fleet page', () => {
     vi.mocked(client.verifyEvents).mockImplementation(async (id) => ({ ...(chainOk as ChainCheck), device_id: id }))
     vi.mocked(client.listDevices).mockResolvedValue(devicesList as DeviceSummary[])
     vi.mocked(client.getFleetSummary).mockResolvedValue(fleetSummary as FleetSummary)
+    vi.mocked(client.getEnquiries).mockResolvedValue([])
+    vi.mocked(client.getCustomers).mockResolvedValue([])
+  })
+
+  it('shows the technicians (the admins) the questions from customers and the customer accounts', async () => {
+    vi.mocked(client.getEnquiries).mockResolvedValue(enquiriesList as Enquiry[])
+    vi.mocked(client.getCustomers).mockResolvedValue(customersList as CustomerRow[])
+    renderFleet()
+
+    const questions = await screen.findByRole('list', { name: 'Questions from customers' })
+    expect(within(questions).getByText('Is the power supply included? (sample)')).toBeTruthy()
+    expect(within(questions).getByRole('link', { name: 'GPU-SRV-001' }).getAttribute('href')).toBe('/device/GPU-SRV-001')
+    expect(within(questions).getByRole('link', { name: 'ana@example.com' }).getAttribute('href')).toMatch(/^mailto:ana@example\.com\?subject=/)
+    const accounts = await screen.findByRole('table', { name: 'Customer accounts' })
+    expect(within(accounts).getByText('Ana (sample)')).toBeTruthy()
   })
 
   it('lists every device with its outcome badge, linked to its passport', async () => {

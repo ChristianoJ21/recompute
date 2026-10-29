@@ -17,8 +17,8 @@
     "reliability_ok": true,
     "latest_outcome": "REDEPLOY",
     "passport_intact": true,
-    "wiped_at": "2026-10-28T18:59:19Z",
-    "listed_at": "2026-10-28T18:59:19Z",
+    "wiped_at": "2026-10-29T12:47:34Z",
+    "listed_at": "2026-10-29T12:47:34Z",
     "price": {
       "amount": 45000000,
       "currency": "IDR"
@@ -27,14 +27,14 @@
     "latest_telemetry": {
       "id": 2,
       "device_id": "GPU-SRV-001",
-      "created_at": "2026-10-28T18:59:19Z",
+      "created_at": "2026-10-29T12:47:34Z",
       "kind": "telemetry",
       "payload": {
         "gpu_temp_c": 61
       },
       "actor": "tech-1",
-      "prev_hash": "fab11b69d2945afd96c6ff4b676f58cb544b95ab356d4b4f97b4aee0878abed8",
-      "hash": "e33c191ced561e323aef1e78e41655dd0970059ce52ddc4bf6af5a22af823745"
+      "prev_hash": "db8d49df4217845489174e27e82db63290151ed74920a0e40e14a4f6b04c6690",
+      "hash": "5cb57c9e8a92dc2dfcba6694133a796c9f0dc640f9016d195f0538e0975d3dea"
     },
     "sample_data": true
   }

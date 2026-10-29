@@ -185,3 +185,49 @@ export interface NewTechnician {
   name: string
   password: string
 }
+
+// ---- customer accounts (contract v2.4) ------------------------------------------------
+
+export interface Customer {
+  email: string
+  name: string
+}
+
+/** The answer of POST /customers/signup and /customers/login; kept apart from the technician login. */
+export interface CustomerSession {
+  token: string
+  token_type: string
+  expires_at: string
+  customer: Customer
+}
+
+export interface NewCustomer {
+  email: string
+  name: string
+  password: string
+}
+
+/** A listed device a customer saved. */
+export interface Favourite {
+  device_id: string
+  saved_at: string
+}
+
+export interface NewEnquiry {
+  device_id: string
+  message: string
+}
+
+/** A customer's question about a device; the technicians reply by e-mail. */
+export interface Enquiry extends NewEnquiry {
+  id: number
+  created_at: string
+  customer: Customer
+}
+
+/** One row of GET /customers (technicians only). */
+export interface CustomerRow extends Customer {
+  created_at: string
+  favourites: number
+  enquiries: number
+}

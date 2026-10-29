@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router'
-import type { Session } from '../api/types'
+import type { CustomerSession, Session } from '../api/types'
+import { useCustomer } from '../lib/session'
 import { THEMES, setTheme, useTheme, type Theme } from '../lib/theme'
 import { LogoMark } from './icons'
 import { initials } from './ui'
@@ -21,6 +22,7 @@ const PUBLIC_PAGES: Page[] = [
   { to: '/market', label: 'Market' },
 ]
 const TECHNICIAN_PAGES: Page[] = [{ to: '/fleet', label: 'Fleet' }]
+const CUSTOMER_PAGES: Page[] = [{ to: '/account', label: 'My account' }]
 /** Drawer only: forms reached from the fleet dashboard. */
 const TECHNICIAN_ACTIONS: Page[] = [
   { to: '/devices/new', label: 'Add device' },
@@ -31,6 +33,9 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
   `inline-flex min-h-10 items-center rounded-full px-3.5 text-sm font-semibold whitespace-nowrap no-underline transition-colors duration-150 ${
     isActive ? 'bg-night-accent/15 text-white' : 'text-night-fg2 hover:bg-white/8 hover:text-white'
   }`
+
+/** On these pages the header's login link would point at the page itself. */
+const LOGIN_PATHS = ['/login', '/account/login', '/signup']
 
 const roundButton =
   'inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-transparent text-night-fg transition-colors duration-150 hover:bg-white/8'
@@ -48,7 +53,8 @@ export function Header({ session, onLogOut }: HeaderProps) {
   const buttonRef = useRef<HTMLButtonElement>(null)
   const theme = useTheme()
   const dark = isDark(theme)
-  const pages = session ? [...PUBLIC_PAGES, ...TECHNICIAN_PAGES] : PUBLIC_PAGES
+  const customer = useCustomer()
+  const pages = session ? [...PUBLIC_PAGES, ...TECHNICIAN_PAGES] : customer ? [...PUBLIC_PAGES, ...CUSTOMER_PAGES] : PUBLIC_PAGES
 
   const close = (refocus = false) => {
     setOpenOn(null)
@@ -109,22 +115,16 @@ export function Header({ session, onLogOut }: HeaderProps) {
             <span aria-hidden>{dark ? '☀' : '☾'}</span>
           </button>
           {session ? (
-            <Link
-              to="/settings"
-              className="hidden min-h-11 items-center gap-2.5 rounded-full border border-white/15 py-0 pr-3.5 pl-[5px] text-sm font-semibold whitespace-nowrap text-white no-underline hover:bg-white/5 min-[1120px]:inline-flex"
-            >
-              <span aria-hidden className="flex size-[34px] items-center justify-center rounded-full bg-night-accent font-mono text-xs font-extrabold text-night">
-                {initials(session.technician.name)}
-              </span>
-              {session.technician.name.replace(/\s*\(.*?\)/g, '')}
-            </Link>
+            <AccountChip to="/settings" name={session.technician.name} />
+          ) : customer ? (
+            <AccountChip to="/account" name={customer.customer.name} />
           ) : (
-            location.pathname !== '/login' && (
+            !LOGIN_PATHS.includes(location.pathname) && (
               <Link
-                to="/login"
+                to="/account/login"
                 className="hidden min-h-11 items-center gap-2 rounded-full border border-white/20 px-4 text-sm font-semibold whitespace-nowrap text-white no-underline transition-colors duration-150 hover:border-night-accent hover:bg-night-accent/10 min-[1120px]:inline-flex"
               >
-                Technician login
+                Log in
                 <span aria-hidden>→</span>
               </Link>
             )
@@ -147,6 +147,7 @@ export function Header({ session, onLogOut }: HeaderProps) {
       {open && (
         <Drawer
           session={session}
+          customer={customer}
           pages={session ? [...pages, ...TECHNICIAN_ACTIONS] : pages}
           theme={theme}
           onClose={close}
@@ -162,13 +163,14 @@ const THEME_SHORT: Record<Theme, string> = { light: 'Light', dark: 'Dark', syste
 
 interface DrawerProps {
   session: Session | null
+  customer: CustomerSession | null
   pages: Page[]
   theme: Theme
   onClose: (refocus?: boolean) => void
   onLogOut: () => void
 }
 
-function Drawer({ session, pages, theme, onClose, onLogOut }: DrawerProps) {
+function Drawer({ session, customer, pages, theme, onClose, onLogOut }: DrawerProps) {
   const accountRow =
     'flex min-h-[60px] flex-col justify-center rounded-xl px-3.5 py-1.5 text-left text-white no-underline hover:bg-white/6'
   return (
@@ -230,26 +232,30 @@ function Drawer({ session, pages, theme, onClose, onLogOut }: DrawerProps) {
         <div className="mt-auto flex flex-col gap-1 border-t border-night-line p-3">
           <span className={`${drawerLabel} px-3.5 py-1.5`}>ACCOUNT</span>
           {session ? (
-            <div className="flex items-center gap-3 px-3.5 pt-1.5 pb-2.5">
-              <span aria-hidden className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-night-accent font-mono text-sm font-extrabold text-night">
-                {initials(session.technician.name)}
-              </span>
-              <span className="flex min-w-0 flex-col">
-                <span className="text-[15px] font-bold">{session.technician.name}</span>
-                <span className="font-mono text-xs text-night-fg2">{session.technician.username} · Technician</span>
-              </span>
-            </div>
+            <AccountCard name={session.technician.name} detail={`${session.technician.username} · Technician (admin)`} />
+          ) : customer ? (
+            <AccountCard name={customer.customer.name} detail={`${customer.customer.email} · Customer`} />
           ) : (
-            <Link to="/login" onClick={() => onClose()} className={accountRow}>
-              <span className="text-base font-semibold">Technician login</span>
-              <span className="text-[13px] text-night-fg2">Staff only. There is no sign-up.</span>
-            </Link>
+            <>
+              <Link to="/account/login" onClick={() => onClose()} className={accountRow}>
+                <span className="text-base font-semibold">Customer login</span>
+                <span className="text-[13px] text-night-fg2">Save devices and ask the data centre about them</span>
+              </Link>
+              <Link to="/signup" onClick={() => onClose()} className={accountRow}>
+                <span className="text-base font-semibold">Create an account</span>
+                <span className="text-[13px] text-night-fg2">For buyers. No checkout: prices are sample values</span>
+              </Link>
+              <Link to="/login" onClick={() => onClose()} className={accountRow}>
+                <span className="text-base font-semibold">Technician login</span>
+                <span className="text-[13px] text-night-fg2">Staff only. An admin creates staff accounts.</span>
+              </Link>
+            </>
           )}
           <Link to="/settings" onClick={() => onClose()} className={accountRow}>
             <span className="text-base font-semibold">Settings</span>
             <span className="text-[13px] text-night-fg2">{session ? 'Profile, password, appearance' : 'Appearance'}</span>
           </Link>
-          {session && (
+          {(session || customer) && (
             <button
               type="button"
               onClick={() => {
@@ -265,5 +271,34 @@ function Drawer({ session, pages, theme, onClose, onLogOut }: DrawerProps) {
         </div>
       </nav>
     </>
+  )
+}
+
+const chipClass =
+  'hidden min-h-11 items-center gap-2.5 rounded-full border border-white/15 py-0 pr-3.5 pl-[5px] text-sm font-semibold whitespace-nowrap text-white no-underline hover:bg-white/5 min-[1120px]:inline-flex'
+
+/** The logged-in person in the header: technicians open Settings, customers My account. */
+function AccountChip({ to, name }: { to: string; name: string }) {
+  return (
+    <Link to={to} className={chipClass}>
+      <span aria-hidden className="flex size-[34px] items-center justify-center rounded-full bg-night-accent font-mono text-xs font-extrabold text-night">
+        {initials(name)}
+      </span>
+      {name.replace(/\s*\(.*?\)/g, '')}
+    </Link>
+  )
+}
+
+function AccountCard({ name, detail }: { name: string; detail: string }) {
+  return (
+    <div className="flex items-center gap-3 px-3.5 pt-1.5 pb-2.5">
+      <span aria-hidden className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-night-accent font-mono text-sm font-extrabold text-night">
+        {initials(name)}
+      </span>
+      <span className="flex min-w-0 flex-col">
+        <span className="text-[15px] font-bold">{name}</span>
+        <span className="font-mono text-xs break-all text-night-fg2">{detail}</span>
+      </span>
+    </div>
   )
 }

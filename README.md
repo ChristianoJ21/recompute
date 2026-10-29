@@ -40,7 +40,7 @@ Pages: **public** (no login) `/` Home, `/hardware` Available hardware (listed de
 
 ### Technician accounts
 
-There is no public sign-up and there are no buyer accounts (buyers use the contact box / "Ask about this device" e-mail link). Make the **first** technician in `backend/`: `py -m tools.create_technician tech-1 "Technician One"` (asks for a password, min. 10 characters). After that, a logged-in technician adds colleagues on the Fleet dashboard → "+ Add technician". The seed and telemetry scripts log in with a technician account through env vars.
+There is no public sign-up for technicians: they are the admins. **Customer accounts (contract v2.4)** are separate: buyers sign up at `/signup` (or log in at `/account/login`), save listed devices, ask questions from a passport and see both on `/account`; technicians read the questions and the customer list on the Fleet dashboard. Customers never write passport data and there is still no buy button. Visitors without an account keep the contact box / "Ask about this device" e-mail link. Make the **first** technician in `backend/`: `py -m tools.create_technician tech-1 "Technician One"` (asks for a password, min. 10 characters). After that, a logged-in technician adds colleagues on the Fleet dashboard → "+ Add technician". The seed and telemetry scripts log in with a technician account through env vars.
 
 Load the sample fleet from the repo root (backend running):
 

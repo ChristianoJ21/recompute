@@ -1,4 +1,7 @@
-"""Passport data model (PRD Section 6). Events are append-only: no UPDATE or DELETE anywhere."""
+"""Passport data model (PRD Section 6). Events are append-only: no UPDATE or DELETE anywhere.
+
+Customer accounts (contract v2.4) live in their own tables: nothing a customer does enters a passport.
+"""
 from datetime import date, datetime, timezone
 
 from sqlalchemy import JSON, Boolean, Date, DateTime, ForeignKey, Integer, String, UniqueConstraint, create_engine, text
@@ -106,6 +109,44 @@ class Technician(Base):
 
     def to_dict(self):
         return {"username": self.username, "name": self.name}
+
+
+class Customer(Base):
+    """A buyer's account (contract v2.4): public sign-up; customers read passports, save devices and ask questions."""
+    __tablename__ = "customers"
+
+    email: Mapped[str] = mapped_column(String(254), primary_key=True)  # stored lower-case
+    name: Mapped[str] = mapped_column(String(200))
+    password_hash: Mapped[str] = mapped_column(String(300))  # salted scrypt, see api/auth.py
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    def to_dict(self):
+        return {"email": self.email, "name": self.name}
+
+
+class Favourite(Base):
+    """A listed device a customer saved. The customer's own list, so it can be removed (unlike passport events)."""
+    __tablename__ = "favourites"
+    __table_args__ = (UniqueConstraint("customer_email", "device_id", name="uq_favourite"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    customer_email: Mapped[str] = mapped_column(ForeignKey("customers.email"), index=True)
+    device_id: Mapped[str] = mapped_column(ForeignKey("devices.id"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    def to_dict(self):
+        return {"device_id": self.device_id, "saved_at": iso(self.created_at)}
+
+
+class Enquiry(Base):
+    """A customer's question about a device, read by the technicians on the fleet dashboard."""
+    __tablename__ = "enquiries"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    customer_email: Mapped[str] = mapped_column(ForeignKey("customers.email"), index=True)
+    device_id: Mapped[str] = mapped_column(ForeignKey("devices.id"), index=True)
+    message: Mapped[str] = mapped_column(String(2000))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
 def make_session_factory(url):
