@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import detail from '../../../contracts/examples/device_detail.json'
@@ -7,6 +8,7 @@ import listings from '../../../contracts/examples/listings.json'
 import { App } from '../App'
 import * as client from '../api/client'
 import type { ChainCheck, DeviceDetail, Listing } from '../api/types'
+import { allowMotion } from '../test/motion'
 
 vi.mock('../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api/client')>()),
@@ -34,6 +36,27 @@ describe('home page', () => {
     vi.mocked(client.getListings).mockReset().mockResolvedValue([LISTING])
     vi.mocked(client.getDevice).mockReset().mockResolvedValue(DETAIL)
     vi.mocked(client.verifyEvents).mockReset().mockResolvedValue(VALID)
+  })
+
+  it('plays the intro on the first visit of a browser session, and not again', async () => {
+    const motion = allowMotion()
+    try {
+      const first = renderHome()
+      await userEvent.setup().click(screen.getByRole('button', { name: 'Skip intro' }))
+      expect(screen.queryByRole('button', { name: 'Skip intro' })).toBeNull()
+      first.unmount()
+
+      renderHome()
+      expect(screen.queryByRole('button', { name: 'Skip intro' })).toBeNull()
+    } finally {
+      motion.mockRestore()
+    }
+  })
+
+  it('never plays the intro for a visitor who asked for less motion', () => {
+    renderHome()
+
+    expect(screen.queryByRole('button', { name: 'Skip intro' })).toBeNull()
   })
 
   it('keeps the headline and the three steps of how ReCompute works', async () => {

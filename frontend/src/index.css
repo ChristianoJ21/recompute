@@ -204,6 +204,15 @@
   mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, #000 30%, transparent 80%);
 }
 
+/* Home intro (components/HomeIntro.tsx): plain keyframes, timed per element with inline animation delays. */
+@keyframes rc-intro-dot { from { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); } to { opacity: 1; transform: none; } }
+@keyframes rc-intro-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes rc-intro-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rc-intro-dim { to { opacity: 0.2; } }
+@keyframes rc-intro-rise { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes rc-intro-recede { to { opacity: 0; transform: translateY(-28px) scale(0.94); } }
+@keyframes rc-intro-out { to { opacity: 0; visibility: hidden; } }
+
 /* Visitors who asked for less motion get the final state at once. */
 @media (prefers-reduced-motion: reduce) {
   *,
