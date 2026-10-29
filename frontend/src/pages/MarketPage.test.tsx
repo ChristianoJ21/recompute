@@ -69,3 +69,16 @@ describe('forecast charts', () => {
     expect(screen.getByText(/Waiting for verified figures/)).toBeTruthy()
   })
 })
+
+describe('mock market data (dev server only)', () => {
+  it('draws mock points without evidence rows, under a MOCK DATA banner', () => {
+    render(<ForecastCharts mock points={[point(2024, 10, 'actual', { evidence_row: 'MOCK' }), point(2025, 12, 'forecast', { evidence_row: 'MOCK' })]} />)
+
+    expect(screen.getAllByRole('img')).toHaveLength(1)
+    expect(screen.getByText(/MOCK DATA/)).toBeTruthy()
+  })
+
+  it('stays off in tests and production builds, so the market page shows no numbers there', () => {
+    expect(import.meta.env.VITE_MARKET_MOCK).toBeUndefined()
+  })
+})
