@@ -38,9 +38,9 @@ export function useLiveDevice(id: string | null): DeviceDetail | null {
 }
 
 const TILES = [
-  { key: 'utilization_pct', label: 'UTIL', unit: ' %', colour: '#7BE0A4' },
-  { key: 'power_w', label: 'POWER', unit: ' W', colour: '#C6EA8A' },
-  { key: 'inlet_temp_c', label: 'INLET', unit: ' °C', colour: '#6FD3C0' },
+  { key: 'utilization_pct', label: 'UTIL', unit: ' %', colour: '#9CCFAE' },
+  { key: 'power_w', label: 'POWER', unit: ' W', colour: '#C2CF9A' },
+  { key: 'inlet_temp_c', label: 'INLET', unit: ' °C', colour: '#9BC7BE' },
 ] as const
 
 const mono = 'font-mono text-[11px] tracking-[.08em] text-night-fg3'
@@ -69,11 +69,12 @@ export function LivePassportCard({ listing, detail }: LivePassportCardProps) {
   return (
     <div onMouseMove={onMove} onMouseLeave={() => setTilt([0, 0])} className="[perspective:1200px]">
       <section
+        data-theme="dark"
         aria-label={`Live passport of ${listing.device_id}`}
         className="relative overflow-hidden rounded-[20px] border border-night-line bg-[linear-gradient(160deg,#16382A,#0B2116)] shadow-hero-card transition-transform duration-200 ease-out"
         style={{ transform: `rotateX(${(-tilt[1] * 6).toFixed(2)}deg) rotateY(${(tilt[0] * 8).toFixed(2)}deg)` }}
       >
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 z-[2] h-20 animate-sweep bg-[linear-gradient(transparent,rgba(123,224,164,.10)_85%,rgba(123,224,164,.5))]" />
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 z-[2] h-20 animate-sweep bg-[linear-gradient(transparent,rgba(156,207,174,.08)_85%,rgba(156,207,174,.35))]" />
         <div className="flex flex-wrap items-center gap-2.5 border-b border-night-line px-5 py-4">
           <span className="font-mono text-[15px] font-bold text-white">{listing.device_id}</span>
           <OutcomeBadge outcome={listing.latest_outcome} />

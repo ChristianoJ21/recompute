@@ -11,7 +11,7 @@ const card = 'flex w-full flex-col gap-5 rounded-[24px] border border-line bg-su
 export function AccountShell({ title, intro, children }: { title: string; intro: string; children: ReactNode }) {
   return (
     <>
-      <section data-theme="dark" className="relative overflow-hidden bg-night text-night-fg">
+      <section data-band className="relative overflow-hidden bg-night text-night-fg">
         <NightBackdrop />
         <div className={`${container} relative flex flex-col items-center gap-4 pt-[clamp(32px,4vw,56px)] pb-[clamp(100px,10vw,150px)] text-center`}>
           <h1 className="text-[clamp(36px,4.6vw,72px)] leading-none font-[750] tracking-[-.045em] text-white">{title}</h1>

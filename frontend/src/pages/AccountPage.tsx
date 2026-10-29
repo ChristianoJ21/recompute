@@ -39,7 +39,7 @@ export function AccountPage() {
   if (!customer) return null
   return (
     <>
-      <section data-theme="dark" className="relative overflow-hidden bg-night text-night-fg">
+      <section data-band className="relative overflow-hidden bg-night text-night-fg">
         <NightBackdrop />
         <div className={`${container} relative flex flex-wrap items-end justify-between gap-x-10 gap-y-5 pt-[clamp(32px,4vw,56px)] pb-[clamp(36px,4vw,56px)]`}>
           <div className="flex flex-col gap-3.5">
