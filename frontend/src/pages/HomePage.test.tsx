@@ -67,12 +67,12 @@ describe('home page', () => {
     expect(within(steps).getAllByRole('listitem')).toHaveLength(3)
   })
 
-  it('teases the released devices with their sample price, linking to the hardware page', async () => {
+  it('teases the released devices with their sample price, each linking to its passport', async () => {
     renderHome()
 
     const released = await screen.findByRole('list', { name: 'Released devices' })
     const link = within(released).getByRole('link', { name: /GPU-SRV-001/ })
-    expect(link.getAttribute('href')).toBe('/hardware')
+    expect(link.getAttribute('href')).toBe('/device/GPU-SRV-001')
     expect(within(link).getByText(/IDR\s45,000,000/)).toBeTruthy()
     expect(screen.getByRole('link', { name: 'See available hardware →' }).getAttribute('href')).toBe('/hardware')
   })

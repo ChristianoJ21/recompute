@@ -1,13 +1,13 @@
-import { useEffect, useState, type MouseEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { getDevice } from '../api/client'
 import type { DeviceDetail, Listing } from '../api/types'
 import { usePassportCheck } from '../lib/passportCheck'
 import { telemetrySeries } from '../lib/telemetry'
-import { prefersReducedMotion } from '../lib/theme'
 import { IntegrityBadge } from './IntegrityBadge'
 import { OutcomeBadge } from './OutcomeBadge'
 import { eventLabel } from './PassportHistory'
 import { Sparkline } from './Sparkline'
+import { LiveDot } from './ui'
 
 /** The card re-reads the passport this often, so readings logged by the telemetry agent appear by themselves. */
 export const LIVE_REFRESH_MS = 15000
@@ -38,12 +38,10 @@ export function useLiveDevice(id: string | null): DeviceDetail | null {
 }
 
 const TILES = [
-  { key: 'utilization_pct', label: 'UTIL', unit: ' %', colour: '#9CCFAE' },
-  { key: 'power_w', label: 'POWER', unit: ' W', colour: '#C2CF9A' },
-  { key: 'inlet_temp_c', label: 'INLET', unit: ' °C', colour: '#9BC7BE' },
+  { key: 'utilization_pct', label: 'UTIL', unit: ' %', colour: 'var(--color-accent-fill)' },
+  { key: 'power_w', label: 'POWER', unit: ' W', colour: 'var(--color-copper)' },
+  { key: 'inlet_temp_c', label: 'INLET', unit: ' °C', colour: 'var(--color-ink-2)' },
 ] as const
-
-const mono = 'font-mono text-[11px] tracking-[.08em] text-night-fg3'
 
 interface LivePassportCardProps {
   listing: Listing
@@ -51,89 +49,83 @@ interface LivePassportCardProps {
 }
 
 /**
- * Hero card on the home page: the newest real events and sample telemetry of one released device.
+ * Card on the home page: the newest real events and sample telemetry of one released device, taped to the page.
  * "Passport intact" and the ✔ links appear only after GET /events/verify says the chain is valid.
  */
 export function LivePassportCard({ listing, detail }: LivePassportCardProps) {
   const events = detail?.events ?? []
   const check = usePassportCheck(listing.device_id, events)
   const newestFirst = [...events].sort((a, b) => b.id - a.id)
-  const [tilt, setTilt] = useState<[number, number]>([0, 0])
-
-  const onMove = (event: MouseEvent<HTMLDivElement>) => {
-    if (prefersReducedMotion()) return
-    const box = event.currentTarget.getBoundingClientRect()
-    setTilt([(event.clientX - box.left) / box.width - 0.5, (event.clientY - box.top) / box.height - 0.5])
-  }
 
   return (
-    <div onMouseMove={onMove} onMouseLeave={() => setTilt([0, 0])} className="[perspective:1200px]">
-      <section
-        data-theme="dark"
-        aria-label={`Live passport of ${listing.device_id}`}
-        className="relative overflow-hidden rounded-[20px] border border-night-line bg-[linear-gradient(160deg,#16382A,#0B2116)] shadow-hero-card transition-transform duration-200 ease-out"
-        style={{ transform: `rotateX(${(-tilt[1] * 6).toFixed(2)}deg) rotateY(${(tilt[0] * 8).toFixed(2)}deg)` }}
+    <section
+      data-reveal="1"
+      aria-label={`Live passport of ${listing.device_id}`}
+      className="relative min-w-0 -rotate-[.6deg] rounded-[28px] bg-surface p-[clamp(18px,2.4vw,28px)] shadow-float"
+    >
+      <span aria-hidden className="rc-tape" />
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2.5">
+        <span className="font-mono text-[22px] leading-none font-extrabold tracking-[-.01em]">{listing.device_id}</span>
+        <OutcomeBadge outcome={listing.latest_outcome} size="md" tilt />
+        <span className="ml-auto">
+          <IntegrityBadge integrity={check.integrity} live />
+        </span>
+      </div>
+      <div data-draw="1" className="mt-5 grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3">
+        {TILES.map((tile) => {
+          const series = telemetrySeries(events, tile.key)
+          const latest = series.at(-1)
+          return (
+            <div key={tile.key} className="flex min-w-0 flex-col gap-1.5 rounded-[18px] bg-sunken px-3.5 pt-3.5 pb-2.5">
+              <span className="text-xs leading-none font-bold tracking-[.16em] text-ink-2">{tile.label}</span>
+              <span className="font-display text-[32px] leading-none font-extrabold tabular-nums">
+                {latest === undefined ? '—' : `${latest}${tile.unit}`}
+              </span>
+              <Sparkline values={series} colour={tile.colour} height={34} draw />
+            </div>
+          )
+        })}
+      </div>
+      <div className="mx-0.5 mt-[22px] mb-2.5 flex items-baseline justify-between gap-3">
+        <span className="inline-flex items-center gap-2 text-xs leading-none font-bold tracking-[.16em] text-ink-2">
+          <LiveDot />
+          PASSPORT HISTORY · LIVE
+        </span>
+        <span className="rc-hand text-lg leading-none">hash-linked</span>
+      </div>
+      <ol
+        aria-label={`Newest events of ${listing.device_id}`}
+        className="flex flex-col gap-2 [mask-image:linear-gradient(to_bottom,#000_72%,transparent)]"
       >
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 z-[2] h-20 animate-sweep bg-[linear-gradient(transparent,rgba(156,207,174,.08)_85%,rgba(156,207,174,.35))]" />
-        <div className="flex flex-wrap items-center gap-2.5 border-b border-night-line px-5 py-4">
-          <span className="font-mono text-[15px] font-bold text-white">{listing.device_id}</span>
-          <OutcomeBadge outcome={listing.latest_outcome} />
-          <span className="ml-auto">
-            <IntegrityBadge integrity={check.integrity} live />
-          </span>
-        </div>
-        <div className="grid grid-cols-3 gap-2.5 px-5 py-[18px]">
-          {TILES.map((tile) => {
-            const series = telemetrySeries(events, tile.key)
-            const latest = series.at(-1)
-            return (
-              <div key={tile.key} className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-night-line bg-white/3 p-3">
-                <span className={mono}>{tile.label}</span>
-                <span className="text-[clamp(18px,1.8vw,26px)] font-bold tracking-[-.02em] whitespace-nowrap text-white tabular-nums">
-                  {latest === undefined ? '—' : `${latest}${tile.unit}`}
-                </span>
-                <Sparkline values={series} colour={tile.colour} height={32} />
-              </div>
-            )
-          })}
-        </div>
-        <div className="flex flex-col gap-2.5 px-5 pb-5">
-          <div className="flex items-baseline justify-between">
-            <span className={`${mono} tracking-[.1em]`}>PASSPORT HISTORY · LIVE</span>
-            <span className="font-mono text-[11px] text-night-ok">hash-linked</span>
-          </div>
-          <ol
-            aria-label={`Newest events of ${listing.device_id}`}
-            className="flex h-[228px] flex-col gap-1.5 overflow-hidden [mask-image:linear-gradient(#000_70%,transparent)]"
-          >
-            {newestFirst.slice(0, FEED_LENGTH).map((event, i) => {
-              const link = check.linkState(event)
-              const previous = newestFirst[i + 1]?.id
-              const hash = event.hash ? `${event.hash.slice(0, 4)}…${event.hash.slice(-2)}` : ''
-              return (
-                <li
-                  key={event.id}
-                  className={`grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[10px] border px-3 py-[9px] font-mono text-xs ${
-                    i === 0 ? 'animate-in border-night-accent/35 bg-night-accent/10' : 'border-night-line bg-white/[.025]'
-                  }`}
-                >
-                  <span className="font-bold text-night-accent">#{event.id}</span>
-                  <span className="truncate text-night-fg">
-                    <span>{eventLabel(event.kind)}</span>
-                    <span className="text-night-fg3">{`  ${hash}`}</span>
-                  </span>
-                  <span className="whitespace-nowrap">
-                    {link === 'verified' && (
-                      <span className="text-night-ok">{previous === undefined ? '✔ first' : `✔ → #${previous}`}</span>
-                    )}
-                    {link === 'bad' && <span className="text-danger">✘ changed</span>}
-                  </span>
-                </li>
-              )
-            })}
-          </ol>
-        </div>
-      </section>
-    </div>
+        {newestFirst.slice(0, FEED_LENGTH).map((event, i) => {
+          const link = check.linkState(event)
+          const previous = newestFirst[i + 1]?.id
+          const hash = event.hash ? `${event.hash.slice(0, 4)}…${event.hash.slice(-2)}` : ''
+          return (
+            <li
+              key={event.id}
+              className={`grid grid-cols-[56px_minmax(0,1fr)_auto] items-center gap-3 rounded-[14px] bg-sunken px-3.5 py-[11px] font-mono text-[15px] leading-[1.3] ${
+                i === 0 ? 'animate-in' : ''
+              }`}
+            >
+              <b className="text-accent">#{event.id}</b>
+              <span className="truncate">
+                <span>{eventLabel(event.kind)}</span>
+                <span className="text-ink-2">{`  ${hash}`}</span>
+              </span>
+              <span className="whitespace-nowrap text-ink-2">
+                {link === 'verified' && (
+                  <>
+                    {previous === undefined ? '✔ first' : '✔ → '}
+                    {previous !== undefined && <b className="text-ink">#{previous}</b>}
+                  </>
+                )}
+                {link === 'bad' && <span className="font-bold text-danger">✘ changed</span>}
+              </span>
+            </li>
+          )
+        })}
+      </ol>
+    </section>
   )
 }
