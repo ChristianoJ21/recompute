@@ -1,0 +1,25 @@
+# Render Blueprint: the hosted ReCompute backend (PRD 15.6). Free plan: no persistent disk, so every
+# new container rebuilds the SAMPLE DATA demo database (tools/boot_demo.py) before the API starts.
+# The service sleeps after 15 min without traffic and takes about a minute to wake.
+services:
+  - type: web
+    name: recompute-gyebc-api
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && python -m tools.boot_demo && uvicorn api.main:create_app --factory --host 0.0.0.0 --port $PORT
+    healthCheckPath: /listings
+    envVars:
+      - key: RECOMPUTE_SECRET_KEY
+        generateValue: true
+      - key: RECOMPUTE_DB_URL
+        value: sqlite:////tmp/recompute.db
+      # https://<vercel-app>/device/{device_id}, so printed QR codes open the hosted passport page
+      - key: RECOMPUTE_FRONTEND_URL
+        sync: false
+      # Hosted demo logins: values only in the gitignored demo_accounts.hosted.local.txt
+      - key: RECOMPUTE_DEMO_PASSWORD_TECH_1
+        sync: false
+      - key: RECOMPUTE_DEMO_PASSWORD_TECH_2
+        sync: false

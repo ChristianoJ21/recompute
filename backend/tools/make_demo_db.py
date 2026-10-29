@@ -73,15 +73,19 @@ def load_sample_data(client, fleet, seed):
             client.post(f"{path}/events", json={"kind": "telemetry", "payload": reading(rng)}).raise_for_status()
 
 
-def build_demo_db(db, accounts_file, seed=42):
-    db, accounts_file = Path(db), Path(accounts_file)
+def build_demo_db(db, accounts_file=None, seed=42, passwords=None):
+    """Random passwords written to accounts_file, or the given {username: password} (hosted: from env, no file)."""
+    db = Path(db)
     backup = backup_existing(db)
     app = create_app(database_url=f"sqlite:///{db.as_posix()}", secret_key=secrets.token_urlsafe(32))
-    accounts = [(username, secrets.token_urlsafe(12), name) for username, name in DEMO_TECHNICIANS]
+    passwords = passwords or {}
+    accounts = [(username, passwords.get(username) or secrets.token_urlsafe(12), name)
+                for username, name in DEMO_TECHNICIANS]
     with app.state.session_factory() as session:
         for username, password, name in accounts:
             create_technician(session, username, name, password)
-    write_accounts(accounts_file, accounts)
+    if accounts_file:
+        write_accounts(Path(accounts_file), accounts)
 
     client = TestClient(app)
     token = client.post("/auth/login", json={"username": accounts[0][0], "password": accounts[0][1]}).json()["token"]
