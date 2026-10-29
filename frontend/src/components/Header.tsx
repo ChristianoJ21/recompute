@@ -1,20 +1,39 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router'
 import type { Session } from '../api/types'
-import { THEME_LABEL, useTheme } from '../lib/theme'
-import { LogoMark, SampleIcon } from './icons'
-import { container, initials } from './ui'
+import { THEMES, setTheme, useTheme, type Theme } from '../lib/theme'
+import { LogoMark } from './icons'
+import { initials } from './ui'
 
 interface HeaderProps {
   session: Session | null
   onLogOut: () => void
 }
 
+interface Page {
+  to: string
+  label: string
+}
+
+const PUBLIC_PAGES: Page[] = [
+  { to: '/', label: 'Home' },
+  { to: '/hardware', label: 'Available hardware' },
+  { to: '/market', label: 'Market' },
+]
+const TECHNICIAN_PAGES: Page[] = [{ to: '/fleet', label: 'Fleet' }]
+
 const navClass = ({ isActive }: { isActive: boolean }) =>
-  `inline-flex min-h-[52px] items-center px-3 text-sm font-semibold ${
-    isActive ? 'text-ink shadow-[inset_0_-2px_0_var(--color-accent)]' : 'text-ink-2 hover:text-ink'
+  `inline-flex min-h-10 items-center rounded-full px-3.5 text-sm font-semibold whitespace-nowrap no-underline transition-colors duration-150 ${
+    isActive ? 'bg-night-accent/15 text-white' : 'text-night-fg2 hover:bg-white/8 hover:text-white'
   }`
 
+const roundButton =
+  'inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-transparent text-night-fg transition-colors duration-150 hover:bg-white/8'
+
+const isDark = (theme: Theme) =>
+  theme === 'dark' || (theme === 'system' && (window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false))
+
+/** v3 header: always dark glass, sticky; ☰ opens a drawer from the right. */
 export function Header({ session, onLogOut }: HeaderProps) {
   const location = useLocation()
   // The menu belongs to the page it was opened on, so it closes by itself on navigation.
@@ -22,7 +41,14 @@ export function Header({ session, onLogOut }: HeaderProps) {
   const open = openOn === location.pathname
   const headerRef = useRef<HTMLElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const close = () => setOpenOn(null)
+  const theme = useTheme()
+  const dark = isDark(theme)
+  const pages = session ? [...PUBLIC_PAGES, ...TECHNICIAN_PAGES] : PUBLIC_PAGES
+
+  const close = (refocus = false) => {
+    setOpenOn(null)
+    if (refocus) buttonRef.current?.focus()
+  }
 
   useEffect(() => {
     if (!open) return
@@ -43,185 +69,194 @@ export function Header({ session, onLogOut }: HeaderProps) {
   }, [open])
 
   return (
-    <header ref={headerRef} className="relative z-20 border-b border-line bg-surface">
-      <UtilityBar session={session} onLogOut={onLogOut} onLogin={location.pathname === '/login'} />
-      <div className={`${container} relative flex min-h-[60px] items-center gap-6`}>
-        <Link to="/" className="inline-flex min-h-14 shrink-0 items-center gap-2.5 text-ink no-underline">
+    <header
+      ref={headerRef}
+      data-theme="dark"
+      className="sticky top-0 z-40 border-b border-white/8 bg-night/80 text-night-fg backdrop-blur-[14px] backdrop-saturate-[1.4]"
+    >
+      <div className="flex min-h-[68px] items-center gap-[clamp(16px,3vw,40px)] px-[clamp(20px,4vw,72px)]">
+        <Link to="/" className="inline-flex min-h-11 shrink-0 items-center gap-2.5 text-white no-underline">
           <LogoMark />
-          <span className="text-lg font-bold tracking-[-.02em]">ReCompute</span>
+          <span className="text-[19px] font-bold tracking-[-.02em]">ReCompute</span>
         </Link>
-        <nav aria-label="Main" className="hidden items-stretch min-[720px]:flex">
-          <NavLink to="/" end className={navClass}>
-            Available hardware
-          </NavLink>
-          <NavLink to="/market" className={navClass}>
-            Market
-          </NavLink>
-          {session && (
-            <NavLink to="/fleet" className={navClass}>
-              Fleet
+        <nav aria-label="Main" className="hidden gap-1 min-[860px]:flex">
+          {pages.map((page) => (
+            <NavLink key={page.to} to={page.to} end className={navClass}>
+              {page.label}
             </NavLink>
-          )}
+          ))}
         </nav>
-        <button
-          ref={buttonRef}
-          type="button"
-          aria-label="Menu"
-          aria-expanded={open}
-          aria-controls="rc-menu"
-          onClick={() => setOpenOn(open ? null : location.pathname)}
-          className={`ml-auto flex size-11 shrink-0 flex-col items-center justify-center gap-1 rounded-ctl border ${
-            open ? 'border-ink bg-ink' : 'border-line-strong bg-surface'
-          }`}
-        >
-          {open ? (
-            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-              <path d="M2 2l12 12M14 2L2 14" className="stroke-surface" strokeWidth="2" />
-            </svg>
+        <div className="ml-auto flex items-center gap-2.5">
+          <span
+            title="All numbers are sample values, not measurements"
+            className="inline-flex items-center rounded-full bg-sample px-[9px] py-[5px] font-mono text-[11px] leading-none font-extrabold tracking-[.1em] whitespace-nowrap text-sample-ink"
+          >
+            SAMPLE DATA
+          </span>
+          <button
+            type="button"
+            onClick={() => setTheme(dark ? 'light' : 'dark')}
+            aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+            className={`${roundButton} text-[17px]`}
+          >
+            <span aria-hidden>{dark ? '☀' : '☾'}</span>
+          </button>
+          {session ? (
+            <Link
+              to="/settings"
+              className="hidden min-h-11 items-center gap-2.5 rounded-full border border-white/15 py-0 pr-3.5 pl-[5px] text-sm font-semibold whitespace-nowrap text-white no-underline hover:bg-white/5 min-[1120px]:inline-flex"
+            >
+              <span aria-hidden className="flex size-[34px] items-center justify-center rounded-full bg-night-accent font-mono text-xs font-extrabold text-night">
+                {initials(session.technician.name)}
+              </span>
+              {session.technician.name.replace(/\s*\(.*?\)/g, '')}
+            </Link>
           ) : (
-            [0, 1, 2].map((bar) => <span key={bar} aria-hidden className="h-0.5 w-[18px] bg-ink" />)
+            location.pathname !== '/login' && (
+              <Link
+                to="/login"
+                className="hidden min-h-11 items-center gap-2 rounded-full border border-white/20 px-4 text-sm font-semibold whitespace-nowrap text-white no-underline transition-colors duration-150 hover:border-night-accent hover:bg-night-accent/10 min-[1120px]:inline-flex"
+              >
+                Technician login
+                <span aria-hidden>→</span>
+              </Link>
+            )
           )}
-        </button>
-        {open && <Menu session={session} onClose={close} onLogOut={onLogOut} />}
+          <button
+            ref={buttonRef}
+            type="button"
+            aria-label="Menu"
+            aria-expanded={open}
+            aria-controls="rc-menu"
+            onClick={() => setOpenOn(open ? null : location.pathname)}
+            className={`${roundButton} flex-col gap-1`}
+          >
+            {[0, 1, 2].map((bar) => (
+              <span key={bar} aria-hidden className="h-0.5 w-4 bg-night-fg" />
+            ))}
+          </button>
+        </div>
       </div>
+      {open && (
+        <Drawer
+          session={session}
+          pages={session ? [...pages, { to: '/technicians/new', label: 'Add technician' }] : pages}
+          theme={theme}
+          onClose={close}
+          onLogOut={onLogOut}
+        />
+      )}
     </header>
   )
 }
 
-interface UtilityBarProps extends HeaderProps {
-  onLogin: boolean
-}
+const drawerLabel = 'font-mono text-[11px] tracking-[.1em] text-night-fg3'
+const THEME_SHORT: Record<Theme, string> = { light: 'Light', dark: 'Dark', system: 'Auto' }
 
-function UtilityBar({ session, onLogOut, onLogin }: UtilityBarProps) {
-  return (
-    <div className="border-b border-bar-line bg-bar text-bar-fg2">
-      <div className={`${container} flex min-h-11 flex-wrap items-center justify-between gap-3 font-mono text-xs`}>
-        <span
-          title="All numbers are sample values, not measurements"
-          className="inline-flex items-center gap-[7px] rounded-ctl bg-sample px-2 py-1 text-[11px] leading-none font-extrabold tracking-[.1em] text-sample-ink"
-        >
-          <SampleIcon />
-          SAMPLE DATA
-        </span>
-        {session ? (
-          <span className="inline-flex items-center gap-2">
-            <span aria-hidden className="size-1.5 bg-[#5FD08A]" />
-            <span>{session.technician.name}</span>
-            <span aria-hidden className="text-bar-fg3">
-              /
-            </span>
-            <button
-              type="button"
-              onClick={onLogOut}
-              className="inline-flex min-h-11 items-center font-semibold text-bar-fg underline underline-offset-[3px]"
-            >
-              Log out
-            </button>
-          </span>
-        ) : (
-          <Link
-            to="/login"
-            className={`inline-flex min-h-11 items-center gap-1.5 font-semibold text-bar-fg no-underline ${
-              onLogin ? 'shadow-[inset_0_-2px_0_var(--color-sample)]' : ''
-            }`}
-          >
-            Technician login
-            <span aria-hidden className="text-bar-fg3">
-              →
-            </span>
-          </Link>
-        )}
-      </div>
-    </div>
-  )
-}
-
-const menuLabel = 'px-4 pt-3 pb-1.5 font-mono text-[11px] font-semibold tracking-[.08em] text-ink-2'
-
-interface MenuProps {
+interface DrawerProps {
   session: Session | null
-  onClose: () => void
+  pages: Page[]
+  theme: Theme
+  onClose: (refocus?: boolean) => void
   onLogOut: () => void
 }
 
-function Menu({ session, onClose, onLogOut }: MenuProps) {
-  const theme = useTheme()
-  const pages = [
-    { to: '/', label: 'Available hardware' },
-    { to: '/market', label: 'Market' },
-    ...(session
-      ? [
-          { to: '/fleet', label: 'Fleet' },
-          { to: '/technicians/new', label: 'Add technician' },
-        ]
-      : []),
-  ]
-  const accountRow = 'flex min-h-[52px] flex-col justify-center border-t border-sunken px-4 py-1.5 text-left text-ink no-underline hover:bg-raised'
-
+function Drawer({ session, pages, theme, onClose, onLogOut }: DrawerProps) {
+  const accountRow =
+    'flex min-h-[60px] flex-col justify-center rounded-xl px-3.5 py-1.5 text-left text-white no-underline hover:bg-white/6'
   return (
-    <nav
-      id="rc-menu"
-      aria-label="Menu"
-      className="absolute top-[calc(100%+1px)] right-[clamp(16px,4vw,40px)] flex w-[min(340px,calc(100vw-32px))] flex-col border border-ink bg-surface text-ink shadow-offset"
-    >
-      <span className={menuLabel}>PAGES</span>
-      {pages.map((page) => (
-        <NavLink
-          key={page.to}
-          to={page.to}
-          end
-          onClick={onClose}
-          className={({ isActive }) =>
-            `flex min-h-12 items-center justify-between gap-3 px-4 text-[15px] font-semibold text-ink no-underline hover:bg-raised ${
-              isActive ? 'bg-raised shadow-[inset_3px_0_0_var(--color-accent)]' : ''
-            }`
-          }
-        >
-          <span>{page.label}</span>
-          <span className="font-mono text-xs font-normal text-ink-3">{page.to}</span>
-        </NavLink>
-      ))}
-      <div className="mt-1.5 flex flex-col border-t border-line">
-        <span className={menuLabel}>ACCOUNT</span>
-        {session && (
-          <div className="flex items-center gap-3 px-4 pt-1.5 pb-3">
-            <span aria-hidden className="flex size-10 shrink-0 items-center justify-center bg-accent font-mono text-sm font-bold text-surface">
-              {initials(session.technician.name)}
-            </span>
-            <span className="flex min-w-0 flex-col">
-              <span className="text-[15px] font-bold">{session.technician.name}</span>
-              <span className="font-mono text-xs text-ink-2">{session.technician.username} · Technician</span>
-            </span>
-          </div>
-        )}
-        {!session && (
-          <Link to="/login" onClick={onClose} className={accountRow}>
-            <span className="text-[15px] font-semibold">Technician login</span>
-            <span className="text-[13px] text-ink-2">Staff only. There is no sign-up.</span>
-          </Link>
-        )}
-        <Link to="/settings" onClick={onClose} className={accountRow}>
-          <span className="text-[15px] font-semibold">Settings</span>
-          <span className="text-[13px] text-ink-2">{session ? 'Profile, password, appearance' : 'Appearance'}</span>
-        </Link>
-        {session && (
-          <button
-            type="button"
-            onClick={() => {
-              onClose()
-              onLogOut()
-            }}
-            className={accountRow}
-          >
-            <span className="text-[15px] font-semibold">Log out</span>
-            <span className="text-[13px] text-ink-2">Ends your login on this device</span>
+    <>
+      <div aria-hidden onClick={() => onClose()} className="fixed inset-0 z-50 bg-[rgba(5,7,10,.55)] backdrop-blur-[3px]" />
+      <nav
+        id="rc-menu"
+        aria-label="Menu"
+        className="fixed inset-y-0 right-0 z-51 flex w-[min(380px,92vw)] animate-drawer flex-col overflow-y-auto border-l border-night-line bg-night-2 text-night-fg shadow-[-30px_0_60px_rgba(0,0,0,.4)]"
+      >
+        <div className="flex items-center justify-between border-b border-night-line px-5 py-4">
+          <span className={`${drawerLabel} text-xs`}>MENU</span>
+          <button type="button" aria-label="Close menu" onClick={() => onClose(true)} className={`${roundButton} border-night-line text-lg`}>
+            <span aria-hidden>✕</span>
           </button>
-        )}
-      </div>
-      <div className="flex justify-between gap-3 border-t border-line bg-raised px-4 py-2.5 font-mono text-xs text-ink-2">
-        <span>Appearance</span>
-        <span className="font-semibold text-ink">{THEME_LABEL[theme]}</span>
-      </div>
-    </nav>
+        </div>
+        <span className={`${drawerLabel} px-[26px] pt-4 pb-1`}>PAGES</span>
+        <div className="flex flex-col px-3 pt-1 pb-3">
+          {pages.map((page) => (
+            <NavLink
+              key={page.to}
+              to={page.to}
+              end
+              onClick={() => onClose()}
+              className={({ isActive }) =>
+                `flex min-h-[54px] items-center justify-between rounded-xl px-3.5 text-[17px] font-semibold text-white no-underline hover:bg-white/6 ${
+                  isActive ? 'bg-night-accent/14' : ''
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  {page.label}
+                  <span className={`font-mono text-xs font-normal ${isActive ? 'text-night-accent' : 'text-night-fg3'}`}>{page.to}</span>
+                </>
+              )}
+            </NavLink>
+          ))}
+        </div>
+        <div className="flex flex-col gap-2.5 border-t border-night-line px-[26px] py-4">
+          <span className={drawerLabel}>APPEARANCE</span>
+          <div role="radiogroup" aria-label="Theme" className="grid grid-cols-3 gap-1 rounded-full border border-night-line bg-night p-1">
+            {THEMES.map((option) => (
+              <button
+                key={option}
+                type="button"
+                role="radio"
+                aria-checked={theme === option}
+                onClick={() => setTheme(option)}
+                className={`min-h-[38px] rounded-full text-[13px] font-semibold transition-colors duration-200 ${
+                  theme === option ? 'bg-night-accent text-night' : 'text-[#C9CCD1] hover:bg-white/6'
+                }`}
+              >
+                {THEME_SHORT[option]}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="mt-auto flex flex-col gap-1 border-t border-night-line p-3">
+          <span className={`${drawerLabel} px-3.5 py-1.5`}>ACCOUNT</span>
+          {session ? (
+            <div className="flex items-center gap-3 px-3.5 pt-1.5 pb-2.5">
+              <span aria-hidden className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-night-accent font-mono text-sm font-extrabold text-night">
+                {initials(session.technician.name)}
+              </span>
+              <span className="flex min-w-0 flex-col">
+                <span className="text-[15px] font-bold">{session.technician.name}</span>
+                <span className="font-mono text-xs text-night-fg2">{session.technician.username} · Technician</span>
+              </span>
+            </div>
+          ) : (
+            <Link to="/login" onClick={() => onClose()} className={accountRow}>
+              <span className="text-base font-semibold">Technician login</span>
+              <span className="text-[13px] text-night-fg2">Staff only. There is no sign-up.</span>
+            </Link>
+          )}
+          <Link to="/settings" onClick={() => onClose()} className={accountRow}>
+            <span className="text-base font-semibold">Settings</span>
+            <span className="text-[13px] text-night-fg2">{session ? 'Profile, password, appearance' : 'Appearance'}</span>
+          </Link>
+          {session && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose()
+                onLogOut()
+              }}
+              className={accountRow}
+            >
+              <span className="text-base font-semibold">Log out</span>
+              <span className="text-[13px] text-night-fg2">Ends your login on this device</span>
+            </button>
+          )}
+        </div>
+      </nav>
+    </>
   )
 }

@@ -26,7 +26,7 @@ export function WhyPanel({ evaluation, evaluating, error, onEvaluate }: Props) {
   )
 
   return (
-    <Panel title="Why this recommendation" aside={controls} corners>
+    <Panel title="Why this recommendation" eyebrow="01 · DECISION" aside={controls}>
       {error && <ErrorNotice message={error} />}
       {evaluation ? (
         <EvaluationDetails evaluation={evaluation} />
@@ -58,9 +58,9 @@ function EvaluationDetails({ evaluation }: { evaluation: Evaluation }) {
       </div>
       {net_min_kg !== null && net_max_kg !== null && <NetSavingBar min={net_min_kg} max={net_max_kg} />}
       {scenarios && (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-px border border-line bg-line">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-3">
           {SCENARIOS.map(({ key, name, text }) => (
-            <div key={key} className="flex flex-col gap-2 bg-surface px-4 py-3.5">
+            <div key={key} className="flex flex-col gap-2 rounded-2xl border border-line bg-raised p-4">
               <span className={monoLabel}>{name}</span>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <OutcomeBadge outcome={scenarios[key].outcome} />
@@ -131,12 +131,12 @@ function NetSavingBar({ min, max }: { min: number; max: number }) {
         className="relative h-24"
       >
         <div
-          className="absolute top-[26px] left-0 h-3 border border-line"
+          className="absolute top-[26px] left-0 h-3.5 rounded-l-full"
           style={{ width: `${zero}%`, backgroundImage: 'repeating-linear-gradient(135deg, var(--color-sunken) 0 4px, var(--color-surface) 4px 8px)' }}
         />
-        <div className="absolute top-[26px] right-0 h-3 border border-line bg-page" style={at(zero)} />
+        <div className="absolute top-[26px] right-0 h-3.5 rounded-r-full bg-sunken" style={at(zero)} />
         <div
-          className="absolute top-[22px] h-5 min-w-1 bg-accent shadow-[0_6px_14px_-6px_var(--color-accent)] transition-[left,width] duration-1000 ease-draw"
+          className="absolute top-[19px] h-7 min-w-1 rounded-full bg-accent shadow-[0_10px_24px_-8px_var(--color-accent)] transition-[left,width] duration-1000 ease-draw"
           style={{ left: `${ready ? start : zero}%`, width: `${ready ? end - start : 0}%` }}
         />
         <div className="absolute top-3 -ml-px h-10 w-0.5 bg-ink" style={at(zero)} />

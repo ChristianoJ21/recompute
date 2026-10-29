@@ -14,9 +14,9 @@ export function OutcomeBadge({ outcome, size = 'sm' }: OutcomeBadgeProps) {
   return (
     <span
       title={style.meaning}
-      className={`inline-flex shrink-0 items-center gap-[7px] rounded-ctl border font-mono leading-none font-bold tracking-[.04em] whitespace-nowrap ${SIZE[size]} ${style.badge}`}
+      className={`inline-flex shrink-0 items-center gap-[7px] rounded-full border font-mono leading-none font-bold tracking-[.04em] whitespace-nowrap ${SIZE[size]} ${style.badge}`}
     >
-      <span aria-hidden className="size-[7px] shrink-0 bg-current" />
+      <span aria-hidden className="size-[7px] shrink-0 rounded-full bg-current" />
       {style.label}
     </span>
   )

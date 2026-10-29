@@ -60,11 +60,25 @@
   --color-sample: #F2D27A;
   --color-sample-ink: #2E2100;
 
-  --radius-ctl: 2px;
+  /* v3 (docs/design_handoff/v3): inputs and notices 14px, panels 22px, buttons, chips and badges are pills. */
+  --radius-ctl: 14px;
+  --radius-panel: 22px;
+  /* The dark hero bands, header, footer and menu drawer stay dark in both themes. */
+  --color-night: #0B0D10;
+  --color-night-2: #14171C;
+  --color-night-line: #2C3038;
+  --color-night-fg: #E8EAED;
+  --color-night-fg2: #A9AEB6;
+  --color-night-fg3: #8A9099;
+  --color-night-accent: #8EA2FF;
+  --color-night-accent-2: #B5C2FF;
+  --color-night-ok: #6FD08F;
   --shadow-panel: 0 1px 2px rgba(14, 17, 22, 0.06), 0 10px 28px -14px rgba(14, 17, 22, 0.22);
   --shadow-panel-hover: 0 2px 4px rgba(14, 17, 22, 0.08), 0 18px 36px -16px rgba(14, 17, 22, 0.35);
   --shadow-offset: 4px 4px 0 var(--color-ink);
-  --shadow-lift: 3px 3px 0 var(--color-accent);
+  --shadow-lift: 0 12px 28px -10px var(--color-accent);
+  --shadow-float: 0 2px 4px rgba(14, 17, 22, 0.04), 0 30px 60px -30px rgba(14, 17, 22, 0.35);
+  --shadow-hero-card: 0 40px 80px -30px rgba(0, 0, 0, 0.8), 0 0 80px -20px rgba(142, 162, 255, 0.4);
   --ease-draw: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   --animate-flow-x: rc-flow-x 0.8s linear infinite;
@@ -74,6 +88,15 @@
   --animate-scan: rc-scan 2.4s ease-in-out infinite;
   --animate-pulse-live: rc-pulse 1.6s ease-in-out infinite;
   --animate-tick: rc-tick 0.3s ease-out both;
+  --animate-drift: rc-drift 6s linear infinite;
+  --animate-glow: rc-glow 9s ease-in-out infinite;
+  --animate-glow-slow: rc-glow 11s ease-in-out infinite reverse;
+  --animate-rise: rc-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-in: rc-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-sweep: rc-sweep 4.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-ring: rc-ring 2s infinite;
+  --animate-marquee: rc-marquee 40s linear infinite;
+  --animate-drawer: rc-drawer 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 
   @keyframes rc-flow-x { to { background-position: 24px 0; } }
   @keyframes rc-flow-y { to { background-position: 0 24px; } }
@@ -82,6 +105,14 @@
   @keyframes rc-scan { 0% { top: 4%; } 50% { top: 92%; } 100% { top: 4%; } }
   @keyframes rc-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
   @keyframes rc-tick { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+  @keyframes rc-drift { from { background-position: 0 0, 0 0; } to { background-position: 48px 48px, 48px 48px; } }
+  @keyframes rc-glow { 0%, 100% { opacity: 0.55; transform: none; } 50% { opacity: 0.85; transform: translate(-4%, 3%) scale(1.08); } }
+  @keyframes rc-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  @keyframes rc-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+  @keyframes rc-sweep { from { top: -10%; } to { top: 110%; } }
+  @keyframes rc-ring { 0% { box-shadow: 0 0 0 0 rgba(111, 208, 143, 0.7); } 70%, 100% { box-shadow: 0 0 0 10px rgba(111, 208, 143, 0); } }
+  @keyframes rc-marquee { to { transform: translateX(-50%); } }
+  @keyframes rc-drawer { from { transform: translateX(105%); } to { transform: none; } }
 }
 
 [data-theme="dark"] {
@@ -142,11 +173,6 @@
 
   body {
     @apply bg-page font-sans text-base/normal text-ink antialiased;
-    /* Blueprint grid behind every page. */
-    background-image:
-      linear-gradient(var(--color-grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
-    background-size: 24px 24px;
   }
 
   :focus-visible {
@@ -158,6 +184,24 @@
   [role="button"] {
     cursor: pointer;
   }
+}
+
+/* Blueprint grid behind the light content bands (v3: 32px). */
+@utility bg-blueprint {
+  background-color: var(--color-page);
+  background-image:
+    linear-gradient(var(--color-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Faint accent grid that drifts behind the dark hero bands, fading out towards the edges. */
+@utility bg-night-grid {
+  background-image:
+    linear-gradient(rgba(142, 162, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(142, 162, 255, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, #000 30%, transparent 80%);
 }
 
 /* Visitors who asked for less motion get the final state at once. */

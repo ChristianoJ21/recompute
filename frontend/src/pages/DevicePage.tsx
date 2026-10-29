@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router'
 import { ApiError, describeError, evaluateDevice, getDevice } from '../api/client'
 import type { DeviceDetail } from '../api/types'
@@ -8,8 +8,9 @@ import { ForSaleBox, SaleListing } from '../components/ListingPanel'
 import { OutcomeBadge } from '../components/OutcomeBadge'
 import { PassportHistory } from '../components/PassportHistory'
 import { TechnicianForm } from '../components/TechnicianForm'
-import { CornerMarks, ErrorNotice, Loading, container, monoLabel, panelClass } from '../components/ui'
+import { ErrorNotice, Loading, NightBackdrop, band, container, nightButton } from '../components/ui'
 import { WhyPanel } from '../components/WhyPanel'
+import { formatDate } from '../lib/format'
 import { currentListing } from '../lib/listing'
 import { usePassportCheck, type PassportCheck } from '../lib/passportCheck'
 import { useSession } from '../lib/session'
@@ -77,31 +78,59 @@ function DevicePassport({ id }: { id: string }) {
     }
   }
 
+  if (state.status === 'ready') {
+    return (
+      <Passport
+        detail={state.detail}
+        canEdit={canEdit}
+        evaluating={evaluating}
+        evaluateError={evaluateError}
+        onEvaluate={evaluate}
+        onEventAdded={refresh}
+      />
+    )
+  }
   return (
-    <div className={`${container} flex flex-col gap-4 pt-5 pb-16`}>
-      <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 font-mono text-xs text-ink-2">
-        <Link to={canEdit ? '/fleet' : '/'} className="inline-flex min-h-8 items-center text-accent no-underline hover:underline">
-          {canEdit ? '← Fleet' : '← Available hardware'}
-        </Link>
-        <span aria-hidden>/</span>
-        <span>device</span>
-        <span aria-hidden>/</span>
-        <span className="break-all text-ink">{id}</span>
-      </nav>
-      {state.status === 'loading' && <Loading label="Loading the passport…" />}
-      {state.status === 'missing' && <NotFoundPanel />}
-      {state.status === 'error' && <ErrorNotice message={state.message} onRetry={retry} />}
-      {state.status === 'ready' && (
-        <Passport
-          detail={state.detail}
-          canEdit={canEdit}
-          evaluating={evaluating}
-          evaluateError={evaluateError}
-          onEvaluate={evaluate}
-          onEventAdded={refresh}
-        />
-      )}
-    </div>
+    <>
+      <DarkBand>
+        <Breadcrumb id={id} canEdit={canEdit} />
+      </DarkBand>
+      <div className={band}>
+        <div className={container}>
+          {state.status === 'loading' && <Loading label="Loading the passport…" />}
+          {state.status === 'missing' && <NotFoundPanel />}
+          {state.status === 'error' && <ErrorNotice message={state.message} onRetry={retry} />}
+        </div>
+      </div>
+    </>
+  )
+}
+
+function DarkBand({ glow, children, footer }: { glow?: string; children: ReactNode; footer?: ReactNode }) {
+  return (
+    <section aria-label="Device" className="relative overflow-hidden bg-night text-night-fg">
+      <NightBackdrop glow={glow} />
+      <div className={`${container} relative flex flex-col gap-[clamp(24px,3vw,40px)] pt-[clamp(24px,3vw,40px)] pb-[clamp(36px,4.5vw,64px)]`}>
+        {children}
+      </div>
+      {footer}
+    </section>
+  )
+}
+
+function Breadcrumb({ id, canEdit }: { id: string; canEdit: boolean }) {
+  return (
+    <nav data-theme="dark" aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2.5 font-mono text-[13px] text-night-fg3">
+      <Link
+        to={canEdit ? '/fleet' : '/hardware'}
+        className="inline-flex min-h-9 items-center rounded-full border border-white/15 px-3.5 whitespace-nowrap text-night-fg no-underline hover:bg-white/5 hover:text-white"
+      >
+        {canEdit ? '← Fleet' : '← Available hardware'}
+      </Link>
+      <span>device</span>
+      <span aria-hidden>/</span>
+      <span className="break-all text-night-fg">{id}</span>
+    </nav>
   )
 }
 
@@ -118,58 +147,112 @@ function Passport({ detail, canEdit, evaluating, evaluateError, onEvaluate, onEv
   const { device, events, latest_evaluation } = detail
   const check = usePassportCheck(device.id, events)
   const listing = currentListing(events)
+  const glow = latest_evaluation?.outcome === 'UNCERTAIN' ? 'rgba(138,70,0,.45)' : 'rgba(91,53,151,.5)'
   return (
     <>
-      <div className="flex flex-wrap items-stretch gap-4">
-        <IdentityCard detail={detail} check={check} />
-        {listing && <ForSaleBox deviceId={device.id} listing={listing} />}
-      </div>
-      <WhyPanel
-        evaluation={latest_evaluation}
-        evaluating={evaluating}
-        error={evaluateError}
-        onEvaluate={canEdit ? onEvaluate : undefined}
-      />
-      {canEdit && (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-start gap-4">
-          <TechnicianForm deviceId={device.id} onAdded={onEventAdded} />
-          <SaleListing deviceId={device.id} events={events} listing={listing} onChanged={onEventAdded} />
+      <DarkBand glow={glow} footer={<Mrz detail={detail} />}>
+        <Breadcrumb id={device.id} canEdit={canEdit} />
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,480px),1fr))] items-end gap-x-[clamp(40px,5vw,96px)] gap-y-8">
+          <Identity detail={detail} check={check} />
+          {listing ? (
+            <ForSaleBox deviceId={device.id} listing={listing} />
+          ) : (
+            <NotListed target={latest_evaluation?.target ?? null} canEdit={canEdit} />
+          )}
         </div>
-      )}
-      <PassportHistory events={events} check={check} />
-      <TechnicalDetails device={device} />
+      </DarkBand>
+      <div className={band}>
+        <div className={`${container} flex flex-col gap-[clamp(20px,2.4vw,32px)]`}>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,540px),1fr))] items-start gap-[clamp(20px,2.4vw,32px)]">
+            <WhyPanel
+              evaluation={latest_evaluation}
+              evaluating={evaluating}
+              error={evaluateError}
+              onEvaluate={canEdit ? onEvaluate : undefined}
+            />
+            <PassportHistory events={events} check={check} />
+          </div>
+          {canEdit && (
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,480px),1fr))] items-start gap-[clamp(20px,2.4vw,32px)]">
+              <TechnicianForm deviceId={device.id} onAdded={onEventAdded} />
+              <SaleListing deviceId={device.id} events={events} listing={listing} onChanged={onEventAdded} />
+            </div>
+          )}
+          <TechnicalDetails device={device} />
+        </div>
+      </div>
     </>
   )
 }
 
-function IdentityCard({ detail, check }: { detail: DeviceDetail; check: PassportCheck }) {
+const shortHash = (hash: string | null | undefined) => (hash ? `${hash.slice(0, 4)}…${hash.slice(-4)}` : 'none')
+
+function Identity({ detail, check }: { detail: DeviceDetail; check: PassportCheck }) {
   const { device, events, latest_evaluation } = detail
   const head = [...events].sort((a, b) => b.id - a.id)[0]?.hash
-  // A machine-readable-zone style summary line, built from the real record.
+  const facts = [
+    { key: 'EVENTS', value: String(events.length) },
+    { key: 'HEAD HASH', value: shortHash(head) },
+    { key: 'INSTALLED', value: formatDate(device.install_date) },
+  ]
+  return (
+    <div data-theme="dark" className="flex min-w-0 flex-col gap-4">
+      <span className="font-mono text-xs font-semibold tracking-[.12em] text-night-accent-2">DEVICE PASSPORT</span>
+      <h1 className="font-mono text-[clamp(36px,5.6vw,88px)] leading-[.95] font-bold tracking-[-.04em] break-all text-white">{device.id}</h1>
+      <p className="text-[clamp(16px,1.4vw,19px)] text-night-fg2">
+        {device.model} · {device.location}
+      </p>
+      <div className="flex flex-wrap gap-2.5 pt-1">
+        <OutcomeBadge outcome={latest_evaluation?.outcome ?? null} size="lg" />
+        <IntegrityBadge integrity={check.integrity} size="lg" />
+      </div>
+      <dl className="mt-2 flex flex-wrap gap-x-9 gap-y-3 border-t border-white/8 pt-[18px]">
+        {facts.map((fact) => (
+          <div key={fact.key} className="flex flex-col gap-0.5">
+            <dt className="font-mono text-[11px] tracking-[.1em] text-night-fg3">{fact.key}</dt>
+            <dd className="font-mono text-[15px] font-bold text-white">{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  )
+}
+
+function NotListed({ target, canEdit }: { target: string | null; canEdit: boolean }) {
+  return (
+    <div
+      data-theme="dark"
+      className="flex w-full max-w-[460px] flex-col gap-2.5 rounded-[22px] border border-white/12 bg-white/4 px-[22px] py-5 min-[1100px]:justify-self-end"
+    >
+      <span className="font-mono text-xs font-bold tracking-[.1em] text-night-fg3">NOT LISTED FOR SALE</span>
+      <p className="text-[15px] text-[#C9CCD1]">{target ?? 'This device is not released. Its passport is public.'}</p>
+      {canEdit && (
+        <a href="#log" className={`${nightButton} min-h-[46px] self-start px-5`}>
+          Log an action ↓
+        </a>
+      )}
+    </div>
+  )
+}
+
+/** A machine-readable-zone style summary line, built from the real record, scrolling under the hero. */
+function Mrz({ detail }: { detail: DeviceDetail }) {
+  const { device, events } = detail
+  const head = [...events].sort((a, b) => b.id - a.id)[0]?.hash
   const mrz = [
     device.id,
     device.device_type.toUpperCase(),
     `INSTALLED<${device.install_date}`,
     `${events.length}<EVENTS`,
-    `HEAD<${head ? `${head.slice(0, 4)}…${head.slice(-4)}` : 'NONE'}`,
+    `HEAD<${shortHash(head)}`,
   ].join('<<')
   return (
-    <section aria-label="Device" className={`relative flex min-w-0 flex-[2_1_520px] flex-col ${panelClass}`}>
-      <CornerMarks />
-      <div className="flex flex-col gap-3 p-4 sm:p-6">
-        <span className={monoLabel}>Device passport</span>
-        <h1 className="font-mono text-[clamp(28px,3.2vw,38px)] leading-[1.05] font-bold tracking-[-.02em] break-all">{device.id}</h1>
-        <p className="text-[15px] text-ink-2">
-          {device.model} · {device.location}
-        </p>
-        <div className="flex flex-wrap gap-2 pt-1">
-          <OutcomeBadge outcome={latest_evaluation?.outcome ?? null} size="lg" />
-          <IntegrityBadge integrity={check.integrity} size="lg" />
-        </div>
+    <div aria-hidden className="relative overflow-hidden border-t border-white/8 bg-white/[.02] py-3 font-mono text-xs tracking-[.18em] whitespace-nowrap text-[#6A6F77]">
+      <div className="inline-flex animate-marquee gap-12">
+        {[0, 1, 2, 3, 4, 5].map((n) => (
+          <span key={n}>{mrz}</span>
+        ))}
       </div>
-      <div aria-hidden className="mt-auto border-t border-dashed border-line-mid bg-raised px-4 py-2.5 font-mono text-[11px] tracking-[.12em] break-all text-ink-3 sm:px-6">
-        {mrz}
-      </div>
-    </section>
+    </div>
   )
 }

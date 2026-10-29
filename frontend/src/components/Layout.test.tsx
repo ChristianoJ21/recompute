@@ -10,6 +10,8 @@ vi.mock('../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api/client')>()),
   getListings: vi.fn(),
   getContact: vi.fn(),
+  getDevice: vi.fn(),
+  verifyEvents: vi.fn(),
 }))
 
 const renderAt = (path = '/market') =>
@@ -26,6 +28,38 @@ describe('header menu', () => {
   beforeEach(() => {
     vi.mocked(client.getListings).mockReset().mockResolvedValue([])
     vi.mocked(client.getContact).mockReset().mockReturnValue(new Promise(() => {}))
+    vi.mocked(client.getDevice).mockReset().mockReturnValue(new Promise(() => {}))
+    vi.mocked(client.verifyEvents).mockReset().mockReturnValue(new Promise(() => {}))
+  })
+
+  it('links Home, Available hardware and Market in the main navigation', () => {
+    renderAt()
+
+    const nav = screen.getByRole('navigation', { name: 'Main' })
+    expect(within(nav).getByRole('link', { name: 'Home' }).getAttribute('href')).toBe('/')
+    expect(within(nav).getByRole('link', { name: 'Available hardware' }).getAttribute('href')).toBe('/hardware')
+    expect(within(nav).getByRole('link', { name: 'Market' }).getAttribute('aria-current')).toBe('page')
+    expect(within(nav).queryByRole('link', { name: 'Fleet' })).toBeNull()
+  })
+
+  it('switches between light and dark with the theme button', async () => {
+    const user = userEvent.setup()
+    renderAt()
+
+    await user.click(screen.getByRole('button', { name: 'Switch to dark theme' }))
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    await user.click(screen.getByRole('button', { name: 'Switch to light theme' }))
+    expect(document.documentElement.dataset.theme).toBe('light')
+  })
+
+  it('closes the menu with its own close button', async () => {
+    const user = userEvent.setup()
+    renderAt()
+
+    await user.click(menuButton())
+    await user.click(screen.getByRole('button', { name: 'Close menu' }))
+    expect(menuButton().getAttribute('aria-expanded')).toBe('false')
+    expect(document.activeElement).toBe(menuButton())
   })
 
   it('opens and closes with the Menu button, and Escape closes it', async () => {
@@ -50,7 +84,7 @@ describe('header menu', () => {
     await user.click(menuButton())
     await user.click(within(menu()).getByRole('link', { name: /Available hardware/ }))
     expect(menuButton().getAttribute('aria-expanded')).toBe('false')
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toMatch(/Second-life AI servers/)
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Available hardware')
 
     await user.click(menuButton())
     await user.click(screen.getByRole('contentinfo'))
@@ -92,6 +126,6 @@ describe('header menu', () => {
     renderAt('/nowhere')
 
     expect(screen.getByRole('heading', { name: 'No page or device at this address' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: '← Available hardware' }).getAttribute('href')).toBe('/')
+    expect(screen.getByRole('link', { name: '← Available hardware' }).getAttribute('href')).toBe('/hardware')
   })
 })

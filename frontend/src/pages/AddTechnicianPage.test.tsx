@@ -31,6 +31,18 @@ describe('add technician page', () => {
     vi.mocked(client.addTechnician).mockReset()
   })
 
+  it('says how many more characters the password needs', async () => {
+    signIn()
+    const user = userEvent.setup()
+    renderPage()
+
+    expect(screen.getByText('At least 10 characters.')).toBeTruthy()
+    await user.type(screen.getByLabelText(/^Password/), 'short')
+    expect(screen.getByText('5 more characters')).toBeTruthy()
+    await user.type(screen.getByLabelText(/^Password/), ' enough')
+    expect(screen.getByText('✔ Long enough.')).toBeTruthy()
+  })
+
   it('lets a logged-in technician add a colleague', async () => {
     signIn()
     vi.mocked(client.addTechnician).mockResolvedValue({ username: 'tech-2', name: 'Technician Two' })

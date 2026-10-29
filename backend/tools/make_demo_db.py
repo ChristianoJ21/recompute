@@ -27,7 +27,7 @@ from simulate_telemetry import reading  # noqa: E402
 DEFAULT_DB = Path(__file__).resolve().parents[1] / "recompute.db"
 DEFAULT_ACCOUNTS = ROOT / "demo_accounts.local.txt"
 DEMO_TECHNICIANS = [("tech-1", "Technician One (sample)"), ("tech-2", "Technician Two (sample)")]
-TELEMETRY_ROUNDS = 3
+TELEMETRY_ROUNDS = 12  # enough points for the telemetry trend lines on the home and hardware pages
 SCAN = {"kind": "scan", "payload": {"note": "QR label scanned at the rack (sample)", "sample_data": True}}
 
 

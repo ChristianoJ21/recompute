@@ -35,9 +35,9 @@ export function Layout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      <footer className="border-t border-line bg-surface text-[13px] text-ink-2">
-        <div className={`${container} flex flex-wrap justify-between gap-x-8 gap-y-2 pt-5 pb-7`}>
-          <p className="max-w-[62ch] text-ink">
+      <footer data-theme="dark" className="bg-night text-[13px] text-night-fg2">
+        <div className={`${container} flex flex-wrap justify-between gap-x-8 gap-y-2.5 py-7`}>
+          <p className="max-w-[62ch] text-night-fg">
             Every number in this demo is sample data (toy values). Nothing here is a measurement.
           </p>
           <p className="font-mono text-xs">ReCompute · student demo · GYEBC 2026</p>

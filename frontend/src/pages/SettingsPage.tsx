@@ -1,7 +1,20 @@
 import { useState, type FormEvent } from 'react'
 import { changePassword, describeError, updateProfile } from '../api/client'
 import type { Session } from '../api/types'
-import { ErrorNotice, Notice, PageIntro, Panel, PanelTag, TextField, container, initials, primaryButton } from '../components/ui'
+import {
+  ErrorNotice,
+  HeroLabel,
+  NightBackdrop,
+  Notice,
+  Panel,
+  PanelTag,
+  PasswordField,
+  TextField,
+  band,
+  container,
+  initials,
+  primaryButton,
+} from '../components/ui'
 import { THEMES, THEME_LABEL, setTheme, useTheme, type Theme } from '../lib/theme'
 import { useSession } from '../lib/session'
 
@@ -19,34 +32,54 @@ export function SettingsPage() {
     : [['01', 'Appearance', '#appearance']]
 
   return (
-    <div className={`${container} flex flex-col gap-6 pt-[clamp(24px,4vw,40px)] pb-16`}>
-      <PageIntro eyebrow="/ Settings" title="Settings">
-        <p className="text-[15px] text-ink-2">
-          {session
-            ? `Signed in as ${session.technician.name}. Profile and password changes apply to this account only.`
-            : 'Visitors can change the appearance. Log in to manage a technician profile and password.'}
-        </p>
-      </PageIntro>
-      <div className="flex flex-wrap items-start gap-6">
-        <nav aria-label="Settings sections" className="flex max-w-full flex-[1_1_200px] flex-wrap gap-1 md:sticky md:top-4">
-          {sections.map(([n, label, href]) => (
-            <a
-              key={href}
-              href={href}
-              className="flex min-h-11 flex-[1_1_100px] items-center gap-2 border border-line bg-surface px-3 text-sm font-semibold text-ink no-underline hover:border-ink"
+    <>
+      <section data-theme="dark" className="relative overflow-hidden bg-night text-night-fg">
+        <NightBackdrop />
+        <div className={`${container} relative flex flex-wrap items-center gap-[clamp(18px,2.4vw,32px)] py-[clamp(36px,4.5vw,72px)]`}>
+          {session && (
+            <span
+              aria-hidden
+              className="flex size-[clamp(72px,7vw,104px)] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#8EA2FF,#C2A6F2)] font-mono text-[clamp(22px,2.2vw,32px)] font-extrabold text-night shadow-[0_0_0_6px_rgba(142,162,255,.15)]"
             >
-              <span className="font-mono text-[11px] text-accent">{n}</span>
-              {label}
-            </a>
-          ))}
-        </nav>
-        <div className="flex min-w-0 flex-[999_1_520px] flex-col gap-4">
-          {session && <ProfilePanel session={session} />}
-          {session && <CredentialsPanel />}
-          <AppearancePanel index={session ? '03' : '01'} />
+              {initials(session.technician.name)}
+            </span>
+          )}
+          <div className="flex min-w-0 flex-col gap-2.5">
+            <HeroLabel>SETTINGS</HeroLabel>
+            <h1 className="text-[clamp(36px,4.6vw,72px)] leading-none font-[750] tracking-[-.045em] text-white">Settings</h1>
+            <p className="max-w-[62ch] text-[clamp(15px,1.3vw,18px)] text-night-fg2">
+              {session
+                ? `Signed in as ${session.technician.name}. Profile and password changes apply to this account only.`
+                : 'Visitors can change the appearance. Log in to manage a technician profile and password.'}
+            </p>
+          </div>
+        </div>
+      </section>
+      <div className={band}>
+        <div className={`${container} flex flex-wrap items-start gap-[clamp(20px,3vw,48px)]`}>
+          <nav
+            aria-label="Settings sections"
+            className="flex max-w-full flex-[1_1_220px] flex-col gap-1.5 rounded-[20px] border border-line bg-surface p-2 shadow-panel md:sticky md:top-[93px]"
+          >
+            {sections.map(([n, label, href]) => (
+              <a
+                key={href}
+                href={href}
+                className="flex min-h-[52px] items-center gap-3 rounded-[14px] px-3.5 text-[15px] font-semibold text-ink no-underline hover:bg-raised"
+              >
+                <span className="font-mono text-xs text-accent">{n}</span>
+                {label}
+              </a>
+            ))}
+          </nav>
+          <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-[clamp(20px,2.4vw,28px)]">
+            {session && <ProfilePanel session={session} />}
+            {session && <CredentialsPanel />}
+            <AppearancePanel index={session ? '03' : '01'} />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -77,11 +110,11 @@ function ProfilePanel({ session }: { session: Session }) {
     }
   }
 
-  const readOnly = 'flex min-h-11 items-center border border-line bg-sunken px-3 text-[15px]'
+  const readOnly = 'flex min-h-[50px] items-center rounded-[14px] bg-sunken px-4 text-[15px]'
   return (
     <Panel id="profile" title="Profile" aside={<PanelTag>01</PanelTag>}>
       <div className="flex items-center gap-3.5">
-        <span aria-hidden className="flex size-14 shrink-0 items-center justify-center bg-accent font-mono text-lg font-bold text-surface">
+        <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-full bg-accent font-mono text-lg font-bold text-surface">
           {initials(savedName)}
         </span>
         <div className="flex min-w-0 flex-col">
@@ -158,28 +191,26 @@ function CredentialsPanel() {
     <Panel id="credentials" title="Credentials" aside={<PanelTag>02</PanelTag>}>
       <p className="text-sm text-ink-2">You stay logged in on this device after the change.</p>
       <form onSubmit={submit} noValidate className="flex flex-col gap-4">
-        <TextField
+        <PasswordField
           label="Current password"
-          type="password"
           autoComplete="current-password"
           error={problemFor('current')}
           value={values.current}
           onChange={set('current')}
         />
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-4">
-          <TextField
+          <PasswordField
             label="New password"
-            type="password"
             autoComplete="new-password"
-            hint={`At least ${MIN_PASSWORD} characters.`}
+            minLength={MIN_PASSWORD}
             error={problemFor('next')}
             value={values.next}
             onChange={set('next')}
           />
-          <TextField
+          <PasswordField
             label="Confirm new password"
-            type="password"
             autoComplete="new-password"
+            hint={values.confirm && values.confirm !== values.next ? 'Passwords don’t match yet.' : undefined}
             error={problemFor('confirm')}
             value={values.confirm}
             onChange={set('confirm')}
@@ -223,12 +254,12 @@ function AppearancePanel({ index }: { index: string }) {
           return (
             <label
               key={value}
-              className={`flex cursor-pointer flex-col border bg-surface has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent ${
-                on ? 'border-accent shadow-[0_0_0_1px_var(--color-accent)]' : 'border-line hover:border-line-strong'
+              className={`flex cursor-pointer flex-col overflow-hidden rounded-[18px] border-[1.5px] bg-surface transition-[translate,box-shadow] duration-200 hover:-translate-y-[3px] has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent ${
+                on ? '-translate-y-[3px] border-accent shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_15%,transparent)]' : 'border-line hover:border-line-strong'
               }`}
             >
               <input type="radio" name="theme" value={value} checked={on} onChange={() => setTheme(value)} className="sr-only" />
-              <span aria-hidden className="flex h-20 border-b border-line">
+              <span aria-hidden className="flex h-[104px] border-b border-line">
                 {THEME_TEXT[value].previews.map((key) => {
                   const p = PREVIEW[key]
                   return (

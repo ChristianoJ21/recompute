@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="rc-theme.js"></script>
+  <style>
+    body{margin:0;background:#0B0D10}*{box-sizing:border-box}a{color:#2443C9}a:hover{color:#16298A}
+    @keyframes rcDrift{from{background-position:0 0,0 0}to{background-position:48px 48px,48px 48px}}
+    @keyframes rcGlow{0%,100%{opacity:.55;transform:translate(0,0) scale(1)}50%{opacity:.85;transform:translate(-4%,3%) scale(1.08)}}
+    @keyframes rcIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+    @keyframes rcRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  </style>
+</helmet>
+<div data-rc-root="" style="container-type:inline-size;min-height:100vh;background:var(--rc-page,#F4F4F1);color:var(--rc-ink,#0E1116);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5;overflow-x:clip;display:flex;flex-direction:column">
+  <dc-import name="RC Header v3" active="newtech" tech="{{ true }}" hint-size="100%,69px" style="position:sticky;top:0;z-index:40"></dc-import>
+
+  <section aria-labelledby="page-h" style="position:relative;overflow:hidden;background:#0B0D10;color:#E8EAED;margin-top:-69px;padding-top:69px">
+    <div aria-hidden="true" style="position:absolute;inset:0;background-image:linear-gradient(rgba(142,162,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(142,162,255,.07) 1px,transparent 1px);background-size:48px 48px;animation:rcDrift 6s linear infinite;mask-image:radial-gradient(ellipse 80% 90% at 30% 30%,#000 30%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 80% 90% at 30% 30%,#000 30%,transparent 80%)"></div>
+    <div aria-hidden="true" style="position:absolute;width:55%;height:140%;right:-12%;top:-50%;background:radial-gradient(closest-side,rgba(36,67,201,.55),transparent);filter:blur(20px);animation:rcGlow 9s ease-in-out infinite"></div>
+    <div style="position:relative;padding:clamp(24px,3cqi,40px) clamp(20px,4cqi,72px) clamp(100px,10cqi,150px);display:flex;flex-direction:column;gap:20px;align-items:center;text-align:center">
+      <a href="Screen Fleet v3.dc.html" style="display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:999px;white-space:nowrap;border:1px solid rgba(255,255,255,.14);color:#E8EAED;text-decoration:none;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:13px" style-hover="background:rgba(255,255,255,.06);color:#FFFFFF">← Fleet</a>
+      <h1 id="page-h" style="margin:0;font-size:clamp(36px,4.6cqi,72px);line-height:1;font-weight:750;letter-spacing:-.045em;color:#FFFFFF">Add a technician</h1>
+      <p style="margin:0;max-width:52ch;font-size:clamp(15px,1.3cqi,18px);color:#A9AEB6">Creates a login for a colleague. Share the password with them in person.</p>
+    </div>
+  </section>
+
+  <main style="flex:1;background-color:var(--rc-page,#F4F4F1);background-image:linear-gradient(var(--rc-grid,#E6E6DF) 1px,transparent 1px),linear-gradient(90deg,var(--rc-grid,#E6E6DF) 1px,transparent 1px);background-size:32px 32px;padding:0 clamp(20px,4cqi,72px) clamp(48px,6cqi,96px);display:flex;justify-content:center">
+    <form onSubmit="{{ submit }}" style="position:relative;margin-top:clamp(-110px,-8cqi,-72px);width:100%;max-width:620px;background:var(--rc-surface,#FFFFFF);border:1px solid var(--rc-line,#D6D6CF);border-radius:24px;box-shadow:0 2px 4px rgba(14,17,22,.04),0 40px 80px -36px rgba(14,17,22,.5);padding:clamp(22px,3cqi,36px);display:flex;flex-direction:column;gap:20px;animation:rcRise .7s cubic-bezier(.2,.8,.2,1) both">
+      <sc-if value="{{ success }}" hint-placeholder-val="{{ false }}">
+        <div role="status" style="display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:16px;background:var(--rc-ok-bg,#E4F2E8);border:1px solid var(--rc-ok-line,#A9D3B7);color:var(--rc-ok-ink,#14492A);font-size:15px;animation:rcIn .4s both"><span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:var(--rc-ok,#1D6B3B);color:#FFFFFF;font-size:12px">✔</span><span><strong>Technician added.</strong> {{ added }} can log in now.</span></div>
+      </sc-if>
+      <div style="display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--rc-sunken,#EBEBE6)">
+        <span aria-hidden="true" style="width:52px;height:52px;flex:none;border-radius:999px;display:flex;align-items:center;justify-content:center;background:{{ avBg }};color:{{ avFg }};font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:16px;font-weight:800;transition:background .3s">{{ initials }}</span>
+        <div style="display:flex;flex-direction:column;min-width:0"><span style="font-size:17px;font-weight:700">{{ preview }}</span><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:13px;color:var(--rc-ink-2,#4A4F57)">{{ uPrev }} · Technician</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:18px">
+        <label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Username<input value="{{ u }}" onChange="{{ onU }}" autocomplete="off" style="font:400 16px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;min-height:52px;padding:0 16px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:14px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)" style-focus="outline:none;border-color:var(--rc-accent,#2443C9);box-shadow:0 0 0 4px rgba(36,67,201,.15)"></input></label>
+        <label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Full name<input value="{{ n }}" onChange="{{ onN }}" style="font:400 16px system-ui,-apple-system,'Segoe UI',sans-serif;min-height:52px;padding:0 16px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:14px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)" style-focus="outline:none;border-color:var(--rc-accent,#2443C9);box-shadow:0 0 0 4px rgba(36,67,201,.15)"></input></label>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600">Password
+        <span style="position:relative;display:flex">
+          <input type="{{ pwType }}" value="{{ p }}" onChange="{{ onP }}" autocomplete="new-password" style="flex:1;min-width:0;font:400 16px system-ui,-apple-system,'Segoe UI',sans-serif;min-height:52px;padding:0 88px 0 16px;border:1px solid var(--rc-line-strong,#A9A9A0);border-radius:14px;background:var(--rc-surface,#FFFFFF);color:var(--rc-ink,#0E1116)" style-focus="outline:none;border-color:var(--rc-accent,#2443C9);box-shadow:0 0 0 4px rgba(36,67,201,.15)"></input>
+          <button type="button" onClick="{{ toggleShow }}" style="position:absolute;right:6px;top:6px;bottom:6px;padding:0 14px;border-radius:10px;border:0;background:var(--rc-sunken,#EBEBE6);color:var(--rc-ink,#0E1116);font:600 13px system-ui,-apple-system,'Segoe UI',sans-serif;cursor:pointer">{{ showLabel }}</button>
+        </span>
+        <span style="display:flex;flex-direction:column;gap:6px;font-weight:400"><span style="height:6px;border-radius:99px;background:var(--rc-sunken,#EBEBE6);overflow:hidden"><span style="display:block;height:100%;width:{{ str.w }};background:{{ str.c }};border-radius:99px;transition:width .3s,background .3s"></span></span><span style="font-size:13px;color:{{ str.tc }}">{{ str.t }}</span></span>
+      </label>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:4px">
+        <button type="submit" disabled="{{ cantSubmit }}" style="min-height:54px;padding:0 28px;border-radius:999px;background:{{ btnBg }};color:{{ btnFg }};border:0;font:700 16px system-ui,-apple-system,'Segoe UI',sans-serif;cursor:{{ btnCur }};transition:transform .2s,box-shadow .2s,background .2s" style-hover="transform:translateY(-2px)">Add technician</button>
+        <a href="Screen Fleet v3.dc.html" style="display:inline-flex;align-items:center;min-height:54px;padding:0 22px;border-radius:999px;border:1px solid var(--rc-line-strong,#A9A9A0);color:var(--rc-ink,#0E1116);font-size:15px;font-weight:600;text-decoration:none" style-hover="border-color:var(--rc-ink,#0E1116);color:var(--rc-ink,#0E1116)">Cancel</a>
+      </div>
+    </form>
+  </main>
+
+  <footer style="background:#0B0D10;color:#A9AEB6;font-size:13px;padding:28px clamp(20px,4cqi,72px);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 32px">
+    <p style="margin:0;max-width:62ch;color:#E8EAED">Every number in this demo is sample data (toy values). Nothing here is a measurement.</p>
+    <p style="margin:0;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px">ReCompute · student demo · GYEBC 2026</p>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;success&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { u: 't.two', n: 'Technician Two (sample)', p: 'abcdefghijk', show: false, done: null, added: 't.two' };
+  submit(e) { e.preventDefault(); if (this.state.p.length < 10 || !this.state.u.trim()) return; this.setState(s => ({ done: true, added: s.u.trim(), u: '', n: '', p: '' })); }
+  renderVals() {
+    const s = this.state, success = s.done ?? !!this.props.success;
+    const st = success && s.done == null ? { u: '', n: '', p: '' } : s;
+    const L = st.p.length, ok = L >= 10 && st.u.trim();
+    const str = L === 0 ? { w: '0%', c: 'transparent', t: 'At least 10 characters.', tc: 'var(--rc-ink-2,#4A4F57)' }
+      : L < 10 ? { w: Math.max(10, L * 9) + '%', c: 'var(--rc-uncertain,#8A4600)', t: `${10 - L} more character${10 - L === 1 ? '' : 's'} needed.`, tc: 'var(--rc-uncertain,#8A4600)' }
+      : { w: '100%', c: 'var(--rc-ok,#1D6B3B)', t: '✔ Long enough.', tc: 'var(--rc-ok,#1D6B3B)' };
+    const ini = (st.n || '').replace(/\(.*?\)/g, '').trim().split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    return {
+      success, added: s.added, u: st.u, n: st.n, p: st.p, str,
+      onU: e => this.setState({ u: e.target.value, done: false }), onN: e => this.setState({ n: e.target.value, done: false }), onP: e => this.setState({ p: e.target.value, done: false }),
+      pwType: s.show ? 'text' : 'password', showLabel: s.show ? 'Hide' : 'Show', toggleShow: () => this.setState({ show: !s.show }),
+      initials: ini || '?', preview: st.n || 'New technician', uPrev: st.u || 'username',
+      avBg: ini ? 'var(--rc-accent,#2443C9)' : 'var(--rc-sunken,#EBEBE6)', avFg: ini ? '#FFFFFF' : 'var(--rc-ink-3,#6A6F77)',
+      cantSubmit: !ok, btnBg: ok ? 'var(--rc-ink,#0E1116)' : 'var(--rc-sunken,#EBEBE6)', btnFg: ok ? 'var(--rc-surface,#FFFFFF)' : 'var(--rc-ink-3,#6A6F77)', btnCur: ok ? 'pointer' : 'not-allowed',
+      submit: e => this.submit(e),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><script src="rc-theme.js"></script></helmet>
+<div ref="{{ ref }}" style="position:relative">
+  <header style="background:rgba(11,13,16,.8);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid rgba(255,255,255,.08);color:#E8EAED;font-family:system-ui,-apple-system,'Segoe UI',sans-serif">
+    <div style="padding:0 clamp(20px,4cqi,72px);min-height:68px;display:flex;align-items:center;gap:clamp(16px,3cqi,40px)">
+      <a href="Screen Home v3.dc.html" style="display:inline-flex;align-items:center;gap:10px;color:#FFFFFF;text-decoration:none;flex:none">
+        <svg width="38" height="16" viewBox="0 0 34 14" aria-hidden="true"><path d="M8 7h5.5M20.5 7h5" stroke="#E8EAED" stroke-width="1.6"></path><rect x="1" y="3" width="7" height="8" fill="none" stroke="#E8EAED" stroke-width="1.6"></rect><rect x="13.5" y="3" width="7" height="8" fill="none" stroke="#E8EAED" stroke-width="1.6"></rect><rect x="25.5" y="2.5" width="8" height="9" fill="#8EA2FF"></rect></svg>
+        <span style="font-size:19px;font-weight:700;letter-spacing:-.02em">ReCompute</span>
+      </a>
+      <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+        <nav aria-label="Main" style="display:flex;gap:4px">
+          <sc-for list="{{ nav }}" as="n" hint-placeholder-count="3">
+            <a href="{{ n.href }}" aria-current="{{ n.cur }}" style="display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:999px;white-space:nowrap;background:{{ n.bg }};color:{{ n.fg }};font-size:14px;font-weight:600;text-decoration:none;transition:color .15s,background .15s" style-hover="color:#FFFFFF;background:rgba(255,255,255,.08)">{{ n.label }}</a>
+          </sc-for>
+        </nav>
+      </sc-if>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <span style="display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;white-space:nowrap;background:#F2D27A;color:#2E2100;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;font-weight:800;letter-spacing:.1em;line-height:1">SAMPLE DATA</span>
+        <button type="button" onClick="{{ toggleTheme }}" aria-label="{{ themeAria }}" style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:transparent;color:#E8EAED;cursor:pointer;font-size:17px;transition:background .15s" style-hover="background:rgba(255,255,255,.08)">{{ themeIcon }}</button>
+        <sc-if value="{{ showLogin }}" hint-placeholder-val="{{ true }}">
+          <a href="Screen Login v3.dc.html" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;white-space:nowrap;border:1px solid rgba(255,255,255,.18);color:#FFFFFF;font-size:14px;font-weight:600;text-decoration:none;transition:border-color .15s,background .15s" style-hover="border-color:#8EA2FF;background:rgba(142,162,255,.1);color:#FFFFFF">Technician login<span aria-hidden="true">→</span></a>
+        </sc-if>
+        <sc-if value="{{ showUser }}" hint-placeholder-val="{{ false }}">
+          <a href="Screen Settings v3.dc.html" style="display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 14px 0 5px;border-radius:999px;white-space:nowrap;border:1px solid rgba(255,255,255,.14);color:#FFFFFF;font-size:14px;font-weight:600;text-decoration:none" style-hover="background:rgba(255,255,255,.06);color:#FFFFFF"><span style="width:34px;height:34px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#8EA2FF;color:#0B0D10;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:800">T1</span>Technician One</a>
+        </sc-if>
+        <button type="button" onClick="{{ toggleMenu }}" aria-label="Menu" aria-expanded="{{ menuStr }}" style="width:44px;height:44px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:transparent;cursor:pointer">
+          <span style="width:16px;height:2px;background:#E8EAED"></span><span style="width:16px;height:2px;background:#E8EAED"></span><span style="width:16px;height:2px;background:#E8EAED"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div onClick="{{ closeMenu }}" style="position:fixed;inset:0;z-index:50;background:rgba(5,7,10,.55);backdrop-filter:blur(3px);opacity:{{ menuOp }};pointer-events:{{ menuPe }};transition:opacity .25s"></div>
+  <aside aria-label="Menu" style="position:fixed;top:0;right:0;bottom:0;z-index:51;width:min(380px,92vw);overflow-y:auto;background:#14171C;color:#E8EAED;border-left:1px solid #2C3038;box-shadow:-30px 0 60px rgba(0,0,0,.4);transform:{{ menuX }};transition:transform .35s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;font-family:system-ui,-apple-system,'Segoe UI',sans-serif">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #2C3038"><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;letter-spacing:.1em;color:#8A9099">MENU</span><button type="button" onClick="{{ closeMenu }}" aria-label="Close menu" style="width:44px;height:44px;border-radius:999px;border:1px solid #2C3038;background:transparent;color:#E8EAED;font-size:18px;cursor:pointer">✕</button></div>
+    <span style="padding:16px 26px 4px;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.1em;color:#8A9099">PAGES</span>
+    <nav style="display:flex;flex-direction:column;padding:4px 12px 12px">
+      <sc-for list="{{ pages }}" as="p" hint-placeholder-count="3">
+        <a href="{{ p.href }}" style="display:flex;justify-content:space-between;align-items:center;min-height:54px;padding:0 14px;border-radius:12px;background:{{ p.bg }};color:#FFFFFF;text-decoration:none;font-size:17px;font-weight:600" style-hover="background:rgba(255,255,255,.06);color:#FFFFFF">{{ p.label }}<span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;font-weight:400;color:{{ p.pc }}">{{ p.path }}</span></a>
+      </sc-for>
+    </nav>
+    <div style="padding:16px 26px;border-top:1px solid #2C3038;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.1em;color:#8A9099">APPEARANCE</span>
+      <div role="radiogroup" aria-label="Theme" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:999px;background:#0B0D10;border:1px solid #2C3038">
+        <sc-for list="{{ themes }}" as="t" hint-placeholder-count="3">
+          <button type="button" role="radio" aria-checked="{{ t.on }}" onClick="{{ t.pick }}" style="min-height:38px;border:0;border-radius:999px;background:{{ t.bg }};color:{{ t.fg }};font:600 13px system-ui,-apple-system,'Segoe UI',sans-serif;cursor:pointer;transition:background .2s">{{ t.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="margin-top:auto;padding:12px;border-top:1px solid #2C3038;display:flex;flex-direction:column;gap:4px">
+      <span style="padding:6px 14px;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.1em;color:#8A9099">ACCOUNT</span>
+      <sc-if value="{{ tech }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:12px;padding:6px 14px 10px"><span style="width:42px;height:42px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#8EA2FF;color:#0B0D10;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:14px;font-weight:800">T1</span><span style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700">Technician One (sample)</span><span style="font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;color:#A9AEB6">t.one · Technician</span></span></div>
+      </sc-if>
+      <sc-for list="{{ account }}" as="a" hint-placeholder-count="2">
+        <a href="{{ a.href }}" onClick="{{ a.act }}" style="display:flex;flex-direction:column;justify-content:center;min-height:60px;padding:6px 14px;border-radius:12px;color:#FFFFFF;text-decoration:none" style-hover="background:rgba(255,255,255,.06);color:#FFFFFF"><span style="font-size:16px;font-weight:600">{{ a.label }}</span><span style="font-size:13px;color:#A9AEB6">{{ a.sub }}</span></a>
+      </sc-for>
+    </div>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:120},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;hw&quot;,&quot;market&quot;,&quot;fleet&quot;,&quot;newtech&quot;,&quot;settings&quot;,&quot;login&quot;,&quot;none&quot;],&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tech&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;,&quot;system&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const F = { home: 'Screen Home v3.dc.html', hw: 'Screen Hardware v3.dc.html', market: 'Screen Market v3.dc.html', fleet: 'Screen Fleet v3.dc.html', newtech: 'Screen Add Technician v3.dc.html', settings: 'Screen Settings v3.dc.html', login: 'Screen Login v3.dc.html' };
+const SKEY = 'rc-session';
+class Component extends DCLogic {
+  state = { menu: false, wide: true, roomy: true, theme: 'light', stored: false };
+  ref = React.createRef();
+  componentDidMount() {
+    try { this.setState({ stored: localStorage.getItem(SKEY) === 'tech' }); } catch (e) {}
+    this._onTheme = () => this.applyTheme();
+    this._onKey = e => { if (e.key === 'Escape') this.setState({ menu: false }); };
+    window.addEventListener('rc-theme', this._onTheme); window.addEventListener('keydown', this._onKey);
+    const el = this.ref.current;
+    if (el && window.ResizeObserver) { this._ro = new ResizeObserver(([e]) => { const w = e.contentRect.width >= 860, r = e.contentRect.width >= 1120; if (w !== this.state.wide || r !== this.state.roomy) this.setState({ wide: w, roomy: r }); }); this._ro.observe(el); }
+    let k = 0; const wait = () => { if (window.RC_THEME) this.applyTheme(); else if (k++ < 100) this._w = setTimeout(wait, 50); }; wait();
+  }
+  componentDidUpdate(pp) { if (pp.theme !== this.props.theme) this.applyTheme(); }
+  componentWillUnmount() { window.removeEventListener('rc-theme', this._onTheme); window.removeEventListener('keydown', this._onKey); if (this._ro) this._ro.disconnect(); clearTimeout(this._w); }
+  applyTheme() {
+    const T = window.RC_THEME, el = this.ref.current; if (!T || !el) return;
+    const pref = this.props.theme || T.get();
+    T.apply(el.closest('[data-rc-root]') || document.body, T.isDark(pref));
+    if (pref !== this.state.theme) this.setState({ theme: pref });
+  }
+  setSession(v) { try { localStorage.setItem(SKEY, v); } catch (e) {} }
+  renderVals() {
+    const s = this.state, a = this.props.active ?? 'home';
+    const tech = this.props.tech ?? s.stored;
+    const T = window.RC_THEME, dark = T ? T.isDark(s.theme) : false;
+    const items = [['home', 'Home', '/'], ['hw', 'Available hardware', '/hardware'], ['market', 'Market', '/market']];
+    if (tech) items.push(['fleet', 'Fleet', '/fleet']);
+    const nav = items.map(([k, label]) => ({ label, href: F[k], cur: a === k ? 'page' : 'false', bg: a === k ? 'rgba(142,162,255,.16)' : 'transparent', fg: a === k ? '#FFFFFF' : '#A9AEB6' }));
+    const pg = tech ? [...items, ['newtech', 'Add technician', '/technicians/new']] : items;
+    const pages = pg.map(([k, label, path]) => ({ label, path, href: F[k], bg: a === k ? 'rgba(142,162,255,.14)' : 'transparent', pc: a === k ? '#8EA2FF' : '#8A9099' }));
+    const account = tech
+      ? [{ label: 'Settings', sub: 'Profile, password, appearance', href: F.settings, act: null },
+         { label: 'Log out', sub: 'Ends your login on this device', href: F.home, act: () => this.setSession('visitor') }]
+      : [{ label: 'Technician login', sub: 'Staff only. There is no sign-up.', href: F.login, act: null },
+         { label: 'Settings', sub: 'Appearance', href: F.settings, act: null }];
+    const themes = [['light', 'Light'], ['dark', 'Dark'], ['system', 'Auto']].map(([v, label]) => ({ label, on: String(s.theme === v), bg: s.theme === v ? '#8EA2FF' : 'transparent', fg: s.theme === v ? '#0B0D10' : '#C9CCD1', pick: () => T && T.set(v) }));
+    return {
+      ref: this.ref, wide: s.wide, tech, nav, pages, account, themes,
+      showLogin: s.roomy && !tech && a !== 'login', showUser: s.roomy && tech,
+      menuStr: String(s.menu), toggleMenu: () => this.setState({ menu: !s.menu }), closeMenu: () => this.setState({ menu: false }),
+      menuX: s.menu ? 'none' : 'translateX(105%)', menuOp: s.menu ? 1 : 0, menuPe: s.menu ? 'auto' : 'none',
+      themeIcon: dark ? '☀' : '☾', themeAria: dark ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => T && T.set(dark ? 'light' : 'dark'),
+    };
+  }
+}
+</script>
+</body>
+</html>
