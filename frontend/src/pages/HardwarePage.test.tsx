@@ -59,6 +59,15 @@ describe('available hardware page (public, no login)', () => {
     expect(within(card).getByRole('link', { name: /passport/i }).getAttribute('href')).toBe('/device/GPU-SRV-001')
   })
 
+  it('shows a decorative line drawing of the device on each card', async () => {
+    renderHardware()
+
+    const [card] = await cards()
+    const art = card.querySelector('[data-art="gpu_server"]')
+    expect(art?.getAttribute('aria-hidden')).toBe('true')
+    expect(art?.querySelectorAll('[data-part]')).toHaveLength(2)
+  })
+
   it('says a passport changed when the server found its chain broken', async () => {
     vi.mocked(client.getListings).mockResolvedValue([{ ...FIRST, passport_intact: false }])
     renderHardware()

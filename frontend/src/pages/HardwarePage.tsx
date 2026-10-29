@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { describeError, getContact, getDevice, getListings } from '../api/client'
 import type { Contact, Listing, Outcome, PassportEvent } from '../api/types'
+import { HardwareArt } from '../components/HardwareArt'
 import { IntegrityBadge } from '../components/IntegrityBadge'
 import { SolidBadge } from '../components/SolidBadge'
 import { Sparkline } from '../components/Sparkline'
@@ -238,6 +239,12 @@ function ListingCard({ listing, events, email, delay }: ListingCardProps) {
           </div>
         </div>
       </div>
+      <HardwareArt
+        deviceType={listing.device_type}
+        components={listing.components}
+        colour={colours.fg}
+        className="border-b border-line bg-blueprint px-6 py-5"
+      />
       <dl className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,max(150px,calc((100%-2px)/3))),1fr))] gap-px bg-line">
         {specs.map(([key, value]) => (
           <div key={key} className="flex min-w-0 flex-col gap-[3px] bg-surface px-5 py-3.5">

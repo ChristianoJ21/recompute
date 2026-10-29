@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router'
 import { ApiError, describeError, evaluateDevice, getDevice } from '../api/client'
 import type { DeviceDetail } from '../api/types'
 import { TechnicalDetails } from '../components/DeviceFacts'
+import { HardwareArt } from '../components/HardwareArt'
 import { IntegrityBadge } from '../components/IntegrityBadge'
 import { ForSaleBox, SaleListing } from '../components/ListingPanel'
 import { OutcomeBadge } from '../components/OutcomeBadge'
@@ -12,6 +13,7 @@ import { ErrorNotice, Loading, NightBackdrop, band, container, nightButton } fro
 import { WhyPanel } from '../components/WhyPanel'
 import { formatDate } from '../lib/format'
 import { currentListing } from '../lib/listing'
+import { outcomeColours } from '../lib/outcomes'
 import { usePassportCheck, type PassportCheck } from '../lib/passportCheck'
 import { useSession } from '../lib/session'
 import { NotFoundPanel } from './NotFoundPage'
@@ -154,11 +156,21 @@ function Passport({ detail, canEdit, evaluating, evaluateError, onEvaluate, onEv
         <Breadcrumb id={device.id} canEdit={canEdit} />
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,480px),1fr))] items-end gap-x-[clamp(40px,5vw,96px)] gap-y-8">
           <Identity detail={detail} check={check} />
-          {listing ? (
-            <ForSaleBox deviceId={device.id} listing={listing} />
-          ) : (
-            <NotListed target={latest_evaluation?.target ?? null} canEdit={canEdit} />
-          )}
+          <div className="flex min-w-0 flex-col gap-6 min-[1100px]:items-end">
+            {/* The hero is always dark, so the drawing uses the dark outcome colours and captions. */}
+            <div data-theme="dark" className="w-full max-w-[560px]">
+              <HardwareArt
+                deviceType={device.device_type}
+                components={device.components}
+                colour={outcomeColours(latest_evaluation?.outcome ?? null).fg}
+              />
+            </div>
+            {listing ? (
+              <ForSaleBox deviceId={device.id} listing={listing} />
+            ) : (
+              <NotListed target={latest_evaluation?.target ?? null} canEdit={canEdit} />
+            )}
+          </div>
         </div>
       </DarkBand>
       <div className={band}>
