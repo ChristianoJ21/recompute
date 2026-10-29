@@ -18,8 +18,9 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from api import auth
+from api import auth, customers
 from api.auth import LoginLock, require_technician
+from api.common import LISTING_KINDS, find_device, get_session, listed_events
 from db.chain import GENESIS_HASH, event_hash, verify
 from db.models import Device, Evaluation, Event, Workload, iso, make_session_factory, utcnow
 from engine.decision import OUTCOMES, evaluate
@@ -27,7 +28,6 @@ from engine.decision import OUTCOMES, evaluate
 DEFAULT_DB_URL = "sqlite:///./recompute.db"
 DEFAULT_FRONTEND_URL = "http://localhost:5173/device/{device_id}"
 EVENT_KINDS = ("telemetry", "scan", "repair", "upgrade", "wipe", "move", "note")
-LISTING_KINDS = ("list", "unlist")  # written only by /list and /unlist, so the wipe rule cannot be skipped
 CONTACT = {  # fictional on purpose: never a real person's details (PRD 15.3)
     "organisation": "Sample Data Centre (fictional)",
     "email": "hardware@example.com",
@@ -119,18 +119,6 @@ class WorkloadIn(BaseModel):
 
 # ---- helpers --------------------------------------------------------------------
 
-def get_session(request: Request):
-    with request.app.state.session_factory() as session:
-        yield session
-
-
-def find_device(session, device_id):
-    device = session.get(Device, device_id)
-    if device is None:
-        raise HTTPException(404, f"Device '{device_id}' not found. Create it with POST /devices first.")
-    return device
-
-
 def head_hash(session, device_id):
     """Hash of the device's newest event, i.e. what the next event links to."""
     latest = session.scalar(select(Event.hash).where(Event.device_id == device_id).order_by(Event.id.desc()).limit(1))
@@ -158,14 +146,6 @@ def device_events(session, device_id, kinds=None):
     if kinds:
         query = query.where(Event.kind.in_(kinds))
     return list(session.scalars(query.order_by(Event.id)))
-
-
-def listed_events(session):
-    """{device_id: its 'list' event} for devices whose newest listing event is 'list'."""
-    newest = {}
-    for event in session.scalars(select(Event).where(Event.kind.in_(LISTING_KINDS)).order_by(Event.id)):
-        newest[event.device_id] = event
-    return {device_id: event for device_id, event in newest.items() if event.kind == "list"}
 
 
 def listing_row(session, device, list_event, outcome):
@@ -349,8 +329,11 @@ def create_app(database_url=None, frontend_url=None, secret_key=None):
     # Without RECOMPUTE_SECRET_KEY, tokens stop working when the server restarts (fine on the laptop only).
     app.state.secret_key = secret_key or os.environ.get("RECOMPUTE_SECRET_KEY") or secrets.token_urlsafe(32)
     app.state.login_lock = LoginLock()
+    app.state.signup_limit = LoginLock(limit=customers.MAX_SIGNUPS)
+    app.state.enquiry_limit = LoginLock(limit=customers.MAX_ENQUIRIES)
     app.add_exception_handler(StarletteHTTPException, http_error)
     app.add_exception_handler(RequestValidationError, validation_error)
     app.include_router(auth.router)
+    app.include_router(customers.router)
     app.include_router(router)
     return app

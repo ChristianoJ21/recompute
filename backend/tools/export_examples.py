@@ -59,6 +59,20 @@ def main():
     examples["list_created"] = client.post("/devices/GPU-SRV-001/list", json=examples["list_request"]).json()
     examples["listings"] = client.get("/listings").json()
     examples["contact"] = client.get("/contact").json()
+    # v2.4: a customer account (sample e-mail on example.com, throwaway password), its saved device and enquiry
+    examples["customer_signup_request"] = {"email": "ana@example.com", "name": "Ana (sample)",
+                                          "password": "<password, at least 10 characters>"}
+    signed_up = TestClient(client.app).post(
+        "/customers/signup", json={**examples["customer_signup_request"], "password": secrets.token_urlsafe(16)}).json()
+    examples["customer_session"] = {**signed_up, "token": TOKEN_PLACEHOLDER}
+    customer = TestClient(client.app, headers={"Authorization": f"Bearer {signed_up['token']}"})
+    examples["customer_me"] = customer.get("/customers/me").json()
+    examples["favourite_saved"] = customer.put("/customers/me/favourites/GPU-SRV-001").json()
+    examples["favourites_list"] = customer.get("/customers/me/favourites").json()
+    examples["enquiry_request"] = {"device_id": "GPU-SRV-001", "message": "Is the power supply included? (sample)"}
+    examples["enquiry_created"] = customer.post("/customers/me/enquiries", json=examples["enquiry_request"]).json()
+    examples["enquiries_list"] = client.get("/enquiries").json()
+    examples["customers_list"] = client.get("/customers").json()
 
     OUT.mkdir(parents=True, exist_ok=True)
     for name, body in examples.items():

@@ -1,4 +1,4 @@
-# ReCompute API contract v2.3
+# ReCompute API contract v2.4
 
 > **Owner:** Panji (backend). **Panji decides changes and tells Jose before they land.** The frontend calls the backend only through `frontend/src/api/client.ts`, via `/api/*` (Vite proxy on the laptop, Vercel rewrite when hosted; both forward to the backend, so no CORS is needed).
 > Spec: `PRD_ReCompute_App.md` Sections 5–7 and 15. Base URL (local): `http://localhost:8000`. Interactive docs: `/docs`.
@@ -33,11 +33,17 @@ Status: **built** = live in the backend; **planned** = shape agreed here, backen
 | `list_created.json` | `POST /devices/{id}/list` (the `list` event) |
 | `listings.json` | `GET /listings` |
 | `contact.json` | `GET /contact` |
+| `customer_signup_request.json` / `customer_session.json` | body (placeholder password) and answer of `POST /customers/signup` (same answer as `POST /customers/login`; the token is a placeholder) |
+| `customer_me.json` | `GET /customers/me` |
+| `favourite_saved.json` / `favourites_list.json` | `PUT /customers/me/favourites/{id}` / `GET /customers/me/favourites` |
+| `enquiry_request.json` / `enquiry_created.json` | body and answer of `POST /customers/me/enquiries` |
+| `enquiries_list.json` | `GET /enquiries` (technicians) |
+| `customers_list.json` | `GET /customers` (technicians) |
 | `error_401.json`, `error_404.json` | errors |
 
 ## Endpoints
 
-🔒 = needs `Authorization: Bearer <token>`.
+🔒 = needs a **technician** token (`Authorization: Bearer <token>` from `POST /auth/login`); technicians are the admins. 👤 = needs a **customer** token (from `POST /customers/signup` or `/customers/login`). A token of the other role gets **403**; no valid token gets **401**.
 
 | Method | Path | Auth | Success | Returns | Status |
 |---|---|---|---|---|---|
@@ -60,14 +66,25 @@ Status: **built** = live in the backend; **planned** = shape agreed here, backen
 | POST | `/devices/{id}/list` | 🔒 | 201 | body `{price: {amount, currency}, note?}` → the `list` event (payload = the body); **400 if the passport has no `wipe` event**, 400 if already listed, 400 if the price is invalid | built |
 | POST | `/devices/{id}/unlist` | 🔒 | 201 | body `{note?}` → the `unlist` event; 400 if not listed | built |
 | GET | `/contact` | — | 200 | `{organisation, email, phone, hours, note, sample_data: true}` (below) | built |
+| POST | `/customers/signup` | — | 201 | body `{email, name, password}` → `{token, token_type: "bearer", expires_at, customer: {email, name}}` (logged in at once). E-mail trimmed and lower-cased; 400 if the e-mail is invalid or already has an account, the name is empty or the password is under 10 characters; **429** after 5 sign-ups from one address in 15 min | built |
+| POST | `/customers/login` | — | 200 | body `{email, password}` → same as sign-up. Wrong e-mail and wrong password give the same **401**; **429** after 5 failed logins for one e-mail in 15 min | built |
+| GET | `/customers/me` | 👤 | 200 | `{email, name}` | built |
+| GET | `/customers/me/favourites` | 👤 | 200 | `[{device_id, saved_at}]`, newest first | built |
+| PUT | `/customers/me/favourites/{id}` | 👤 | 200 | `{device_id, saved_at}`; saving again keeps the one entry; **400** unless the device is listed for sale; 404 unknown device | built |
+| DELETE | `/customers/me/favourites/{id}` | 👤 | 200 | `{device_id, removed: true}` (also when it was not saved) | built |
+| POST | `/customers/me/enquiries` | 👤 | 201 | body `{device_id, message}` (message trimmed, 1–2000 characters) → `{id, device_id, message, created_at, customer: {email, name}}`; 404 unknown device; **429** after 10 enquiries in 15 min | built |
+| GET | `/customers/me/enquiries` | 👤 | 200 | the customer's own enquiries, newest first | built |
+| GET | `/enquiries` | 🔒 | 200 | every enquiry, newest first, same shape (technicians reply by e-mail) | built |
+| GET | `/customers` | 🔒 | 200 | `[{email, name, created_at, favourites, enquiries}]` (counts), newest account first; never a password hash | built |
 
-**No PUT or DELETE exist; the only PATCH is `/auth/me` (a technician's own name).** Events are append-only (the database also refuses UPDATE/DELETE on events). Devices are not edited: a changed device is a new record. Listing and unlisting are **passport events** (`kind` `list` / `unlist`), so they appear in the history and the hash chain; `POST /devices/{id}/events` refuses those two kinds so the wipe rule cannot be skipped.
+**Passport data has no PUT or DELETE; the only PATCH is `/auth/me` (a technician's own name).** The one exception is a customer's own saved-devices list (`PUT`/`DELETE /customers/me/favourites/{id}`), which is not passport data. Favourites and enquiries live in their own tables and **never enter the passport or its hash chain**. Events are append-only (the database also refuses UPDATE/DELETE on events). Devices are not edited: a changed device is a new record. Listing and unlisting are **passport events** (`kind` `list` / `unlist`), so they appear in the history and the hash chain; `POST /devices/{id}/events` refuses those two kinds so the wipe rule cannot be skipped.
 
 ## Login
 - `POST /auth/login` body `{"username": "tech-1", "password": "..."}`. Wrong username and wrong password give the same 401 message. After **5 failed logins for one username within 15 minutes**, the API answers **429** until the window ends.
 - Tokens last **12 hours** (`expires_at`, ISO 8601 UTC). There is no logout endpoint: logging out = the frontend forgets the token. Keep it in `sessionStorage`, not `localStorage`.
 - On any 401 from a 🔒 endpoint, clear the token and show the login page.
-- There is no public sign-up. The first account is made on the backend machine: `py -m tools.create_technician tech-1 "Technician One"` (asks for a password, min. 10 characters); after that, a logged-in technician can add colleagues with `POST /auth/technicians`. Buyers never get accounts: they use the contact box.
+- There is no public sign-up. The first account is made on the backend machine: `py -m tools.create_technician tech-1 "Technician One"` (asks for a password, min. 10 characters); after that, a logged-in technician can add colleagues with `POST /auth/technicians`. There is no public sign-up for technicians.
+- **Customers (v2.4)** sign up themselves (`POST /customers/signup`) and log in with `POST /customers/login`. A customer token carries `role: "customer"` and is refused (403) by every technician endpoint; customers can only read passports, save listed devices and send enquiries. Still no buy button, cart, payment or order. Tokens issued before v2.4 carry no role and count as technician tokens. Visitors without an account keep the contact box and e-mail link.
 - A logged-in technician can change their own full name (`PATCH /auth/me`) and password (`POST /auth/password`, needs the current password). Tokens issued before a password change **stay valid until they expire** (12 h at most): they carry no password version. Log out on shared devices.
 - Reads are public on purpose (a buyer must be able to read a passport). Never put a secret in a device record or event payload.
 
@@ -145,7 +162,7 @@ The price is shown, but there is **no buy button, cart, payment or order**: buye
 Dates: ISO 8601 UTC with `Z`. Dates without time: `YYYY-MM-DD`.
 
 ## Errors
-`{"error": "<what went wrong and how to fix it>"}` with **400** (invalid body, duplicate id, invalid range, listing rule broken), **401** (missing, invalid or expired token; wrong username or password; also sends `WWW-Authenticate: Bearer`), **404** (unknown device / endpoint), **409** (two events for one device written at the same moment; send the event again) or **429** (too many failed logins or wrong current passwords; wait and try again). 405 for PUT/PATCH/DELETE on events.
+`{"error": "<what went wrong and how to fix it>"}` with **400** (invalid body, duplicate id, invalid range, listing rule broken), **401** (missing, invalid or expired token; wrong username or password; also sends `WWW-Authenticate: Bearer`), **403** (a valid token of the wrong role: a customer on a technician endpoint or the reverse), **404** (unknown device / endpoint), **409** (two events for one device written at the same moment; send the event again) or **429** (too many failed logins or wrong current passwords; wait and try again). 405 for PUT/PATCH/DELETE on events.
 
 ## Changelog
 - **v1.1 (28 Oct 2026)**: engine aligned with essay safeguard 2 (whole pathway run at both ends; any flip → UNCERTAIN). Added `scenarios` to the evaluation object and `not_evaluated` to the fleet summary.
@@ -155,3 +172,4 @@ Dates: ISO 8601 UTC with `Z`. Dates without time: `YYYY-MM-DD`.
 - **v2.1 (28 Oct 2026)**: listings and contact **built**. `POST /devices/{id}/list` now **requires** `price: {amount, currency}` (stored in the `list` event); Listing gains `install_date`, `reliability_ok`, `price`, `latest_telemetry`. Still no buy button or payment. New examples: `list_request`, `list_created`, `listings`, `contact`.
 - **v2.2 (28 Oct 2026)**: new `POST /auth/technicians` (🔒): technicians add technicians. Additive only; still no public sign-up.
 - **v2.3 (29 Oct 2026)**: new `PATCH /auth/me` (own full name) and `POST /auth/password` (own password, needs the current one) for the frontend `/settings` page, both 🔒. Additive only. New examples: `profile_request`, `profile_updated`, `password_change_request`, `password_changed`.
+- **v2.4 (29 Oct 2026)**: **customer accounts** (Panji, 29 Oct): public `POST /customers/signup` and `/customers/login`, 👤 `GET /customers/me`, saved devices (`GET`/`PUT`/`DELETE /customers/me/favourites…`, listed devices only) and enquiries (`POST`/`GET /customers/me/enquiries`); technicians (the admins) read `GET /enquiries` and `GET /customers`. Tokens gain a `role` claim; a token of the wrong role gets **403** (new error). Customer data never enters a passport. Rate limits: 5 sign-ups per address and 10 enquiries per customer in 15 min (429). Additive for existing callers. New examples: `customer_signup_request`, `customer_session`, `customer_me`, `favourite_saved`, `favourites_list`, `enquiry_request`, `enquiry_created`, `enquiries_list`, `customers_list`.
