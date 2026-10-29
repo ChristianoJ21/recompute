@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from 'react'
+import { HeroPhoto } from '../components/HeroPhoto'
+import { PHOTOS } from '../lib/photos'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { ApiError, describeError, login } from '../api/client'
 import { SpinnerIcon } from '../components/icons'
@@ -116,6 +118,7 @@ function StaffPanel() {
           Every action you log becomes part of the device&apos;s passport.
         </p>
       </div>
+      <HeroPhoto photo={PHOTOS.login} ratio="aspect-[16/9]" tint className="max-w-[460px]" />
       <ol className="relative flex max-w-[460px] flex-col gap-2">
         {SAMPLE_CHAIN.map((row, i) => (
           <li

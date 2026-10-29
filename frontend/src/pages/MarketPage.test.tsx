@@ -41,7 +41,9 @@ describe('market page', () => {
     ]) {
       expect(screen.getByRole('heading', { name: title })).toBeTruthy()
     }
-    expect(screen.getAllByRole('img')).toHaveLength(4)
+    // Four charts, plus the illustrative hero photo (A10 phase 2).
+    expect(screen.getAllByRole('img').filter((el) => el.tagName.toLowerCase() !== 'img')).toHaveLength(4)
+    expect(screen.getByRole('img', { name: 'Close-up of a green circuit board' })).toBeTruthy()
     expect(screen.getAllByText(/^Source: Baldé et al\., 2024, pp\. [\d, ]+\./)).toHaveLength(2)
     expect(screen.getAllByText(/^Source: Shehabi et al\., 2024, p\. 30\./)).toHaveLength(2)
     expect(screen.queryByText(/MOCK DATA/)).toBeNull()
