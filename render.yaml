@@ -1,4 +1,4 @@
-# Render Blueprint: the hosted ReCompute backend (PRD 15.6). Free plan: no persistent disk, so every
+# Render Blueprint: the hosted ReCompute backend (PRD 15.6) and the frontend static site. Free plan: no persistent disk, so every
 # new container rebuilds the SAMPLE DATA demo database (tools/boot_demo.py) before the API starts.
 # The service sleeps after 15 min without traffic and takes about a minute to wake.
 services:
@@ -15,11 +15,31 @@ services:
         generateValue: true
       - key: RECOMPUTE_DB_URL
         value: sqlite:////tmp/recompute.db
-      # https://<vercel-app>/device/{device_id}, so printed QR codes open the hosted passport page
+      # <static site URL>/device/{device_id}, so printed QR codes open the hosted passport page
       - key: RECOMPUTE_FRONTEND_URL
-        sync: false
+        value: https://recompute-gyebc-web.onrender.com/device/{device_id}
       # Hosted demo logins: values only in the gitignored demo_accounts.hosted.local.txt
       - key: RECOMPUTE_DEMO_PASSWORD_TECH_1
         sync: false
       - key: RECOMPUTE_DEMO_PASSWORD_TECH_2
         sync: false
+
+  # Frontend: Vite build served as a static site. Same-origin /api is proxied to the backend
+  # (what frontend/vercel.json does on Vercel), and every other path falls back to index.html
+  # so /device/<id> deep links (printed QR codes) work. Rules are matched in order.
+  - type: web
+    name: recompute-gyebc-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://recompute-gyebc-api.onrender.com/*
+      - type: rewrite
+        source: /*
+        destination: /index.html
